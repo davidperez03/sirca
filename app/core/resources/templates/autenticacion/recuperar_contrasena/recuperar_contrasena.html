@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Recuperar contraseña{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h2>Recuperar contraseña</h2>
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+  <form method="post">
+    <div class="mb-3">
+      <label for="tipo_documento" class="form-label">Tipo de documento</label>
+      <select id="tipo_documento" name="tipo_documento" class="form-select" required>
+        <option value="">Seleccione...</option>
+        {% for td in tipos_documento %}
+          <option value="{{ td.value }}"
+            {% if form_data.tipo_documento == td.value %}selected{% endif %}>
+            {{ td.value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="numero_documento" class="form-label">Número de documento</label>
+      <input
+        type="text"
+        id="numero_documento"
+        name="numero_documento"
+        class="form-control"
+        value="{{ form_data.numero_documento or '' }}"
+        required
+      >
+    </div>
+    <div class="mb-3">
+      <label for="correo" class="form-label">Correo institucional</label>
+      <input
+        type="email"
+        id="correo"
+        name="correo"
+        class="form-control"
+        value="{{ form_data.correo or '' }}"
+        required
+      >
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar enlace</button>
+  </form>
+</div>
+{% endblock %}

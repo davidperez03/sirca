@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hola {{ nombre_usuario }},</p>
+    <p>Para restablecer tu contraseña pulsa el siguiente enlace:</p>
+    <p><a href="{{ link }}">{{ link }}</a></p>
+    <p>Este enlace expirará en {{ email_token_expiracion_minutos }} minutos.</p>
+    <hr>
+    <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
+  </body>
+</html>

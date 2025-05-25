@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 500px;">
+  <h2 class="mb-4 text-center">Iniciar sesión</h2>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" action="/usuarios/login">
+    <div class="mb-3">
+      <label for="tipo_documento" class="form-label">Tipo de documento</label>
+      <select
+        id="tipo_documento"
+        name="tipo_documento"
+        class="form-select"
+        required
+      >
+        <option value="" disabled selected>Selecciona...</option>
+        {% for tipo in tipos_documento %}
+          <option
+            value="{{ tipo.value }}"
+            {% if form_data.tipo_documento == tipo.value %}selected{% endif %}
+          >
+            {{ tipo.value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="numero_documento" class="form-label">Número de documento</label>
+      <input
+        type="text"
+        id="numero_documento"
+        name="numero_documento"
+        class="form-control"
+        required
+        value="{{ form_data.numero_documento or '' }}"
+      >
+    </div>
+
+    <div class="mb-3">
+      <label for="contrasena" class="form-label">Contraseña</label>
+      <input
+        type="password"
+        id="contrasena"
+        name="contrasena"
+        class="form-control"
+        required
+      >
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+  </form>
+</div>
+{% endblock %}
+

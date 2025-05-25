@@ -1,0 +1,31 @@
+<!-- templates/autenticacion/registro_exitoso.html -->
+{% extends "base.html" %}
+{% block title %}¡Registro exitoso!{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+      <div class="alert alert-success">
+        <h2 class="mb-3">¡Bienvenido, {{ usuario.nombres }}!</h2>
+        <p class="lead">
+          Tu cuenta se ha creado correctamente. 
+          Hemos enviado un correo de activación a <strong>{{ usuario.correo_institucional }}</strong>.
+        </p>
+        <hr>
+        <p>
+          <i class="bi bi-envelope-check display-4 text-success"></i>
+        </p>
+        <p>
+          Revisa tu bandeja de entrada (y spam) y haz clic en el enlace para activar tu cuenta.
+        </p>
+        <a href="{{ url_for('Mostrar formulario de login') }}" class="btn btn-primary mt-3">
+          Ir al login
+        </a>
+        <a href="{{ url_for('Reenviar activacion') }}" class="btn btn-outline-secondary mt-3">
+          Reenviar enlace de activación
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

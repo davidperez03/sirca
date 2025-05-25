@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Sesión cerrada{% endblock %}
+
+{% block content %}
+
+<meta http-equiv="refresh" content="5; url={{ url_for('Mostrar formulario de login') }}">
+
+<div class="container py-5 text-center" data-aos="fade-up">
+  <div class="mb-4">
+    <i class="bi bi-door-closed" style="font-size: 4rem; color: #0d6efd;"></i>
+  </div>
+  <h2 class="mb-3">Sesión cerrada correctamente</h2>
+  <p class="lead">Tu sesión ha finalizado de forma segura.</p>
+  <p class="text-muted mt-3">Serás redirigido al inicio de sesión en unos segundos...</p>
+  <a href="{{ url_for('Mostrar formulario de login') }}" class="btn btn-primary mt-4">
+    Ir ahora
+  </a>
+</div>
+{% endblock %}

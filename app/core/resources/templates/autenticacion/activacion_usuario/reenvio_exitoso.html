@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Enlace reenviado{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+
+      <div class="alert alert-success">
+        <h2 class="mb-3">¡Listo!</h2>
+        <p class="lead">
+          Hemos enviado un nuevo enlace de activación a tu correo. 
+          Revisa tu bandeja de entrada (y la carpeta de spam).
+        </p>
+        <hr>
+        <p>
+          <i class="bi bi-envelope-fill display-4 text-success"></i>
+        </p>
+        <div class="mt-4">
+          <a href="{{ url_for('Mostrar formulario de login') }}" class="btn btn-primary">
+            Ir al login
+          </a>
+          <a href="{{ url_for('Reenviar activacion') }}" class="btn btn-outline-secondary">
+            Reenviar de nuevo
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

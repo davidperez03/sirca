@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Contraseña actualizada{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+  <div class="alert alert-success">
+    <h3>¡Contraseña cambiada!</h3>
+    <p>Ya puedes iniciar sesión con tu nueva contraseña.</p>
+    <a href="/usuarios/login" class="btn btn-primary">Ir al login</a>
+  </div>
+</div>
+{% endblock %}

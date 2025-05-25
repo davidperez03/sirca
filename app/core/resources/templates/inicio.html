@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Bienvenido a Sirca{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+  <div class="col-md-7 col-lg-6 text-center">
+    <img src="/static/img/icon-192.png" alt="Sirca" width="110" class="mb-4"/>
+    <h2 class="mb-3 font-weight-bold">Bienvenido a <span class="text-primary">Sirca</span></h2>
+    <p class="lead mb-4">Gestión moderna y segura de pertenencias.<br>Accede a tu perfil, registra y administra tus pertenencias desde cualquier dispositivo.</p>
+    <a href="/usuarios/perfil" class="btn btn-primary btn-lg px-5 mb-2">Ir a mi perfil</a>
+    <div class="mt-4">
+      <span class="badge badge-pill badge-info p-2 mr-2"><i class="bi bi-shield-lock"></i> Seguro</span>
+      <span class="badge badge-pill badge-success p-2 mr-2"><i class="bi bi-phone"></i> Móvil</span>
+      <span class="badge badge-pill badge-dark p-2"><i class="bi bi-lightning"></i> Rápido</span>
+    </div>
+  </div>
+</div>
+{% endblock %}

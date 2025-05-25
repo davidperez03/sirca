@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sirca_api
+    ports:
+      - "8000:8000"
+    environment:
+      DOCKER: "true"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - ./app/core/resources/templates:/app/app/core/resources/templates
+      - ./app/core/resources/static:/app/app/core/resources/static
+      - ./app/core/resources/media:/app/app/core/resources/media
+      - ./sirca.db:/app/sirca.db
+    depends_on:
+      - redis
+    restart: always
+
+  redis:
+    image: redis:7
+    container_name: sirca_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped

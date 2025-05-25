@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Registro de Usuario</h2>
+
+  {% if error %}
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form action="/usuarios/" method="post">
+    <div class="mb-3">
+      <label for="tipo_documento" class="form-label">Tipo de documento</label>
+      <select id="tipo_documento" name="tipo_documento" class="form-select" required>
+        <option value="" disabled {% if not form_data %}selected{% endif %}>Selecciona un tipo</option>
+        {% for td in tipos_documento %}
+          <option
+            value="{{ td.value }}"
+            {% if form_data and form_data.tipo_documento == td.value %}selected{% endif %} >
+            {{ td.value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="numero_documento" class="form-label">Número de documento</label>
+      <input
+        type="text"
+        id="numero_documento"
+        name="numero_documento"
+        class="form-control"
+        required
+        placeholder="Ej: 123456789"
+        value="{{ form_data.numero_documento if form_data else '' }}"
+      >
+    </div>
+    
+    <div class="mb-3">
+      <label for="nombres" class="form-label">Nombres</label>
+      <input
+        type="text"
+        id="nombres"
+        name="nombres"
+        class="form-control"
+        required
+        placeholder="Ej: Juan Carlos"
+        value="{{ form_data.nombres if form_data else '' }}"
+      >
+    </div>
+    
+    <div class="mb-3">
+      <label for="apellidos" class="form-label">Apellidos</label>
+      <input
+        type="text"
+        id="apellidos"
+        name="apellidos"
+        class="form-control"
+        required
+        placeholder="Ej: López Pérez"
+        value="{{ form_data.apellidos if form_data else '' }}"
+      >
+    </div>
+    
+    <div class="mb-3">
+      <label for="correo_institucional" class="form-label">Correo Institucional</label>
+      <input
+        type="email"
+        id="correo_institucional"
+        name="correo_institucional"
+        class="form-control"
+        required
+        placeholder="Ej: usuario@institucion.edu.co"
+        value="{{ form_data.correo_institucional if form_data else '' }}"
+      >
+    </div>    
+
+    <div class="mb-3">
+      <label for="rol" class="form-label">Rol</label>
+      <select id="rol" name="rol" class="form-select" required>
+        <option value="">Seleccione un rol...</option>
+        {% for r in roles %}
+          <option value="{{ r.value }}"
+            {% if form_data.rol == r.value %}selected{% endif %}>
+            {{ r.value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div class="mb-3">
+      <label for="contrasena" class="form-label">Contraseña</label>
+      <input
+        type="password"
+        id="contrasena"
+        name="contrasena"
+        class="form-control"
+        required
+        placeholder="Ingresa tu contraseña"
+      >
+    </div>
+
+    <div class="mb-3">
+  <label for="confirmar_contrasena" class="form-label">Confirmar contraseña</label>
+  <input
+    type="password"
+    id="confirmar_contrasena"
+    name="confirmar_contrasena"
+    class="form-control"
+    required
+    placeholder="Vuelve a escribir tu contraseña"
+  >
+  <div id="mensaje-confirmacion" class="form-text text-danger d-none">
+    Las contraseñas no coinciden.
+  </div>
+</div>
+    
+    <div class="card shadow-sm border-0 mb-4" style="transition: all 0.3s ease;">
+      <div class="card-body py-3">
+        <p class="mb-2 text-muted fw-semibold">Debe cumplir con los siguientes requisitos:</p>
+        <ul class="list-unstyled mb-0" id="requisitos-contrasena">
+          <li class="d-flex align-items-center gap-2 mb-1" id="val-length">
+            <i class="bi bi-dot fs-5 text-secondary"></i> Mínimo 8 caracteres
+          </li>
+          <li class="d-flex align-items-center gap-2 mb-1" id="val-mayus">
+            <i class="bi bi-dot fs-5 text-secondary"></i> Al menos una letra mayúscula
+          </li>
+          <li class="d-flex align-items-center gap-2 mb-1" id="val-minus">
+            <i class="bi bi-dot fs-5 text-secondary"></i> Al menos una letra minúscula
+          </li>
+          <li class="d-flex align-items-center gap-2 mb-1" id="val-num">
+            <i class="bi bi-dot fs-5 text-secondary"></i> Al menos un número
+          </li>
+          <li class="d-flex align-items-center gap-2 mb-1" id="val-especial">
+            <i class="bi bi-dot fs-5 text-secondary"></i> Al menos un carácter especial
+          </li>
+          <li class="d-flex align-items-center gap-2" id="val-espacios">
+            <i class="bi bi-dot fs-5 text-secondary"></i> Sin espacios en blanco
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrar</button>
+  </form>
+</div>
+
+<script src="/static/js/autenticacion/validacion_contrasena.js"></script>
+<script src="/static/js/autenticacion/validacion_confirmar_contrasena.js"></script>
+
+{% endblock %}
