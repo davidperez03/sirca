@@ -1,11 +1,57 @@
 <!DOCTYPE html>
 <html>
-  <body>
-    <p>Hola {{ nombre_usuario }},</p>
-    <p>Para restablecer tu contraseña pulsa el siguiente enlace:</p>
-    <p><a href="{{ link }}">{{ link }}</a></p>
-    <p>Este enlace expirará en {{ email_token_expiracion_minutos }} minutos.</p>
-    <hr>
-    <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
+  <body style="background: #f5f7fa; font-family: 'Inter', Arial, sans-serif; color: #212529; margin:0; padding:0;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background: #f5f7fa; padding: 40px 0;">
+      <tr>
+        <td align="center">
+          <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 420px; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(13,110,253,0.18); padding: 0 0 32px 0;">
+            <tr>
+              <td style="text-align: center; padding-top: 36px;">
+                <!-- Icono de seguridad -->
+                <div style="width: 64px; height: 64px; margin: 0 auto 18px auto; background: #e7f1ff; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <svg width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="10" y="16" width="16" height="12" rx="4" fill="#0d6efd"/>
+                    <path d="M18 22v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M13 16v-4a5 5 0 1 1 10 0v4" stroke="#0d6efd" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <h2 style="color: #0d6efd; margin-bottom: 6px; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">¿Olvidaste tu contraseña?</h2>
+                <p style="color: #6c757d; margin: 0 0 20px 0; font-size: 1.08em;">No te preocupes, te ayudamos a recuperarla.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 32px;">
+                <p style="margin: 0 0 16px 0;">Hola <strong>{{ nombre_usuario }}</strong>,</p>
+                <p style="margin: 0 0 18px 0;">Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón para crear una nueva:</p>
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="{{ link }}" style="background: linear-gradient(90deg,#0d6efd 60%,#084298 100%); color: #fff; text-decoration: none; padding: 16px 44px; border-radius: 10px; font-weight: 700; font-size: 1.13rem; display: inline-block; box-shadow: 0 6px 18px rgba(13,110,253,0.13); letter-spacing: 0.5px;">
+                    Restablecer contraseña
+                  </a>
+                </div>
+                <p style="margin: 0 0 12px 0; color: #6c757d; font-size: 0.98em;">
+                  Si el botón no funciona, copia y pega este enlace en tu navegador:<br>
+                  <a href="{{ link }}" style="color: #0d6efd; word-break: break-all;">{{ link }}</a>
+                </p>
+                <p style="margin: 20px 0 0 0; color: #6c757d; font-size: 0.98em;">
+                  El enlace expirará en <strong>{{ email_token_expiracion_minutos }} minutos</strong>.
+                </p>
+                <hr style="border: none; border-top: 1px solid #e9ecef; margin: 32px 0;">
+                <p style="color: #adb5bd; font-size: 0.95em; margin: 0; text-align: center;">
+                  Si no solicitaste este cambio, puedes ignorar este correo.<br>
+                  Tu seguridad es importante para nosotros.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-top: 18px; text-align: center;">
+                <p style="color: #adb5bd; font-size: 0.93em; margin: 0;">
+                  SIRCA. Todos los derechos reservados.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

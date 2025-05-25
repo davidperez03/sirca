@@ -27,7 +27,7 @@ async def enviar_correo_reset(
 
     # 2) Construye el enlace de restablecimiento
     base = str(settings.app_base_url).rstrip('/')
-    reset_link = f"{base}/usuarios/reset-contrasena?token={token}"
+    reset_link = f"{base}/reset-contrasena?token={token}"
 
     # 3) Data para la plantilla
     data = {

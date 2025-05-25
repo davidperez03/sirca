@@ -16,4 +16,3 @@ pytest-cov
 python-jose[cryptography] 
 httpx
 redis
-slowapi

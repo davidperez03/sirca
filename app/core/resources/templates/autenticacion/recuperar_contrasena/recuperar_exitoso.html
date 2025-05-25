@@ -1,12 +1,87 @@
-{% extends "base.html" %}
-{% block title %}Email enviado{% endblock %}
-
-{% block content %}
-<div class="container py-5 text-center">
-  <div class="alert alert-success">
-    <h3>¡Listo!</h3>
-    <p>Revisa tu correo para restablecer tu contraseña.</p>
-    <a href="/usuarios/login" class="btn btn-primary">Ir al login</a>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <title>Email enviado</title>
+  <style>
+    :root {
+      --primary-color: #1e40af;
+      --accent-color: #0ea5e9;
+      --success-color: #059669;
+      --light-color: #f8fafc;
+      --border-color: #e2e8f0;
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --text-primary: #0f172a;
+      --text-muted: #64748b;
+    }
+    body {
+      background: var(--light-color);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .success-card {
+      background: #fff;
+      border-radius: 1.2rem;
+      box-shadow: var(--shadow-lg);
+      padding: 2.5rem 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      border: 1.5px solid var(--border-color);
+      margin: 2rem auto;
+    }
+    .icon-success {
+      width: 54px;
+      height: 54px;
+      margin-bottom: 1rem;
+      color: var(--success-color);
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.7rem 2.2rem;
+      background: linear-gradient(90deg, var(--primary-color) 60%, var(--accent-color) 100%);
+      color: #fff;
+      border: none;
+      border-radius: 2rem;
+      font-weight: 700;
+      font-size: 1.08rem;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(30,64,175,0.08);
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: linear-gradient(90deg, var(--accent-color) 60%, var(--primary-color) 100%);
+    }
+    .msg {
+      color: var(--success-color);
+      font-weight: 700;
+      margin-bottom: 0.7rem;
+      font-size: 1.2rem;
+    }
+    .text-muted {
+      color: var(--text-muted);
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="success-card">
+    <div>
+      <svg class="icon-success" fill="none" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="22" fill="#fff" stroke="#059669" stroke-width="3"/>
+        <path d="M16 25l6 6 10-12" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="msg">¡Listo!</div>
+    <div class="text-muted">Revisa tu correo para restablecer tu contraseña.</div>
+    <a href="/login" class="btn">Ir al login</a>
   </div>
-</div>
-{% endblock %}
+</body>
+</html>
