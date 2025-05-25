@@ -28,7 +28,7 @@ async def enviar_correo_activacion(
 
     # 2) Construye el enlace de activación
     base = str(settings.app_base_url).rstrip('/')
-    activation_link = f"{base}/usuarios/activar?token={token}"
+    activation_link = f"{base}/activar?token={token}"
 
     # 3) Data para la plantilla
     data = {

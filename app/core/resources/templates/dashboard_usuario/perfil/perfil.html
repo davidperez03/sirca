@@ -11,7 +11,7 @@
   {% endif %}
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Bienvenido, {{ usuario.nombres }} {{ usuario.apellidos }}</h2>
-    <a href="/usuarios/logout" class="btn btn-outline-danger">Cerrar sesión</a>
+    <a href="/logout" class="btn btn-outline-danger">Cerrar sesión</a>
   </div>
 
   <div class="row g-4">
@@ -78,66 +78,5 @@
   </div>
 </div>
 
-<div class="col-md-6">
-  <div class="card shadow-sm">
-    <div class="card-header bg-warning text-dark">Mis Pertenencias</div>
-    <div class="card-body">
-      {% if pertenencias %}
-        <ul class="list-group list-group-flush">
-          {% for p in pertenencias[:3] %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ p.nombre }} <span class="badge bg-secondary">{{ p.tipo }}</span>
-            <span>
-              <a href="/pertenencias/{{ p.id_pertenencia }}/editar" class="btn btn-sm btn-warning">Editar</a>
-              <form action="/pertenencias/{{ p.id_pertenencia }}/eliminar" method="post" style="display:inline;">
-                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar esta pertenencia?')">Eliminar</button>
-              </form>
-            </span>
-          </li>
-          {% endfor %}
-        </ul>
-        <div class="mt-3 d-flex justify-content-between">
-          <a href="{{ url_for('listar_pertenencias') }}" class="btn btn-sm btn-outline-primary">Ver todas</a>
-          <a href="{{ url_for('mostrar_formulario_pertenencia') }}" class="btn btn-sm btn-outline-success">Registrar nueva</a>
-        </div>
-      {% else %}
-        <p class="text-muted">No tienes pertenencias registradas.</p>
-        <a href="{{ url_for('mostrar_formulario_pertenencia') }}" class="btn btn-sm btn-outline-success mt-2">Registrar una ahora</a>
-      {% endif %}
-    </div>
-  </div>
-</div>
-
-<!-- Tarjeta de Mis Vehículos -->
-<div class="col-md-6">
-  <div class="card shadow-sm mt-4"> <!-- mt-4 para dar un espacio si queda debajo de Pertenencias -->
-    <div class="card-header bg-success text-white">Mis Vehículos</div>
-    <div class="card-body">
-      {% if vehiculos %}
-        <ul class="list-group list-group-flush">
-          {% for v in vehiculos[:3] %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span>{{ v.marca }} {{ v.modelo }} ({{ v.placa.valor }})</span>
-            <span class="text-nowrap"> <!-- Evita que los botones se envuelvan en pantallas pequeñas -->
-              <a href="{{ url_for('mostrar_formulario_editar_vehiculo', id_vehiculo=v.id_vehiculo) }}" class="btn btn-sm btn-warning">Editar</a>
-              <form action="{{ url_for('eliminar_vehiculo_form', id_vehiculo=v.id_vehiculo) }}" method="post" style="display:inline;">
-                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar este vehículo?')">Eliminar</button>
-              </form>
-            </span>
-          </li>
-          {% endfor %}
-        </ul>
-        <div class="mt-3 d-flex justify-content-between">
-          <a href="{{ url_for('listar_vehiculos_usuario_html') }}" class="btn btn-sm btn-outline-primary">Ver todos</a>
-          <a href="{{ url_for('mostrar_formulario_vehiculo') }}" class="btn btn-sm btn-outline-success">Registrar nuevo</a>
-        </div>
-      {% else %}
-        <p class="text-muted">No tienes vehículos registrados.</p>
-        <a href="{{ url_for('mostrar_formulario_vehiculo') }}" class="btn btn-sm btn-outline-success mt-2">Registrar uno ahora</a>
-      {% endif %}
-    </div>
-  </div>
-</div>
-<!-- Fin Tarjeta de Mis Vehículos -->
 
 {% endblock %}

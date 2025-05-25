@@ -54,11 +54,11 @@ from app.modules.auth.validadores.roles import rol_requerido_cookie
 # Esquemas de entrada / salida
 from app.modules.autenticacion.interface.esquemas import UsuarioRead
 
-router = APIRouter(prefix="/usuarios", tags=["usuarios"])
+router = APIRouter(tags=["autenticacion"])
 auth_service = ServicioAuth()
 
 @router.get(
-    "/", response_class=HTMLResponse,
+    "/registrarse", response_class=HTMLResponse,
     name="Mostrar formulario de registro"
 )
 async def mostrar_formulario(request: Request):
@@ -73,7 +73,7 @@ async def mostrar_formulario(request: Request):
     )
 
 @router.post(
-    "/", response_class=HTMLResponse,
+    "/registrarse", response_class=HTMLResponse,
     status_code=status.HTTP_201_CREATED,
     name="Registrar usuario"
 )
@@ -289,6 +289,7 @@ async def mostrar_login(request: Request):
     )
 
 @router.post("/login", response_class=HTMLResponse, name="Iniciar sesión")
+
 async def login(
     request: Request,
     tipo_documento: TipoDocumento = Form(...),
@@ -312,7 +313,7 @@ async def login(
             status_code=e.status_code,
         )
 
-    response = RedirectResponse(url="/usuarios/perfil", status_code=303)
+    response = RedirectResponse(url="/perfil", status_code=303)
 
     response.set_cookie(
         key=settings.cookie_access_token_name,
@@ -335,16 +336,12 @@ async def ver_perfil(
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     usuario_leido = UsuarioRead.from_domain(usuario)
-    # Obtener pertenencias del usuario
-    from app.modules.pertenencias.infrastructure.repositorios.repositorio import RepositorioPertenenciasBD
-    repo_pertenencias = RepositorioPertenenciasBD(db)
-    pertenencias = repo_pertenencias.obtener_por_usuario(usuario_id)
+    
     return templates.TemplateResponse(
         "dashboard_usuario/perfil/perfil.html",
         {
             "request": request,
             "usuario": usuario_leido,
-            "pertenencias": pertenencias,
             "usuario_autenticado": True,
             "usuario_nombre": f"{usuario_leido.nombres} {usuario_leido.apellidos}"
         }
@@ -404,6 +401,7 @@ async def mostrar_recuperar_contrasena(request: Request):
     response_class=HTMLResponse,
     name="Procesar recuperar contraseña"
 )
+
 async def procesar_recuperar(
     request: Request,
     background_tasks: BackgroundTasks,

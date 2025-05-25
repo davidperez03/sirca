@@ -4,9 +4,11 @@
 '''
 # Importaciones de terceros
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+
 
 # Configuración principal
 from app.core.config import settings
@@ -15,7 +17,9 @@ from app.core.dependencias import engine, Base
 # Routers de la aplicación
 from app.modules.autenticacion.interface.rutas import router as usuarios_router
 
+
 app = FastAPI(title=settings.app_name, debug=settings.debug)
+
 
 Base.metadata.create_all(bind=engine)
 
