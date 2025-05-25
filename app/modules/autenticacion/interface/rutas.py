@@ -289,6 +289,7 @@ async def mostrar_login(request: Request):
     )
 
 @router.post("/login", response_class=HTMLResponse, name="Iniciar sesión")
+@request.app.state.limiter.limit("5/minute")
 async def login(
     request: Request,
     tipo_documento: TipoDocumento = Form(...),
@@ -404,6 +405,7 @@ async def mostrar_recuperar_contrasena(request: Request):
     response_class=HTMLResponse,
     name="Procesar recuperar contraseña"
 )
+@request.app.state.limiter.limit("3/hour")
 async def procesar_recuperar(
     request: Request,
     background_tasks: BackgroundTasks,

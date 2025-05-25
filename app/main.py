@@ -4,9 +4,15 @@
 '''
 # Importaciones de terceros
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+
+# slowapi
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # Configuración principal
 from app.core.config import settings
@@ -15,7 +21,17 @@ from app.core.dependencias import engine, Base
 # Routers de la aplicación
 from app.modules.autenticacion.interface.rutas import router as usuarios_router
 
+limiter = Limiter(key_func=get_remote_address, default_limits=[settings.default_rate_limit])
+
 app = FastAPI(title=settings.app_name, debug=settings.debug)
+app.state.limiter = limiter
+
+@app.exception_handler(RateLimitExceeded)
+async def ratelimit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": f"Rate limit exceeded: {exc.detail}"}
+    )
 
 Base.metadata.create_all(bind=engine)
 
