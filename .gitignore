@@ -67,4 +67,8 @@ Thumbs.db
 # Celery beat schedule
 celerybeat-schedule
 
-media
+# Ignorar todo el contenido de la carpeta media
+app/core/resources/media/*
+
+# Pero NO ignorar el archivo .gitkeep
+!app/core/resources/media/.gitkeep
