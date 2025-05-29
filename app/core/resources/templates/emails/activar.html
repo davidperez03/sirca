@@ -1,97 +1,56 @@
-  <!DOCTYPE html>
-  <html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <title>Activa tu cuenta</title>
-    <style>
-      /* Estilos generales */
-      body {
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f4;
-        font-family: Arial, sans-serif;
-        color: #333333;
-      }
-      .container {
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      }
-      .header {
-        background-color: #004080;
-        color: #ffffff;
-        padding: 20px;
-        text-align: center;
-      }
-      .header img {
-        max-height: 50px;
-        margin-bottom: 10px;
-      }
-      .content {
-        padding: 30px 20px;
-        line-height: 1.6;
-      }
-      .button {
-        display: inline-block;
-        background-color: #28a745;
-        color: #ffffff !important;
-        text-decoration: none;
-        padding: 12px 24px;
-        border-radius: 4px;
-        margin: 20px 0;
-      }
-      .footer {
-        background-color: #f0f0f0;
-        color: #777777;
-        font-size: 12px;
-        text-align: center;
-        padding: 15px 20px;
-      }
-      a { color: #004080; }
-    </style>
-  </head>
-  <body>
-
-    <table class="container" cellpadding="0" cellspacing="0" role="presentation">
+<!DOCTYPE html>
+<html>
+  <body style="background: #f5f7fa; font-family: 'Inter', Arial, sans-serif; color: #212529; margin:0; padding:0;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background: #f5f7fa; padding: 40px 0;">
       <tr>
-        <td class="header">
-          <!-- Logo opcional -->
-          <img src="https://tu-dominio.com/static/logo.png" alt="Mi Empresa Logo" />
-          <h1>Bienvenido a Mi Empresa</h1>
-        </td>
-      </tr>
-      <tr>
-        <td class="content">
-          <p>¡Hola {{ nombre_usuario }}!</p>
-          <p>Gracias por registrarte en nuestra plataforma. Para activar tu cuenta y comenzar a disfrutar de todos nuestros servicios, haz clic en el siguiente botón:</p>
-          
-          <p style="text-align: center;">
-            <a href="{{link}}" class="button">
-              Activar mi cuenta
-            </a>
-          </p>
-
-          <p>Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
-          <p><a href="{{link}}">{{link}}</a></p>
-          <p>O puedes hacer clic en el siguiente enlace:</p>
-          <p><a href="{{link}}">{{link}}</a></p>
-          </a></p>
-
-          <p>Este enlace expirará en 24 horas.</p>
-          <p>Si no solicitaste este correo, puedes ignorarlo.</p>
-        </td>
-      </tr>
-      <tr>
-        <td class="footer">
-          © {{ año_actual }} Mi Empresa. Todos los derechos reservados.<br/>
-          <a href="https://tu-dominio.com/soporte">Soporte</a> | <a href="https://tu-dominio.com/privacidad">Política de Privacidad</a>
+        <td align="center">
+          <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 420px; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(13,110,253,0.18); padding: 0 0 32px 0;">
+            <tr>
+              <td style="text-align: center; padding-top: 36px;">
+                <!-- Icono de verificación -->
+                <div style="width: 64px; height: 64px; margin: 0 auto 18px auto; background: #e7f1ff; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <svg width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="18" cy="18" r="16" fill="#0d6efd" />
+                    <path d="M12 19l4 4 8-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <h2 style="color: #0d6efd; margin-bottom: 6px; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">Confirma tu cuenta</h2>
+                <p style="color: #6c757d; margin: 0 0 20px 0; font-size: 1.08em;">¡Bienvenido! Solo falta un paso.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 32px;">
+                <p style="margin: 0 0 16px 0;">Hola <strong>{{ nombre_usuario }}</strong>,</p>
+                <p style="margin: 0 0 18px 0;">Gracias por registrarte. Haz clic en el botón para confirmar tu cuenta y activar tu acceso:</p>
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="{{ link }}" style="background: linear-gradient(90deg,#0d6efd 60%,#084298 100%); color: #fff; text-decoration: none; padding: 16px 44px; border-radius: 10px; font-weight: 700; font-size: 1.13rem; display: inline-block; box-shadow: 0 6px 18px rgba(13,110,253,0.13); letter-spacing: 0.5px;">
+                    Confirmar cuenta
+                  </a>
+                </div>
+                <p style="margin: 0 0 12px 0; color: #6c757d; font-size: 0.98em;">
+                  Si el botón no funciona, copia y pega este enlace en tu navegador:<br>
+                  <a href="{{ link }}" style="color: #0d6efd; word-break: break-all;">{{ link }}</a>
+                </p>
+                <p style="margin: 20px 0 0 0; color: #6c757d; font-size: 0.98em;">
+                  El enlace expirará en <strong>{{ email_token_expiracion_minutos }} minutos</strong>.
+                </p>
+                <hr style="border: none; border-top: 1px solid #e9ecef; margin: 32px 0;">
+                <p style="color: #adb5bd; font-size: 0.95em; margin: 0; text-align: center;">
+                  Si no creaste esta cuenta, puedes ignorar este correo.<br>
+                  Tu seguridad es importante para nosotros.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-top: 18px; text-align: center;">
+                <p style="color: #adb5bd; font-size: 0.93em; margin: 0;">
+                  SIRCA. Todos los derechos reservados.
+                </p>
+              </td>
+            </tr>
+          </table>
         </td>
       </tr>
     </table>
-
   </body>
-  </html>
+</html>

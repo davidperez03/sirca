@@ -25,7 +25,7 @@ from app.modules.auth.blacklist import (
 )
 
 # Esquema OAuth2 para validación de tokens
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/usuarios/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 def crear_token_acceso(usuario_id: str, rol: str) -> str:
     """Genera un token de acceso con expiración."""

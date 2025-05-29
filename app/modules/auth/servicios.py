@@ -32,7 +32,7 @@ from app.modules.autenticacion.infrastructure.cifrador_contrasena.cifrador impor
 from app.modules.autenticacion.domain.objetos_de_valor.contrasena import Contrasena
 
 # Dependencias de base de datos
-from app.core.dependencias import get_db
+from app.core.dependencias.dependencias import get_db
 
 class ServicioAuth:
     """Orquesta login, JWT y todo el flujo de activación y recuperación."""

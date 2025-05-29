@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "base_registro.html" %}
 
 {% block content %}
-<div class="container mt-5">
-  <h2 class="mb-4">Registro de Usuario</h2>
+<div class="container py-5" style="max-width: 500px;">
+  <h2 class="mb-4 text-center">Registro de Usuario</h2>
 
   {% if error %}
     <div class="alert alert-danger" role="alert">
@@ -10,7 +10,7 @@
     </div>
   {% endif %}
 
-  <form action="/usuarios/" method="post">
+  <form action="/registrarse" method="post">
     <div class="mb-3">
       <label for="tipo_documento" class="form-label">Tipo de documento</label>
       <select id="tipo_documento" name="tipo_documento" class="form-select" required>
@@ -103,19 +103,19 @@
     </div>
 
     <div class="mb-3">
-  <label for="confirmar_contrasena" class="form-label">Confirmar contraseña</label>
-  <input
-    type="password"
-    id="confirmar_contrasena"
-    name="confirmar_contrasena"
-    class="form-control"
-    required
-    placeholder="Vuelve a escribir tu contraseña"
-  >
-  <div id="mensaje-confirmacion" class="form-text text-danger d-none">
-    Las contraseñas no coinciden.
-  </div>
-</div>
+      <label for="confirmar_contrasena" class="form-label">Confirmar contraseña</label>
+      <input
+        type="password"
+        id="confirmar_contrasena"
+        name="confirmar_contrasena"
+        class="form-control"
+        required
+        placeholder="Vuelve a escribir tu contraseña"
+      >
+      <div id="mensaje-confirmacion" class="form-text text-danger d-none">
+        Las contraseñas no coinciden.
+      </div>
+    </div>
     
     <div class="card shadow-sm border-0 mb-4" style="transition: all 0.3s ease;">
       <div class="card-body py-3">
@@ -143,8 +143,15 @@
       </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Registrar</button>
+    <button type="submit" class="btn btn-primary w-100 mb-2">Registrar</button>
+    <a href="/login" class="btn btn-success w-100 mb-2">Iniciar sesión</a>
   </form>
+
+  <div class="text-center mt-3">
+    <a href="/" class="link-secondary" style="font-size: 0.98em;">
+      ← Volver al inicio
+    </a>
+  </div>
 </div>
 
 <script src="/static/js/autenticacion/validacion_contrasena.js"></script>

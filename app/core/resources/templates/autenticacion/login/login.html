@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_auth.html" %}
 
 {% block title %}Iniciar sesión{% endblock %}
 
@@ -10,7 +10,7 @@
     <div class="alert alert-danger">{{ error }}</div>
   {% endif %}
 
-  <form method="post" action="/usuarios/login">
+  <form method="post" action="/login">
     <div class="mb-3">
       <label for="tipo_documento" class="form-label">Tipo de documento</label>
       <select
@@ -52,10 +52,20 @@
         class="form-control"
         required
       >
+      <div class="text-end mt-1">
+        <a href="/recuperar-contrasena" class="link-secondary" style="font-size: 0.95em;">¿Olvidaste tu contraseña?</a>
+      </div>
     </div>
 
-    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+    <button type="submit" class="btn btn-primary w-100 mb-2">Ingresar</button>
+    <a href="/registro" class="btn btn-success w-100 mb-3">Registrarse</a>
   </form>
+
+  <div class="text-center mt-3">
+    <a href="/" class="link-secondary" style="font-size: 0.98em;">
+      ← Volver al inicio
+    </a>
+  </div>
 </div>
 {% endblock %}
 
