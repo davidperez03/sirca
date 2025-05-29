@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 
 # Configuraciones y dependencias del proyecto
 from app.core.config import settings
-from app.core.dependencias import get_db # Ajustar si get_db está en otro lugar
+from app.core.dependencias.dependencias import get_db
 
 # Módulos de autenticación
 # Ajustar estas rutas de importación según la estructura real del proyecto

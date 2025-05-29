@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Pertenencias de {{ usuario.nombres.valor }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Pertenencias de {{ usuario.nombres.valor }} {{ usuario.apellidos.valor }}</h2>
+    <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/registrar" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Registrar nueva
+    </a>
+  </div>
+  {% if pertenencias %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Serial</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for p in pertenencias %}
+          <tr>
+            <td>{{ p.nombre.valor }}</td>
+            <td>{{ p.tipo.value }}</td>
+            <td>{{ p.serial.valor }}</td>
+            <td>
+              <span class="badge {% if p.estado.value == 'Activo' %}bg-success{% else %}bg-secondary{% endif %}">
+                {{ p.estado.value }}
+              </span>
+            </td>
+            <td>
+              <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ p.serial.valor }}" class="btn btn-outline-info btn-sm">
+                <i class="bi bi-eye"></i> Ver
+              </a>
+              <form action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ p.serial.valor }}/eliminar" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar esta pertenencia?')">
+                  <i class="bi bi-trash"></i> Eliminar
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-info">No hay pertenencias registradas.</div>
+  {% endif %}
+</div>
+{% endblock %}

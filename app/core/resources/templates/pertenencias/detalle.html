@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Detalle de pertenencia{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 600px;">
+  <h2 class="mb-4 text-center">Detalle de pertenencia</h2>
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+  <ul class="list-group mb-4">
+    <li class="list-group-item"><strong>Nombre:</strong> {{ pertenencia.nombre.valor }}</li>
+    <li class="list-group-item"><strong>Tipo:</strong> {{ pertenencia.tipo.value }}</li>
+    <li class="list-group-item"><strong>Descripción:</strong> {{ pertenencia.descripcion.valor }}</li>
+    <li class="list-group-item"><strong>Serial:</strong> {{ pertenencia.serial.valor }}</li>
+    <li class="list-group-item"><strong>Foto:</strong>
+      {% if pertenencia.foto.valor %}
+        <img src="{{ pertenencia.foto.valor }}" alt="Foto" class="img-thumbnail" style="max-width:120px;">
+      {% else %}
+        <span class="text-muted">No registrada</span>
+      {% endif %}
+    </li>
+    <li class="list-group-item"><strong>Estado:</strong>
+      <span class="badge {% if pertenencia.estado.value == 'Activo' %}bg-success{% else %}bg-secondary{% endif %}">
+        {{ pertenencia.estado.value }}
+      </span>
+    </li>
+    <li class="list-group-item"><strong>Fecha de registro:</strong> {{ pertenencia.fecha_registro }}</li>
+  </ul>
+  <div class="d-flex justify-content-between">
+    <a href="/mis-pertenencias" class="btn btn-outline-secondary">
+      ← Volver al listado
+    </a>
+    <form action="/mis-pertenencias/{{ pertenencia.serial.valor }}/eliminar" method="post" style="display:inline;">
+      <button type="submit" class="btn btn-danger" onclick="return confirm('¿Eliminar esta pertenencia?')">
+        <i class="bi bi-trash"></i> Eliminar
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

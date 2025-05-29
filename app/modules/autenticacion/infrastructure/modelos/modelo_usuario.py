@@ -8,7 +8,7 @@
 from sqlalchemy import Column, String, Boolean
 
 # Dependencia interna para el modelo
-from app.core.dependencias import Base
+from app.core.dependencias.dependencias import Base
 
 class UsuarioORM(Base):
     __tablename__ = "usuarios"

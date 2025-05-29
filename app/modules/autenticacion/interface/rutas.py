@@ -25,7 +25,7 @@ from jose import jwt, JWTError
 
 # Configuración core
 from app.core.config import settings
-from app.core.dependencias import get_db
+from app.core.dependencias.dependencias import get_db
 from app.core.resources.templates import templates
 
 # Dominio
