@@ -20,6 +20,7 @@ services:
       - ./sirca.db:/app/sirca.db
     depends_on:
       - redis
+      - postgres
     restart: always
 
   redis:
@@ -28,3 +29,19 @@ services:
     ports:
       - "6379:6379"
     restart: unless-stopped
+
+postgres:
+    image: postgres:15
+    container_name: sirca_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: sirca_db
+      POSTGRES_USER: sirca_user
+      POSTGRES_PASSWORD: sirca_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
