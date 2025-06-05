@@ -1,85 +1,4 @@
-<!-- Modal de confirmación para inactivar -->
-{% if pertenencia.estado.value == 'Activo' %}
-<div class="modal fade" id="confirmarInactivar" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title text-warning">
-          <i class="bi bi-pause-circle me-2"></i>Confirmar inactivación
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p>¿Estás seguro de que deseas inactivar la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
-        <div class="alert alert-info">
-          <i class="bi bi-info-circle me-2"></i>
-          <strong>La pertenencia será marcada como inactiva</strong> y no estará disponible para ingreso hasta que la reactives.
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cancelar
-        </button>
-        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.serial.valor }}/eliminar" style="display: inline;">
-          <button type="submit" class="btn btn-warning">
-            <i class="bi bi-pause-circle me-1"></i>Inactivar
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-<!-- Modal de confirmación para eliminar -->
-<div class="modal fade" id="confirmarEliminar" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title text-danger">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          {% if pertenencia.estado.value == 'Inactivo' %}
-            Eliminar definitivamente
-          {% else %}
-            Confirmar eliminación
-          {% endif %}
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        {% if pertenencia.estado.value == 'Inactivo' %}
-          <p>¿Estás seguro de que deseas <strong>eliminar definitivamente</strong> la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
-          <div class="alert alert-danger">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            <strong>Esta acción NO se puede deshacer.</strong> La pertenencia y su imagen asociada se eliminarán permanentemente del sistema.
-          </div>
-        {% else %}
-          <p>¿Estás seguro de que deseas eliminar la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
-          <div class="alert alert-warning">
-            <i class="bi bi-info-circle me-2"></i>
-            <strong>La pertenencia será inactivada</strong> pero podrás reactivarla más tarde si es necesario.
-          </div>
-        {% endif %}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cancelar
-        </button>
-        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.serial.valor }}/eliminar" style="display: inline;">
-          <button type="submit" class="btn btn-danger">
-            <i class="bi bi-trash me-1"></i>
-            {% if pertenencia.estado.value == 'Inactivo' %}
-              Eliminar definitivamente
-            {% else %}
-              Inactivar pertenencia
-            {% endif %}
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock %} bi{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}{{ pertenencia.nombre.valor }} - Detalle{% endblock %}
 
 {% block extra_head %}
@@ -299,7 +218,7 @@
       </a>
       
       <div class="d-flex gap-2">
-        <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.serial.valor }}/editar" 
+        <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.id }}/editar" 
            class="btn btn-primary">
           <i class="bi bi-pencil me-1"></i>Editar
         </a>
@@ -309,7 +228,7 @@
             <i class="bi bi-pause-circle me-1"></i>Inactivar
           </button>
         {% else %}
-          <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.serial.valor }}/reactivar" style="display: inline;">
+          <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.id }}/reactivar" style="display: inline;">
             <button type="submit" class="btn btn-success">
               <i class="bi bi-play-circle me-1"></i>Reactivar
             </button>
@@ -346,30 +265,81 @@
 </div>
 {% endif %}
 
-<!-- Modal de confirmación para eliminar -->
-<div class="modal fade" id="confirmarEliminar" tabindex="-1">
+<!-- Modal de confirmación para inactivar -->
+{% if pertenencia.estado.value == 'Activo' %}
+<div class="modal fade" id="confirmarInactivar" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title text-danger">
-          <i class="bi bi-exclamation-triangle me-2"></i>Confirmar eliminación
+        <h5 class="modal-title text-warning">
+          <i class="bi bi-pause-circle me-2"></i>Confirmar inactivación
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p>¿Estás seguro de que deseas eliminar la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
-        <div class="alert alert-warning">
+        <p>¿Estás seguro de que deseas inactivar la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
+        <div class="alert alert-info">
           <i class="bi bi-info-circle me-2"></i>
-          <strong>Esta acción no se puede deshacer.</strong> Se eliminará la pertenencia y su imagen asociada permanentemente.
+          <strong>La pertenencia será marcada como inactiva</strong> y no estará disponible para ingreso hasta que la reactives.
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i>Cancelar
         </button>
-        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.serial.valor }}/eliminar" style="display: inline;">
+        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.id }}/eliminar" style="display: inline;">
+          <button type="submit" class="btn btn-warning">
+            <i class="bi bi-pause-circle me-1"></i>Inactivar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="confirmarEliminar" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          {% if pertenencia.estado.value == 'Inactivo' %}
+            Eliminar definitivamente
+          {% else %}
+            Confirmar eliminación
+          {% endif %}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        {% if pertenencia.estado.value == 'Inactivo' %}
+          <p>¿Estás seguro de que deseas <strong>eliminar definitivamente</strong> la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Esta acción NO se puede deshacer.</strong> La pertenencia y su imagen asociada se eliminarán permanentemente del sistema.
+          </div>
+        {% else %}
+          <p>¿Estás seguro de que deseas eliminar la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
+          <div class="alert alert-warning">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>La pertenencia será inactivada</strong> pero podrás reactivarla más tarde si es necesario.
+          </div>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i>Cancelar
+        </button>
+        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.id }}/eliminar" style="display: inline;">
           <button type="submit" class="btn btn-danger">
-            <i class="bi bi-trash me-1"></i>Eliminar definitivamente
+            <i class="bi bi-trash me-1"></i>
+            {% if pertenencia.estado.value == 'Inactivo' %}
+              Eliminar definitivamente
+            {% else %}
+              Inactivar pertenencia
+            {% endif %}
           </button>
         </form>
       </div>

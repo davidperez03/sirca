@@ -25,23 +25,67 @@ class ServicioArchivos:
     ) -> str:
         """
         Guarda una imagen de pertenencia y retorna la ruta relativa.
+        ✅ VERSIÓN SIMPLIFICADA CON VALIDACIONES BÁSICAS
         """
-        # Validar archivo
-        self._validar_archivo(archivo)
-
-        # Generar nombre único
+        # ✅ VALIDACIONES BÁSICAS Y CLARAS
+        if not archivo:
+            raise HTTPException(status_code=400, detail="No se proporcionó un archivo.")
+        
+        if not hasattr(archivo, 'filename') or not archivo.filename:
+            raise HTTPException(status_code=400, detail="El archivo no tiene nombre válido.")
+        
+        if archivo.filename.strip() == "":
+            raise HTTPException(status_code=400, detail="El nombre del archivo está vacío.")
+        
+        # ✅ VALIDAR EXTENSIÓN PRIMERO
         extension = Path(archivo.filename).suffix.lower()
-        nombre_archivo = f"{usuario_id}_{uuid.uuid4().hex}{extension}"
+        if extension not in self.extensiones_permitidas:
+            extensiones_str = ', '.join(self.extensiones_permitidas)
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Extensión no permitida. Use: {extensiones_str}"
+            )
         
-        # Crear directorio del usuario si no existe
-        directorio_usuario = self.directorio_pertenencias / usuario_id
-        directorio_usuario.mkdir(exist_ok=True)
-        
-        # Ruta completa del archivo
-        ruta_archivo = directorio_usuario / nombre_archivo
-        
+        # ✅ VALIDAR TAMAÑO DE FORMA SEGURA
         try:
+            # Obtener posición actual
+            posicion_inicial = archivo.file.tell()
+            
+            # Ir al final para obtener tamaño
+            archivo.file.seek(0, 2)
+            tamaño_archivo = archivo.file.tell()
+            
+            # Volver a la posición inicial
+            archivo.file.seek(posicion_inicial)
+            
+            if tamaño_archivo == 0:
+                raise HTTPException(status_code=400, detail="El archivo está vacío.")
+            
+            if tamaño_archivo > self.tamaño_maximo:
+                tamaño_mb = self.tamaño_maximo / (1024 * 1024)
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"El archivo es demasiado grande. Máximo: {tamaño_mb}MB"
+                )
+        except Exception as e:
+            if isinstance(e, HTTPException):
+                raise e
+            raise HTTPException(status_code=400, detail="Error al validar el archivo.")
+
+        # ✅ GENERAR NOMBRE Y GUARDAR
+        try:
+            # Generar nombre único
+            nombre_archivo = f"{usuario_id}_{uuid.uuid4().hex}{extension}"
+            
+            # Crear directorio del usuario si no existe
+            directorio_usuario = self.directorio_pertenencias / usuario_id
+            directorio_usuario.mkdir(exist_ok=True)
+            
+            # Ruta completa del archivo
+            ruta_archivo = directorio_usuario / nombre_archivo
+            
             # Guardar archivo
+            archivo.file.seek(0)  # Asegurar que estamos al inicio
             with open(ruta_archivo, "wb") as buffer:
                 shutil.copyfileobj(archivo.file, buffer)
             
@@ -80,34 +124,6 @@ class ServicioArchivos:
         
         return False
 
-    def _validar_archivo(self, archivo: UploadFile) -> None:
-        """
-        Valida que el archivo cumple con los requisitos.
-        """
-        if not archivo.filename:
-            raise HTTPException(status_code=400, detail="No se proporcionó un archivo.")
-        
-        # Validar extensión
-        extension = Path(archivo.filename).suffix.lower()
-        if extension not in self.extensiones_permitidas:
-            extensiones_str = ', '.join(self.extensiones_permitidas)
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Extensión no permitida. Use: {extensiones_str}"
-            )
-        
-        # Validar tamaño (FastAPI ya lee el contenido, así que usamos seek)
-        archivo.file.seek(0, 2)  # Ir al final del archivo
-        tamaño = archivo.file.tell()
-        archivo.file.seek(0)  # Volver al inicio
-        
-        if tamaño > self.tamaño_maximo:
-            tamaño_mb = self.tamaño_maximo / (1024 * 1024)
-            raise HTTPException(
-                status_code=400, 
-                detail=f"El archivo es demasiado grande. Máximo: {tamaño_mb}MB"
-            )
-
     def obtener_url_publica(self, ruta_relativa: str) -> str:
         """
         Convierte una ruta relativa en URL pública.
@@ -129,3 +145,39 @@ class ServicioArchivos:
             return True
         ruta_completa = Path("app/core/resources") / ruta_relativa
         return ruta_completa.exists()
+
+    def es_archivo_valido_para_subida(self, archivo: UploadFile) -> tuple[bool, str]:
+        """
+        ✅ NUEVA FUNCIÓN: Verifica si un archivo es válido y retorna el motivo si no lo es
+        """
+        if not archivo:
+            return False, "No se proporcionó archivo"
+        
+        if not hasattr(archivo, 'filename') or not archivo.filename:
+            return False, "Archivo sin nombre"
+        
+        if archivo.filename.strip() == "":
+            return False, "Nombre de archivo vacío"
+        
+        # Verificar extensión
+        extension = Path(archivo.filename).suffix.lower()
+        if extension not in self.extensiones_permitidas:
+            return False, f"Extensión no permitida: {extension}"
+        
+        # Verificar tamaño
+        try:
+            posicion_inicial = archivo.file.tell()
+            archivo.file.seek(0, 2)
+            tamaño_archivo = archivo.file.tell()
+            archivo.file.seek(posicion_inicial)
+            
+            if tamaño_archivo == 0:
+                return False, "Archivo vacío"
+            
+            if tamaño_archivo > self.tamaño_maximo:
+                return False, "Archivo demasiado grande"
+                
+        except Exception:
+            return False, "Error al leer archivo"
+        
+        return True, "Archivo válido"
