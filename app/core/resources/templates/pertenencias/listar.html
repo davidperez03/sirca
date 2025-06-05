@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Pertenencias de {{ usuario.nombres.valor }}{% endblock %}
+{% block title %}Sirca - Pertenencias{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -234,22 +234,22 @@
                 </small>
                 
                 <div class="btn-group w-100 mt-2" role="group">
-                  <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ p.serial.valor }}" 
+                  <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ p.id }}" 
                      class="btn btn-outline-info btn-sm">
                     <i class="bi bi-eye"></i> Ver
                   </a>
-                  <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ p.serial.valor }}/editar" 
+                  <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ p.id }}/editar" 
                      class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-pencil"></i> Editar
                   </a>
                   {% if p.estado.value == 'Inactivo' %}
                     <button type="button" class="btn btn-outline-success btn-sm" 
-                            onclick="reactivarPertenencia('{{ p.nombre.valor }}', '{{ p.serial.valor }}')">
+                            onclick="reactivarPertenencia('{{ p.nombre.valor }}', '{{ p.id }}')">
                       <i class="bi bi-check-circle"></i>
                     </button>
                   {% else %}
                     <button type="button" class="btn btn-outline-danger btn-sm" 
-                            onclick="confirmarEliminacion('{{ p.nombre.valor }}', '{{ p.serial.valor }}')">
+                            onclick="confirmarEliminacion('{{ p.nombre.valor }}', '{{ p.id }}')">
                       <i class="bi bi-trash"></i>
                     </button>
                   {% endif %}
@@ -314,20 +314,20 @@
 </div>
 
 <script>
-function confirmarEliminacion(nombre, serial) {
+function confirmarEliminacion(nombre, pertenenciaId) {
   document.getElementById('nombrePertenencia').textContent = nombre;
   document.getElementById('formEliminar').action = 
-    `/usuario/{{ usuario.numero_documento.valor }}/pertenencias/${serial}/eliminar`;
+    `/usuario/{{ usuario.numero_documento.valor }}/pertenencias/${pertenenciaId}/eliminar`;
   
   new bootstrap.Modal(document.getElementById('confirmarEliminar')).show();
 }
 
-function reactivarPertenencia(nombre, serial) {
+function reactivarPertenencia(nombre, pertenenciaId) {
   if (confirm(`¿Reactivar la pertenencia "${nombre}"?`)) {
     // Crear formulario para reactivar
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `/usuario/{{ usuario.numero_documento.valor }}/pertenencias/${serial}/reactivar`;
+    form.action = `/usuario/{{ usuario.numero_documento.valor }}/pertenencias/${pertenenciaId}/reactivar`;
     document.body.appendChild(form);
     form.submit();
   }

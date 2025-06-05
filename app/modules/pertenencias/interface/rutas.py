@@ -191,6 +191,7 @@ async def registrar_pertenencia(
             estado=estado,
             archivo_foto=foto
         )
+        
     except ValueError as e:
         return templates.TemplateResponse(
             "pertenencias/registrar.html",
@@ -218,7 +219,7 @@ async def registrar_pertenencia(
     )
 
 @router.get(
-    "/usuario/{usuario_id}/pertenencias/{pertenencia_id}",
+    "/usuario/{usuario_id}/pertenencias/{pertenencia_id:int}",
     response_class=HTMLResponse,
     name="Ver detalle pertenencia"
 )
@@ -256,7 +257,7 @@ async def ver_detalle_pertenencia(
     )
 
 @router.get(
-    "/usuario/{usuario_id}/pertenencias/{pertenencia_id}/editar",
+    "/usuario/{usuario_id}/pertenencias/{pertenencia_id:int}/editar",
     response_class=HTMLResponse,
     name="Mostrar formulario editar pertenencia"
 )
@@ -298,7 +299,7 @@ async def mostrar_formulario_editar_pertenencia(
     )
 
 @router.post(
-    "/usuario/{usuario_id}/pertenencias/{pertenencia_id}/editar",
+    "/usuario/{usuario_id}/pertenencias/{pertenencia_id:int}/editar",
     response_class=HTMLResponse,
     name="Actualizar pertenencia"
 )
@@ -364,7 +365,7 @@ async def actualizar_pertenencia_route(
     )
 
 @router.post(
-    "/usuario/{usuario_id}/pertenencias/{pertenencia_id}/reactivar",
+    "/usuario/{usuario_id}/pertenencias/{pertenencia_id:int}/reactivar",
     response_class=HTMLResponse,
     name="Reactivar pertenencia"
 )
@@ -403,7 +404,7 @@ async def reactivar_pertenencia_route(
     )
 
 @router.post(
-    "/usuario/{usuario_id}/pertenencias/{pertenencia_id}/eliminar",
+    "/usuario/{usuario_id}/pertenencias/{pertenencia_id:int}/eliminar",
     response_class=HTMLResponse,
     name="Eliminar pertenencia"
 )
@@ -487,13 +488,13 @@ async def api_listar_pertenencias(
     return [PertenenciaResumen.from_domain(p) for p in pertenencias]
 
 @router.get(
-    "/api/usuario/{usuario_id}/pertenencias/{serial}",
+    "/api/usuario/{usuario_id}/pertenencias/{pertenencia_id:int}",
     response_model=PertenenciaRead,
     name="API Obtener pertenencia"
 )
 async def api_obtener_pertenencia(
     usuario_id: str,
-    serial: str,
+    pertenencia_id: int,
     current_user_id: str = Depends(validar_token_cookie),
     db: Session = Depends(get_db)
 ):
@@ -501,7 +502,7 @@ async def api_obtener_pertenencia(
     repo_pertenencias = RepositorioPertenenciasBD(db, repo_usuarios)
     
     caso_uso = ObtenerPertenencia(repo_pertenencias)
-    pertenencia = caso_uso.ejecutar(serial)
+    pertenencia = caso_uso.ejecutar(pertenencia_id)
     
     if not pertenencia:
         raise HTTPException(status_code=404, detail="Pertenencia no encontrada")
@@ -540,12 +541,12 @@ async def api_tipos_pertenencia():
     return [TipoPertenenciaInfo.from_enum(tipo) for tipo in TipoPertenencia]
 
 @router.post(
-    "/api/usuario/{usuario_id}/pertenencias/{serial}/subir-foto",
+    "/api/usuario/{usuario_id}/pertenencias/{pertenencia_id:int}/subir-foto",
     name="API Subir foto"
 )
 async def api_subir_foto(
     usuario_id: str,
-    serial: str,
+    pertenencia_id: int,
     foto: UploadFile = File(...),
     current_user_id: str = Depends(validar_token_cookie),
     db: Session = Depends(get_db)
@@ -553,8 +554,8 @@ async def api_subir_foto(
     repo_usuarios = RepositorioUsuariosBD(db)
     repo_pertenencias = RepositorioPertenenciasBD(db, repo_usuarios)
     
-    # Verificar pertenencia
-    pertenencia = repo_pertenencias.obtener_por_serial(serial)
+    # Verificar pertenencia por ID
+    pertenencia = repo_pertenencias.obtener_por_id(pertenencia_id)
     if not pertenencia:
         raise HTTPException(status_code=404, detail="Pertenencia no encontrada")
     
@@ -565,12 +566,12 @@ async def api_subir_foto(
     caso_uso = ActualizarPertenencia(repo_pertenencias)
     try:
         await caso_uso.ejecutar(
-            serial_actual=serial,
+            id_pertenencia=pertenencia_id,
             archivo_foto=foto
         )
         
         # Obtener pertenencia actualizada para retornar URL
-        pertenencia_actualizada = repo_pertenencias.obtener_por_serial(serial)
+        pertenencia_actualizada = repo_pertenencias.obtener_por_id(pertenencia_id)
         return {
             "success": True,
             "foto_url": pertenencia_actualizada.foto.obtener_url_publica(),
