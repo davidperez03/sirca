@@ -40,4 +40,12 @@ class Settings(BaseSettings):
         extra="allow",
     )
 
+    timezone: str = "America/Bogota"
+
+    model_config = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="allow",
+    )
+
 settings = Settings()

@@ -16,3 +16,5 @@ pytest-cov
 python-jose[cryptography] 
 httpx
 redis
+psycopg2-binary
+pytz

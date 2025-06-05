@@ -1,8 +1,44 @@
 {% extends "base.html" %}
-{% block title %}Registrar pertenencia{% endblock %}
+{% block title %}Editar pertenencia{% endblock %}
 
 {% block extra_head %}
 <style>
+  .current-image {
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+  }
+  .image-actions {
+    margin-top: 1rem;
+  }
+  .file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    cursor: pointer;
+    background: linear-gradient(45deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px dashed #0ea5e9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  .file-input-wrapper:hover {
+    background: linear-gradient(45deg, #e0f2fe 0%, #bae6fd 100%);
+    border-color: #0284c7;
+  }
+  .file-input-wrapper input[type=file] {
+    position: absolute;
+    left: -9999px;
+  }
+  .serial-required {
+    color: #d32f2f;
+    font-weight: 600;
+  }
   .tipo-info {
     display: none;
     margin-top: 0.5rem;
@@ -14,10 +50,6 @@
   .tipo-info.show {
     display: block;
   }
-  .serial-required {
-    color: #d32f2f;
-    font-weight: 600;
-  }
   .preview-container {
     max-width: 200px;
     margin-top: 1rem;
@@ -27,27 +59,6 @@
     height: auto;
     border-radius: 8px;
     border: 2px solid #e0e0e0;
-  }
-  .file-input-wrapper {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-    cursor: pointer;
-    background: linear-gradient(45deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 2px dashed #0ea5e9;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    width: 100%;
-  }
-  .file-input-wrapper:hover {
-    background: linear-gradient(45deg, #e0f2fe 0%, #bae6fd 100%);
-    border-color: #0284c7;
-  }
-  .file-input-wrapper input[type=file] {
-    position: absolute;
-    left: -9999px;
   }
   .file-info {
     margin-top: 0.5rem;
@@ -60,10 +71,10 @@
 {% block content %}
 <div class="container py-4" style="max-width: 700px;">
   <div class="d-flex align-items-center mb-4">
-    <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias" class="btn btn-outline-secondary me-3">
+    <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.serial.valor }}" class="btn btn-outline-secondary me-3">
       <i class="bi bi-arrow-left"></i> Volver
     </a>
-    <h2 class="mb-0">Registrar Nueva Pertenencia</h2>
+    <h2 class="mb-0">Editar Pertenencia</h2>
   </div>
 
   {% if error %}
@@ -75,7 +86,7 @@
 
   <div class="card shadow-sm">
     <div class="card-body">
-      <form method="post" enctype="multipart/form-data" id="formPertenencia">
+      <form method="post" enctype="multipart/form-data" id="formEditar">
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
@@ -87,8 +98,7 @@
                 name="nombre" 
                 class="form-control" 
                 required 
-                placeholder="Ej: Laptop Dell Inspiron"
-                value="{{ form_data.nombre or '' }}"
+                value="{{ pertenencia.nombre.valor }}"
                 minlength="3"
                 maxlength="50"
               >
@@ -100,19 +110,18 @@
                 <i class="bi bi-collection me-1"></i>Tipo de pertenencia
               </label>
               <select name="tipo" class="form-select" required id="tipoSelect">
-                <option value="">Seleccione un tipo...</option>
                 {% for tipo in tipos_pertenencia %}
                   <option 
                     value="{{ tipo.value }}"
                     data-requiere-serial="{{ 'true' if tipo.value in ['Electrónico', 'Medios de Transporte'] else 'false' }}"
-                    {% if form_data.tipo == tipo.value %}selected{% endif %}
+                    {% if pertenencia.tipo.value == tipo.value %}selected{% endif %}
                   >
                     {{ tipo.value }}
                   </option>
                 {% endfor %}
               </select>
               
-              <!-- Información del tipo seleccionado -->
+              <!-- Información del tipo -->
               <div id="tipoElectronico" class="tipo-info">
                 <strong class="serial-required">⚠️ Serial obligatorio</strong><br>
                 <small>Los dispositivos electrónicos requieren número de serie para identificación y seguridad.</small>
@@ -130,16 +139,19 @@
               </label>
               <input 
                 type="text" 
-                name="serial" 
+                name="nuevo_serial" 
                 class="form-control" 
                 id="serialInput"
-                placeholder="Ej: ABC123-XYZ789"
-                value="{{ form_data.serial or '' }}"
+                value="{{ pertenencia.serial.valor }}"
                 maxlength="30"
+                placeholder="Ej: ABC123-XYZ789"
               >
               <div class="form-text" id="serialHelp">
                 Código único de identificación (4-30 caracteres alfanuméricos)
               </div>
+              {% if pertenencia.serial.valor %}
+                <small class="text-muted">Serial actual: <code>{{ pertenencia.serial.valor }}</code></small>
+              {% endif %}
             </div>
           </div>
 
@@ -152,9 +164,9 @@
                 name="descripcion" 
                 class="form-control" 
                 rows="3"
-                placeholder="Descripción detallada de la pertenencia..."
                 maxlength="200"
-              >{{ form_data.descripcion or '' }}</textarea>
+                placeholder="Descripción detallada de la pertenencia..."
+              >{{ pertenencia.descripcion.valor }}</textarea>
               <div class="form-text">Máximo 200 caracteres (opcional)</div>
             </div>
 
@@ -166,7 +178,7 @@
                 {% for estado in estados %}
                   <option 
                     value="{{ estado.value }}"
-                    {% if form_data.estado == estado.value or (not form_data.estado and estado.value == 'Activo') %}selected{% endif %}
+                    {% if pertenencia.estado.value == estado.value %}selected{% endif %}
                   >
                     {{ estado.value }}
                   </option>
@@ -181,38 +193,106 @@
           <label class="form-label">
             <i class="bi bi-camera me-1"></i>Foto de la pertenencia
           </label>
+          
+          {% if pertenencia.foto.valor %}
+            <div class="current-photo mb-3">
+              <p class="text-muted mb-2">
+                <i class="bi bi-image me-1"></i>Foto actual:
+              </p>
+              <div class="d-flex align-items-start gap-3">
+                <img 
+                  src="{{ pertenencia.foto.obtener_url_publica() }}" 
+                  alt="Foto actual" 
+                  class="current-image"
+                  id="currentImage"
+                >
+                <div class="image-actions">
+                  <div class="form-check">
+                    <input 
+                      class="form-check-input" 
+                      type="checkbox" 
+                      name="eliminar_foto" 
+                      id="eliminarFoto"
+                      value="true"
+                    >
+                    <label class="form-check-label text-danger" for="eliminarFoto">
+                      <i class="bi bi-trash me-1"></i>Eliminar foto actual
+                    </label>
+                  </div>
+                  <div class="mt-2">
+                    <small class="text-muted">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Si subes una nueva imagen, la actual será reemplazada automáticamente.
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Sin foto actual.</strong> Puedes agregar una imagen usando el formulario de abajo.
+            </div>
+          {% endif %}
+          
           <div class="file-input-wrapper" onclick="document.getElementById('fotoInput').click()">
-            <i class="bi bi-cloud-upload display-4 text-primary mb-2"></i>
+            <i class="bi bi-cloud-upload display-5 text-primary mb-2"></i>
             <div>
-              <strong>Haz clic para seleccionar una imagen</strong>
+              <strong>
+                {% if pertenencia.foto.valor %}
+                  Cambiar imagen
+                {% else %}
+                  Agregar imagen
+                {% endif %}
+              </strong>
             </div>
             <div class="file-info">
-              Formatos: JPG, PNG, WEBP | Máximo: 10MB
+              Formatos: JPG, PNG, WEBP, GIF | Máximo: 10MB
             </div>
             <input 
               type="file" 
               name="foto" 
               id="fotoInput"
               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
-              onchange="previewImage(this)"
+              onchange="previewNewImage(this)"
             >
           </div>
           
-          <!-- Preview de la imagen -->
-          <div id="imagePreview" class="preview-container" style="display:none;">
+          <!-- Preview de nueva imagen -->
+          <div id="newImagePreview" class="preview-container" style="display:none;">
+            <p class="text-success mb-2">
+              <i class="bi bi-check-circle me-1"></i>Nueva imagen:
+            </p>
             <img id="previewImg" src="" alt="Preview" class="preview-image">
-            <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="removeImage()">
-              <i class="bi bi-trash"></i> Quitar imagen
+            <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="removeNewImage()">
+              <i class="bi bi-trash"></i> Quitar nueva imagen
             </button>
           </div>
         </div>
 
+        <!-- Información adicional -->
+        <div class="card bg-light mb-4">
+          <div class="card-body">
+            <h6 class="card-title">
+              <i class="bi bi-info-circle text-primary me-2"></i>Información de registro
+            </h6>
+            <div class="row text-sm">
+              <div class="col-md-6">
+                <strong>Registrado el:</strong> {{ pertenencia.fecha_registro.strftime('%d/%m/%Y a las %H:%M') }}
+              </div>
+              <div class="col-md-6">
+                <strong>Propietario:</strong> {{ usuario.nombres.valor }} {{ usuario.apellidos.valor }}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-          <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias" class="btn btn-outline-secondary">
+          <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.serial.valor }}" class="btn btn-outline-secondary">
             <i class="bi bi-x-circle me-1"></i>Cancelar
           </a>
           <button type="submit" class="btn btn-primary">
-            <i class="bi bi-save me-1"></i>Registrar Pertenencia
+            <i class="bi bi-save me-1"></i>Guardar Cambios
           </button>
         </div>
       </form>
@@ -226,6 +306,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const serialInput = document.getElementById('serialInput');
   const serialRequired = document.getElementById('serialRequired');
   const serialHelp = document.getElementById('serialHelp');
+  const eliminarFotoCheckbox = document.getElementById('eliminarFoto');
+  const currentImage = document.getElementById('currentImage');
   
   function updateSerialRequirement() {
     const selectedOption = tipoSelect.selectedOptions[0];
@@ -258,35 +340,73 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   tipoSelect.addEventListener('change', updateSerialRequirement);
-  
-  // Ejecutar al cargar para valores preseleccionados
   updateSerialRequirement();
+  
+  // Manejar checkbox de eliminar foto
+  if (eliminarFotoCheckbox && currentImage) {
+    eliminarFotoCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        currentImage.style.opacity = '0.3';
+        currentImage.style.filter = 'grayscale(100%)';
+        currentImage.style.transform = 'scale(0.95)';
+      } else {
+        currentImage.style.opacity = '1';
+        currentImage.style.filter = 'none';
+        currentImage.style.transform = 'scale(1)';
+      }
+    });
+  }
 });
 
-function previewImage(input) {
-  const preview = document.getElementById('imagePreview');
+function previewNewImage(input) {
+  const preview = document.getElementById('newImagePreview');
   const previewImg = document.getElementById('previewImg');
   
   if (input.files && input.files[0]) {
+    const file = input.files[0];
+    
+    // Validar tamaño del archivo (10MB máximo)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      alert('El archivo es demasiado grande. El tamaño máximo es 10MB.');
+      input.value = '';
+      return;
+    }
+    
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      alert('Tipo de archivo no válido. Use JPG, PNG, WEBP o GIF.');
+      input.value = '';
+      return;
+    }
+    
     const reader = new FileReader();
     
     reader.onload = function(e) {
       previewImg.src = e.target.result;
       preview.style.display = 'block';
+      
+      // Si hay checkbox de eliminar foto, desmarcarlo
+      const eliminarCheckbox = document.getElementById('eliminarFoto');
+      if (eliminarCheckbox) {
+        eliminarCheckbox.checked = false;
+        eliminarCheckbox.dispatchEvent(new Event('change'));
+      }
     };
     
-    reader.readAsDataURL(input.files[0]);
+    reader.readAsDataURL(file);
   }
 }
 
-function removeImage() {
+function removeNewImage() {
   document.getElementById('fotoInput').value = '';
-  document.getElementById('imagePreview').style.display = 'none';
+  document.getElementById('newImagePreview').style.display = 'none';
   document.getElementById('previewImg').src = '';
 }
 
 // Validación del formulario
-document.getElementById('formPertenencia').addEventListener('submit', function(e) {
+document.getElementById('formEditar').addEventListener('submit', function(e) {
   const tipoSelect = document.getElementById('tipoSelect');
   const serialInput = document.getElementById('serialInput');
   const selectedOption = tipoSelect.selectedOptions[0];
@@ -297,6 +417,21 @@ document.getElementById('formPertenencia').addEventListener('submit', function(e
     alert('El serial es obligatorio para este tipo de pertenencia.');
     serialInput.focus();
     return false;
+  }
+  
+  // Confirmar si se van a hacer cambios importantes
+  const eliminarFoto = document.getElementById('eliminarFoto')?.checked;
+  const nuevaFoto = document.getElementById('fotoInput').files.length > 0;
+  
+  if (eliminarFoto || nuevaFoto) {
+    const mensaje = eliminarFoto ? 
+      '¿Estás seguro de que deseas eliminar la foto actual?' :
+      '¿Estás seguro de que deseas cambiar la foto actual?';
+    
+    if (!confirm(mensaje)) {
+      e.preventDefault();
+      return false;
+    }
   }
 });
 </script>
