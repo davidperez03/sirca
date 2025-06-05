@@ -3,6 +3,7 @@
 '''
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 from app.modules.autenticacion.domain.entidades.usuario import Usuario
 from app.modules.pertenencias.domain.objetos_de_valor.nombre_pertenencia import NombrePertenencia
@@ -22,3 +23,4 @@ class Pertenencia:
     estado: EstadoPertenencia
     usuario: Usuario
     fecha_registro: datetime
+    id: Optional[int] = None  
