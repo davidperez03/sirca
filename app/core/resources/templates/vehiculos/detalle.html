@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}{{ pertenencia.nombre.valor }} - Detalle{% endblock %}
+{% block title %}{{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }} - Detalle{% endblock %}
 
 {% block extra_head %}
 <style>
-  .pertenencia-header {
+  .vehiculo-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-radius: 12px;
@@ -25,14 +25,14 @@
     padding: 2rem;
     border: 2px dashed #e2e8f0;
   }
-  .foto-pertenencia {
+  .foto-vehiculo {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     transition: transform 0.3s ease;
   }
-  .foto-pertenencia:hover {
+  .foto-vehiculo:hover {
     transform: scale(1.05);
   }
   .no-foto {
@@ -45,19 +45,21 @@
     padding: 0.5rem 1rem;
     border-radius: 20px;
   }
-  .badge-electronico { background: linear-gradient(45deg, #3b82f6, #1d4ed8); }
-  .badge-transporte { background: linear-gradient(45deg, #10b981, #047857); }
-  .badge-herramienta { background: linear-gradient(45deg, #f59e0b, #d97706); }
-  .badge-otro { background: linear-gradient(45deg, #6b7280, #374151); }
+  .badge-motocicleta { background: linear-gradient(45deg, #dc2626, #b91c1c); }
+  .badge-automovil { background: linear-gradient(45deg, #3b82f6, #1d4ed8); }
   
-  .serial-display {
+  .placa-display {
     font-family: 'Courier New', monospace;
-    background: #f1f5f9;
-    padding: 0.75rem;
-    border-radius: 6px;
-    border-left: 4px solid #0ea5e9;
+    background: #1e40af;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
     font-weight: bold;
-    letter-spacing: 1px;
+    letter-spacing: 3px;
+    font-size: 1.5rem;
+    border: 3px solid #1e3a8a;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
   }
   .action-buttons {
     position: sticky;
@@ -74,13 +76,13 @@
 {% block content %}
 <div class="container py-4">
   <!-- Header -->
-  <div class="pertenencia-header">
+  <div class="vehiculo-header">
     <div class="row align-items-center">
       <div class="col-md-8">
         <div class="d-flex align-items-center mb-3">
-          <i class="bi bi-box-seam display-6 me-3"></i>
+          <i class="bi bi-car-front display-6 me-3"></i>
           <div>
-            <h1 class="mb-1">{{ pertenencia.nombre.valor }}</h1>
+            <h1 class="mb-1">{{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}</h1>
             <p class="mb-0 opacity-75">
               Propiedad de {{ usuario.nombres.valor }} {{ usuario.apellidos.valor }}
             </p>
@@ -88,18 +90,15 @@
         </div>
       </div>
       <div class="col-md-4 text-md-end">
-        {% set badge_class = 'badge-electronico' if pertenencia.tipo.value == 'Electrónico' 
-                            else 'badge-transporte' if pertenencia.tipo.value == 'Medios de Transporte'
-                            else 'badge-herramienta' if pertenencia.tipo.value == 'Herramienta'
-                            else 'badge-otro' %}
+        {% set badge_class = 'badge-motocicleta' if vehiculo.tipo.value == 'Motocicleta' else 'badge-automovil' %}
         <span class="badge badge-tipo {{ badge_class }} text-white">
-          <i class="bi bi-tag-fill me-1"></i>{{ pertenencia.tipo.value }}
+          <i class="bi bi-{% if vehiculo.tipo.value == 'Motocicleta' %}bicycle{% else %}car-front{% endif %} me-1"></i>{{ vehiculo.tipo.value }}
         </span>
         <br>
-        <span class="badge {% if pertenencia.estado.value == 'Activo' %}bg-success{% else %}bg-warning text-dark{% endif %} mt-2">
-          <i class="bi bi-{% if pertenencia.estado.value == 'Activo' %}check-circle{% else %}pause-circle{% endif %}-fill me-1" style="font-size: 0.75rem;"></i>
-          {{ pertenencia.estado.value }}
-          {% if pertenencia.estado.value == 'Inactivo' %} - No se permite ingreso{% endif %}
+        <span class="badge {% if vehiculo.estado.value == 'Activo' %}bg-success{% else %}bg-warning text-dark{% endif %} mt-2">
+          <i class="bi bi-{% if vehiculo.estado.value == 'Activo' %}check-circle{% else %}pause-circle{% endif %}-fill me-1" style="font-size: 0.75rem;"></i>
+          {{ vehiculo.estado.value }}
+          {% if vehiculo.estado.value == 'Inactivo' %} - No se permite ingreso{% endif %}
         </span>
       </div>
     </div>
@@ -122,52 +121,58 @@
         
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label text-muted fw-bold">Nombre</label>
-            <div class="fs-5">{{ pertenencia.nombre.valor }}</div>
+            <label class="form-label text-muted fw-bold">
+              <i class="bi bi-credit-card me-1"></i>Placa
+            </label>
+            <div class="placa-display">{{ vehiculo.placa.valor }}</div>
           </div>
           
           <div class="col-md-6 mb-3">
             <label class="form-label text-muted fw-bold">Tipo</label>
-            <div class="fs-5">{{ pertenencia.tipo.value }}</div>
+            <div class="fs-5">
+              <i class="bi bi-{% if vehiculo.tipo.value == 'Motocicleta' %}bicycle{% else %}car-front{% endif %} me-2"></i>
+              {{ vehiculo.tipo.value }}
+            </div>
           </div>
           
-          {% if pertenencia.serial.valor %}
-          <div class="col-12 mb-3">
-            <label class="form-label text-muted fw-bold">
-              <i class="bi bi-hash me-1"></i>Serial/Código
-            </label>
-            <div class="serial-display">{{ pertenencia.serial.valor }}</div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label text-muted fw-bold">Marca</label>
+            <div class="fs-5">{{ vehiculo.marca.valor }}</div>
           </div>
-          {% endif %}
           
-          {% if pertenencia.descripcion.valor %}
-          <div class="col-12 mb-3">
-            <label class="form-label text-muted fw-bold">Descripción</label>
-            <div class="fs-6">{{ pertenencia.descripcion.valor }}</div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label text-muted fw-bold">Modelo</label>
+            <div class="fs-5">{{ vehiculo.modelo.valor }}</div>
           </div>
-          {% endif %}
+          
+          <div class="col-md-6 mb-3">
+            <label class="form-label text-muted fw-bold">Color</label>
+            <div class="fs-5">
+              <i class="bi bi-palette me-2"></i>{{ vehiculo.color.valor }}
+            </div>
+          </div>
           
           <div class="col-md-6 mb-3">
             <label class="form-label text-muted fw-bold">Estado</label>
             <div>
-              <span class="badge {% if pertenencia.estado.value == 'Activo' %}bg-success{% else %}bg-warning text-dark{% endif %} fs-6">
-                <i class="bi bi-{% if pertenencia.estado.value == 'Activo' %}check-circle{% else %}pause-circle{% endif %}-fill me-1"></i>
-                {{ pertenencia.estado.value }}
+              <span class="badge {% if vehiculo.estado.value == 'Activo' %}bg-success{% else %}bg-warning text-dark{% endif %} fs-6">
+                <i class="bi bi-{% if vehiculo.estado.value == 'Activo' %}check-circle{% else %}pause-circle{% endif %}-fill me-1"></i>
+                {{ vehiculo.estado.value }}
               </span>
-              {% if pertenencia.estado.value == 'Inactivo' %}
+              {% if vehiculo.estado.value == 'Inactivo' %}
                 <div class="text-muted small mt-1">
                   <i class="bi bi-info-circle me-1"></i>
-                  Esta pertenencia no está disponible para ingreso
+                  Este vehículo no está disponible para ingreso
                 </div>
               {% endif %}
             </div>
           </div>
           
-          <div class="col-md-6 mb-3">
+          <div class="col-12 mb-3">
             <label class="form-label text-muted fw-bold">Fecha de registro</label>
             <div class="fs-6">
               <i class="bi bi-calendar-event me-1"></i>
-              {{ pertenencia.fecha_registro.strftime('%d/%m/%Y a las %H:%M') }}
+              {{ vehiculo.fecha_registro.strftime('%d/%m/%Y a las %H:%M') }}
             </div>
           </div>
         </div>
@@ -182,11 +187,11 @@
         </h5>
         
         <div class="foto-container">
-          {% if pertenencia.foto.valor %}
+          {% if vehiculo.foto.valor %}
             <img 
-              src="{{ pertenencia.foto.obtener_url_publica() }}" 
-              alt="Foto de {{ pertenencia.nombre.valor }}" 
-              class="foto-pertenencia"
+              src="{{ vehiculo.foto.obtener_url_publica() }}" 
+              alt="Foto de {{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}" 
+              class="foto-vehiculo"
               data-bs-toggle="modal" 
               data-bs-target="#fotoModal"
               style="cursor: pointer;"
@@ -196,13 +201,13 @@
             </div>
           {% else %}
             <img 
-              src="/static/img/pertenencias/no-image.png" 
+              src="/static/img/no-vehicle.png" 
               alt="Sin imagen" 
-              class="foto-pertenencia"
+              class="foto-vehiculo"
               style="opacity: 0.6;"
             >
             <div class="mt-2">
-              <small class="text-muted">No se ha registrado una imagen para esta pertenencia</small>
+              <small class="text-muted">No se ha registrado una imagen para este vehículo</small>
             </div>
           {% endif %}
         </div>
@@ -213,22 +218,22 @@
   <!-- Botones de acción -->
   <div class="action-buttons">
     <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-      <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias" class="btn btn-outline-secondary">
+      <a href="/usuario/{{ usuario.numero_documento.valor }}/vehiculos" class="btn btn-outline-secondary">
         <i class="bi bi-arrow-left me-1"></i>Volver al listado
       </a>
       
       <div class="d-flex gap-2">
-        <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.id }}/editar" 
+        <a href="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/editar" 
            class="btn btn-primary">
           <i class="bi bi-pencil me-1"></i>Editar
         </a>
         
-        {% if pertenencia.estado.value == 'Activo' %}
+        {% if vehiculo.estado.value == 'Activo' %}
           <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#confirmarInactivar">
             <i class="bi bi-pause-circle me-1"></i>Inactivar
           </button>
         {% else %}
-          <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.id }}/reactivar" style="display: inline;">
+          <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/reactivar" style="display: inline;">
             <button type="submit" class="btn btn-success">
               <i class="bi bi-play-circle me-1"></i>Reactivar
             </button>
@@ -237,7 +242,7 @@
         
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarEliminar">
           <i class="bi bi-trash me-1"></i>
-          {% if pertenencia.estado.value == 'Inactivo' %}Eliminar definitivamente{% else %}Eliminar{% endif %}
+          {% if vehiculo.estado.value == 'Inactivo' %}Eliminar definitivamente{% else %}Eliminar{% endif %}
         </button>
       </div>
     </div>
@@ -245,18 +250,18 @@
 </div>
 
 <!-- Modal para ver foto completa -->
-{% if pertenencia.foto.valor and pertenencia.foto.existe_archivo() %}
+{% if vehiculo.foto.valor and vehiculo.foto.existe_archivo() %}
 <div class="modal fade" id="fotoModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{{ pertenencia.nombre.valor }}</h5>
+        <h5 class="modal-title">{{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body text-center">
         <img 
-          src="{{ pertenencia.foto.obtener_url_publica() }}" 
-          alt="Foto de {{ pertenencia.nombre.valor }}" 
+          src="{{ vehiculo.foto.obtener_url_publica() }}" 
+          alt="Foto de {{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}" 
           class="img-fluid"
         >
       </div>
@@ -266,7 +271,7 @@
 {% endif %}
 
 <!-- Modal de confirmación para inactivar -->
-{% if pertenencia.estado.value == 'Activo' %}
+{% if vehiculo.estado.value == 'Activo' %}
 <div class="modal fade" id="confirmarInactivar" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -277,17 +282,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p>¿Estás seguro de que deseas inactivar la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
+        <p>¿Estás seguro de que deseas inactivar el vehículo <strong>"{{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}"</strong> con placa <strong>{{ vehiculo.placa.valor }}</strong>?</p>
         <div class="alert alert-info">
           <i class="bi bi-info-circle me-2"></i>
-          <strong>La pertenencia será marcada como inactiva</strong> y no estará disponible para ingreso hasta que la reactives.
+          <strong>El vehículo será marcado como inactivo</strong> y no estará disponible para ingreso hasta que lo reactives.
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i>Cancelar
         </button>
-        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.id }}/eliminar" style="display: inline;">
+        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/eliminar" style="display: inline;">
           <button type="submit" class="btn btn-warning">
             <i class="bi bi-pause-circle me-1"></i>Inactivar
           </button>
@@ -305,7 +310,7 @@
       <div class="modal-header">
         <h5 class="modal-title text-danger">
           <i class="bi bi-exclamation-triangle me-2"></i>
-          {% if pertenencia.estado.value == 'Inactivo' %}
+          {% if vehiculo.estado.value == 'Inactivo' %}
             Eliminar definitivamente
           {% else %}
             Confirmar eliminación
@@ -314,17 +319,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        {% if pertenencia.estado.value == 'Inactivo' %}
-          <p>¿Estás seguro de que deseas <strong>eliminar definitivamente</strong> la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
+        {% if vehiculo.estado.value == 'Inactivo' %}
+          <p>¿Estás seguro de que deseas <strong>eliminar definitivamente</strong> el vehículo <strong>"{{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}"</strong> con placa <strong>{{ vehiculo.placa.valor }}</strong>?</p>
           <div class="alert alert-danger">
             <i class="bi bi-exclamation-triangle me-2"></i>
-            <strong>Esta acción NO se puede deshacer.</strong> La pertenencia y su imagen asociada se eliminarán permanentemente del sistema.
+            <strong>Esta acción NO se puede deshacer.</strong> El vehículo y su imagen asociada se eliminarán permanentemente del sistema.
           </div>
         {% else %}
-          <p>¿Estás seguro de que deseas eliminar la pertenencia <strong>"{{ pertenencia.nombre.valor }}"</strong>?</p>
+          <p>¿Estás seguro de que deseas eliminar el vehículo <strong>"{{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}"</strong> con placa <strong>{{ vehiculo.placa.valor }}</strong>?</p>
           <div class="alert alert-warning">
             <i class="bi bi-info-circle me-2"></i>
-            <strong>La pertenencia será inactivada</strong> pero podrás reactivarla más tarde si es necesario.
+            <strong>El vehículo será inactivado</strong> pero podrás reactivarlo más tarde si es necesario.
           </div>
         {% endif %}
       </div>
@@ -332,13 +337,13 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i>Cancelar
         </button>
-        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/pertenencias/{{ pertenencia.id }}/eliminar" style="display: inline;">
+        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/eliminar" style="display: inline;">
           <button type="submit" class="btn btn-danger">
             <i class="bi bi-trash me-1"></i>
-            {% if pertenencia.estado.value == 'Inactivo' %}
+            {% if vehiculo.estado.value == 'Inactivo' %}
               Eliminar definitivamente
             {% else %}
-              Inactivar pertenencia
+              Inactivar vehículo
             {% endif %}
           </button>
         </form>

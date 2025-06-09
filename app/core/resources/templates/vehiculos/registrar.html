@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Registrar pertenencia{% endblock %}
+{% block title %}Registrar vehículo{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -14,7 +14,7 @@
   .tipo-info.show {
     display: block;
   }
-  .serial-required {
+  .placa-required {
     color: #d32f2f;
     font-weight: 600;
   }
@@ -82,16 +82,33 @@
     color: #1e40af;
     border: 1px solid #93c5fd;
   }
+  .placa-preview {
+    font-family: 'Courier New', monospace;
+    background: #1e40af;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: center;
+    font-size: 1.1rem;
+    border: 2px solid #1e3a8a;
+    margin-top: 0.5rem;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-4" style="max-width: 700px;">
   <div class="d-flex align-items-center mb-4">
-    <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias" class="btn btn-outline-secondary me-3">
+    <a href="/usuario/{{ usuario.numero_documento.valor }}/vehiculos" class="btn btn-outline-secondary me-3">
       <i class="bi bi-arrow-left"></i> Volver
     </a>
-    <h2 class="mb-0">Registrar Nueva Pertenencia</h2>
+    <h2 class="mb-0">Registrar Nuevo Vehículo</h2>
   </div>
 
   {% if error %}
@@ -103,36 +120,19 @@
 
   <div class="card shadow-sm">
     <div class="card-body">
-      <form method="post" enctype="multipart/form-data" id="formPertenencia">
+      <form method="post" enctype="multipart/form-data" id="formVehiculo">
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label">
-                <i class="bi bi-tag me-1"></i>Nombre de la pertenencia
-              </label>
-              <input 
-                type="text" 
-                name="nombre" 
-                class="form-control" 
-                required 
-                placeholder="Ej: Laptop Dell Inspiron"
-                value="{{ form_data.nombre or '' }}"
-                minlength="3"
-                maxlength="50"
-              >
-              <div class="form-text">Mínimo 3 caracteres, máximo 50</div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">
-                <i class="bi bi-collection me-1"></i>Tipo de pertenencia
+                <i class="bi bi-car-front me-1"></i>Tipo de vehículo
               </label>
               <select name="tipo" class="form-select" required id="tipoSelect">
                 <option value="">Seleccione un tipo...</option>
-                {% for tipo in tipos_pertenencia %}
+                {% for tipo in tipos_vehiculo %}
                   <option 
                     value="{{ tipo.value }}"
-                    data-requiere-serial="{{ 'true' if tipo.value in ['Electrónico', 'Medios de Transporte'] else 'false' }}"
+                    data-formato-placa="{{ tipo.obtener_formato_placa(tipo) }}"
                     {% if form_data.tipo == tipo.value %}selected{% endif %}
                   >
                     {{ tipo.value }}
@@ -141,49 +141,92 @@
               </select>
               
               <!-- Información del tipo seleccionado -->
-              <div id="tipoElectronico" class="tipo-info">
-                <strong class="serial-required">⚠️ Serial obligatorio</strong><br>
-                <small>Los dispositivos electrónicos requieren número de serie para identificación y seguridad.</small>
+              <div id="tipoMotocicleta" class="tipo-info">
+                <strong><i class="bi bi-bicycle me-1"></i>Motocicleta</strong><br>
+                <small>Formato de placa: <strong>ABC12</strong> o <strong>ABC12D</strong></small>
               </div>
-              <div id="tipoTransporte" class="tipo-info">
-                <strong class="serial-required">⚠️ Serial obligatorio</strong><br>
-                <small>Los medios de transporte requieren número de identificación (placa, serial, etc.).</small>
+              <div id="tipoAutomovil" class="tipo-info">
+                <strong><i class="bi bi-car-front me-1"></i>Automóvil</strong><br>
+                <small>Formato de placa: <strong>ABC123</strong></small>
               </div>
             </div>
 
             <div class="mb-3">
               <label class="form-label">
-                <i class="bi bi-hash me-1"></i>Serial/Código
-                <span id="serialRequired" class="serial-required" style="display:none;">*</span>
+                <i class="bi bi-credit-card me-1"></i>Placa del vehículo
+                <span id="placaRequired" class="placa-required">*</span>
               </label>
               <input 
                 type="text" 
-                name="serial" 
+                name="placa" 
                 class="form-control" 
-                id="serialInput"
-                placeholder="Ej: ABC123-XYZ789"
-                value="{{ form_data.serial or '' }}"
+                id="placaInput"
+                placeholder="Ej: ABC123"
+                value="{{ form_data.placa or '' }}"
+                maxlength="6"
+                required
+                style="text-transform: uppercase;"
+              >
+              <div class="form-text" id="placaHelp">
+                Ingrese la placa según el formato del tipo de vehículo
+              </div>
+              <!-- Preview de la placa -->
+              <div class="placa-preview" id="placaPreview">
+                Ingrese la placa
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="bi bi-award me-1"></i>Marca
+              </label>
+              <input 
+                type="text" 
+                name="marca" 
+                class="form-control" 
+                required 
+                placeholder="Ej: Honda, Toyota, Yamaha..."
+                value="{{ form_data.marca or '' }}"
+                minlength="2"
                 maxlength="30"
               >
-              <div class="form-text" id="serialHelp">
-                Código único de identificación (4-30 caracteres alfanuméricos)
-              </div>
+              <div class="form-text">Mínimo 2 caracteres, máximo 30</div>
             </div>
           </div>
 
           <div class="col-md-6">
             <div class="mb-3">
               <label class="form-label">
-                <i class="bi bi-file-text me-1"></i>Descripción
+                <i class="bi bi-gear me-1"></i>Modelo
               </label>
-              <textarea 
-                name="descripcion" 
+              <input 
+                type="text" 
+                name="modelo" 
                 class="form-control" 
-                rows="3"
-                placeholder="Descripción detallada de la pertenencia..."
-                maxlength="200"
-              >{{ form_data.descripcion or '' }}</textarea>
-              <div class="form-text">Máximo 200 caracteres (opcional)</div>
+                required 
+                placeholder="Ej: Civic, Corolla, CBR600..."
+                value="{{ form_data.modelo or '' }}"
+                minlength="1"
+                maxlength="40"
+              >
+              <div class="form-text">Máximo 40 caracteres</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="bi bi-palette me-1"></i>Color
+              </label>
+              <input 
+                type="text" 
+                name="color" 
+                class="form-control" 
+                required 
+                placeholder="Ej: Rojo, Azul, Negro..."
+                value="{{ form_data.color or '' }}"
+                minlength="3"
+                maxlength="25"
+              >
+              <div class="form-text">Mínimo 3 caracteres, máximo 25</div>
             </div>
 
             <div class="mb-3">
@@ -204,10 +247,10 @@
           </div>
         </div>
 
-        <!-- Sección de foto mejorada con debugging -->
+        <!-- Sección de foto -->
         <div class="mb-4">
           <label class="form-label">
-            <i class="bi bi-camera me-1"></i>Foto de la pertenencia 
+            <i class="bi bi-camera me-1"></i>Foto del vehículo 
             <span class="text-muted">(opcional)</span>
           </label>
           
@@ -258,7 +301,7 @@
           <!-- Vista previa de imagen por defecto -->
           <div id="defaultImageInfo" class="mt-3 p-3 bg-light border rounded">
             <div class="d-flex align-items-center">
-              <img src="/static/img/pertenencias/no-image.png" alt="Imagen por defecto" class="me-3 default-image-preview">
+              <img src="/static/img/no-vehicle.png" alt="Imagen por defecto" class="me-3 default-image-preview">
               <div>
                 <small class="text-muted">
                   <i class="bi bi-image me-1"></i>
@@ -271,11 +314,11 @@
 
         <!-- Botones de acción -->
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-          <a href="/usuario/{{ usuario.numero_documento.valor }}/pertenencias" class="btn btn-outline-secondary">
+          <a href="/usuario/{{ usuario.numero_documento.valor }}/vehiculos" class="btn btn-outline-secondary">
             <i class="bi bi-x-circle me-1"></i>Cancelar
           </a>
           <button type="submit" class="btn btn-primary">
-            <i class="bi bi-save me-1"></i>Registrar Pertenencia
+            <i class="bi bi-save me-1"></i>Registrar Vehículo
           </button>
         </div>
       </form>
@@ -286,44 +329,54 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const tipoSelect = document.getElementById('tipoSelect');
-  const serialInput = document.getElementById('serialInput');
-  const serialRequired = document.getElementById('serialRequired');
-  const serialHelp = document.getElementById('serialHelp');
+  const placaInput = document.getElementById('placaInput');
+  const placaRequired = document.getElementById('placaRequired');
+  const placaHelp = document.getElementById('placaHelp');
+  const placaPreview = document.getElementById('placaPreview');
   
-  function updateSerialRequirement() {
+  function updateTipoInfo() {
     const selectedOption = tipoSelect.selectedOptions[0];
-    const requiereSerial = selectedOption?.dataset.requiereSerial === 'true';
-    
-    // Mostrar/ocultar indicador de obligatorio
-    serialRequired.style.display = requiereSerial ? 'inline' : 'none';
-    
-    // Actualizar atributo required
-    serialInput.required = requiereSerial;
-    
-    // Actualizar texto de ayuda
-    if (requiereSerial) {
-      serialHelp.innerHTML = '<strong class="text-danger">Campo obligatorio</strong> - Código único de identificación (4-30 caracteres)';
-      serialInput.classList.add('border-warning');
-    } else {
-      serialHelp.innerHTML = 'Código único de identificación (4-30 caracteres alfanuméricos)';
-      serialInput.classList.remove('border-warning');
-    }
+    const tipoValue = selectedOption?.value;
     
     // Mostrar información del tipo
     document.querySelectorAll('.tipo-info').forEach(info => info.classList.remove('show'));
     
-    const tipoValue = selectedOption?.value;
-    if (tipoValue === 'Electrónico') {
-      document.getElementById('tipoElectronico').classList.add('show');
-    } else if (tipoValue === 'Medios de Transporte') {
-      document.getElementById('tipoTransporte').classList.add('show');
+    if (tipoValue === 'Motocicleta') {
+      document.getElementById('tipoMotocicleta').classList.add('show');
+      placaHelp.innerHTML = '<strong class="text-primary">Motocicleta:</strong> Use formato ABC12 o ABC12D';
+      placaInput.placeholder = "ABC12 o ABC12D";
+    } else if (tipoValue === 'Automóvil') {
+      document.getElementById('tipoAutomovil').classList.add('show');
+      placaHelp.innerHTML = '<strong class="text-primary">Automóvil:</strong> Use formato ABC123';
+      placaInput.placeholder = "ABC123";
+    } else {
+      placaHelp.innerHTML = 'Seleccione el tipo de vehículo primero';
+      placaInput.placeholder = "Seleccione tipo primero";
+    }
+    
+    // Actualizar preview de placa
+    updatePlacaPreview();
+  }
+  
+  function updatePlacaPreview() {
+    const placa = placaInput.value.trim().toUpperCase();
+    if (placa) {
+      placaPreview.textContent = placa;
+      placaPreview.style.backgroundColor = '#1e40af';
+    } else {
+      placaPreview.textContent = 'Ingrese la placa';
+      placaPreview.style.backgroundColor = '#6b7280';
     }
   }
   
-  tipoSelect.addEventListener('change', updateSerialRequirement);
+  tipoSelect.addEventListener('change', updateTipoInfo);
+  placaInput.addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+    updatePlacaPreview();
+  });
   
   // Ejecutar al cargar para valores preseleccionados
-  updateSerialRequirement();
+  updateTipoInfo();
 });
 
 function previewImage(input) {
@@ -346,11 +399,6 @@ function previewImage(input) {
   }
   
   const file = input.files[0];
-  console.log('📷 Archivo seleccionado:', {
-    name: file.name,
-    size: file.size,
-    type: file.type
-  });
   
   // Mostrar información del archivo
   const fileSize = (file.size / 1024 / 1024).toFixed(2);
@@ -386,11 +434,9 @@ function previewImage(input) {
     previewImg.src = e.target.result;
     preview.style.display = 'block';
     defaultInfo.style.display = 'none';
-    console.log('✅ Preview de imagen cargado correctamente');
   };
   
   reader.onerror = function() {
-    console.error('❌ Error al cargar preview de imagen');
     fileStatusText.textContent = 'Error al cargar preview de imagen';
     fileStatus.className = 'file-status error';
   };
@@ -414,20 +460,41 @@ function removeImage() {
   fileStatusText.textContent = '';
 }
 
-// ✅ VALIDACIÓN MEJORADA DEL FORMULARIO
-document.getElementById('formPertenencia').addEventListener('submit', function(e) {
+// Validación del formulario
+document.getElementById('formVehiculo').addEventListener('submit', function(e) {
   const tipoSelect = document.getElementById('tipoSelect');
-  const serialInput = document.getElementById('serialInput');
-  const selectedOption = tipoSelect.selectedOptions[0];
-  const requiereSerial = selectedOption?.dataset.requiereSerial === 'true';
+  const placaInput = document.getElementById('placaInput');
   
-  // Validar serial obligatorio
-  if (requiereSerial && !serialInput.value.trim()) {
+  // Validar que se haya seleccionado un tipo
+  if (!tipoSelect.value) {
     e.preventDefault();
-    alert('El serial es obligatorio para este tipo de pertenencia.');
-    serialInput.focus();
+    alert('Debe seleccionar un tipo de vehículo');
+    tipoSelect.focus();
     return false;
   }
+  
+  // Validar formato de placa según tipo
+  const tipo = tipoSelect.value;
+  const placa = placaInput.value.trim().toUpperCase();
+  
+  if (tipo === 'Motocicleta') {
+    // ABC12 o ABC12D
+    if (!/^[A-Z]{3}[0-9]{2}[A-Z]?$/.test(placa)) {
+      e.preventDefault();
+      alert('Formato de placa inválido para motocicleta. Use: ABC12 o ABC12D');
+      placaInput.focus();
+      return false;
+    }
+  } else if (tipo === 'Automóvil') {
+    // ABC123
+    if (!/^[A-Z]{3}[0-9]{3}$/.test(placa)) {
+      e.preventDefault();
+      alert('Formato de placa inválido para automóvil. Use: ABC123');
+      placaInput.focus();
+      return false;
+    }
+  }
+  
   // Mostrar indicador de carga
   const submitBtn = this.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
