@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+{% block title %}Editar vehículo{% endblock %}
+
+{% block extra_head %}
+<style>
+  .current-image {
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+  }
+  .image-actions {
+    margin-top: 1rem;
+  }
+  .file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    cursor: pointer;
+    background: linear-gradient(45deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px dashed #0ea5e9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  .file-input-wrapper:hover {
+    background: linear-gradient(45deg, #e0f2fe 0%, #bae6fd 100%);
+    border-color: #0284c7;
+  }
+  .file-input-wrapper input[type=file] {
+    position: absolute;
+    left: -9999px;
+  }
+  .preview-container {
+    max-width: 200px;
+    margin-top: 1rem;
+  }
+  .preview-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+  }
+  .file-info {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+  .placa-display {
+    font-family: 'Courier New', monospace;
+    background: #6b7280;
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: center;
+    font-size: 1.2rem;
+    border: 2px solid #4b5563;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 700px;">
+  <div class="d-flex align-items-center mb-4">
+    <a href="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}" class="btn btn-outline-secondary me-3">
+      <i class="bi bi-arrow-left"></i> Volver
+    </a>
+    <h2 class="mb-0">Editar Vehículo</h2>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endif %}
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" id="formEditar" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/editar">
+        <div class="row">
+          <div class="col-md-6">
+            <!-- Placa (no editable) -->
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="bi bi-credit-card me-1"></i>Placa del vehículo
+              </label>
+              <div class="placa-display">{{ vehiculo.placa.valor }}</div>
+              <div class="form-text">
+                <i class="bi bi-info-circle me-1"></i>
+                La placa no puede ser modificada
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="bi bi-car-front me-1"></i>Tipo de vehículo
+              </label>
+              <select name="tipo" class="form-select" required id="tipoSelect">
+                {% for tipo in tipos_vehiculo %}
+                  <option 
+                    value="{{ tipo.value }}"
+                    {% if vehiculo.tipo.value == tipo.value %}selected{% endif %}
+                  >
+                    {{ tipo.value }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="bi bi-award me-1"></i>Marca
+              </label>
+              <input 
+                type="text" 
+                name="marca" 
+                class="form-control" 
+                required 
+                value="{{ vehiculo.marca.valor }}"
+                minlength="2"
+                maxlength="30"
+              >
+              <div class="form-text">Mínimo 2 caracteres, máximo 30</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="bi bi-gear me-1"></i>Modelo
+              </label>
+              <input 
+                type="text" 
+                name="modelo" 
+                class="form-control" 
+                required 
+                value="{{ vehiculo.modelo.valor }}"
+                minlength="1"
+                maxlength="40"
+              >
+              <div class="form-text">Máximo 40 caracteres</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="bi bi-palette me-1"></i>Color
+              </label>
+              <input 
+                type="text" 
+                name="color" 
+                class="form-control" 
+                required 
+                value="{{ vehiculo.color.valor }}"
+                minlength="3"
+                maxlength="25"
+              >
+              <div class="form-text">Mínimo 3 caracteres, máximo 25</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="bi bi-toggle-on me-1"></i>Estado
+              </label>
+              <select name="estado" class="form-select">
+                {% for estado in estados %}
+                  <option 
+                    value="{{ estado.value }}"
+                    {% if vehiculo.estado.value == estado.value %}selected{% endif %}
+                  >
+                    {{ estado.value }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección de foto -->
+        <div class="mb-4">
+          <label class="form-label">
+            <i class="bi bi-camera me-1"></i>Foto del vehículo
+          </label>
+          
+          {% if vehiculo.foto.valor %}
+            <div class="current-photo mb-3">
+              <p class="text-muted mb-2">
+                <i class="bi bi-image me-1"></i>Foto actual:
+              </p>
+              <div class="d-flex align-items-start gap-3">
+                <img 
+                  src="{{ vehiculo.foto.obtener_url_publica() }}" 
+                  alt="Foto actual" 
+                  class="current-image"
+                  id="currentImage"
+                >
+                <div class="image-actions">
+                  <div class="form-check">
+                    <input 
+                      class="form-check-input" 
+                      type="checkbox" 
+                      name="eliminar_foto" 
+                      id="eliminarFoto"
+                      value="true"
+                    >
+                    <label class="form-check-label text-danger" for="eliminarFoto">
+                      <i class="bi bi-trash me-1"></i>Eliminar foto actual
+                    </label>
+                  </div>
+                  <div class="mt-2">
+                    <small class="text-muted">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Si subes una nueva imagen, la actual será reemplazada automáticamente.
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Sin foto actual.</strong> Puedes agregar una imagen usando el formulario de abajo.
+            </div>
+          {% endif %}
+          
+          <div class="file-input-wrapper" onclick="document.getElementById('fotoInput').click()">
+            <i class="bi bi-cloud-upload display-5 text-primary mb-2"></i>
+            <div>
+              <strong>
+                {% if vehiculo.foto.valor %}
+                  Cambiar imagen
+                {% else %}
+                  Agregar imagen
+                {% endif %}
+              </strong>
+            </div>
+            <div class="file-info">
+              Formatos: JPG, PNG, WEBP, GIF | Máximo: 10MB
+            </div>
+            <input 
+              type="file" 
+              name="foto" 
+              id="fotoInput"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+              onchange="previewNewImage(this)"
+            >
+          </div>
+          
+          <!-- Preview de nueva imagen -->
+          <div id="newImagePreview" class="preview-container" style="display:none;">
+            <p class="text-success mb-2">
+              <i class="bi bi-check-circle me-1"></i>Nueva imagen:
+            </p>
+            <img id="previewImg" src="" alt="Preview" class="preview-image">
+            <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="removeNewImage()">
+              <i class="bi bi-trash"></i> Quitar nueva imagen
+            </button>
+          </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="card bg-light mb-4">
+          <div class="card-body">
+            <h6 class="card-title">
+              <i class="bi bi-info-circle text-primary me-2"></i>Información de registro
+            </h6>
+            <div class="row text-sm">
+              <div class="col-md-6">
+                <strong>Registrado el:</strong> {{ vehiculo.fecha_registro.strftime('%d/%m/%Y a las %H:%M') }}
+              </div>
+              <div class="col-md-6">
+                <strong>Propietario:</strong> {{ usuario.nombres.valor }} {{ usuario.apellidos.valor }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <a href="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-circle me-1"></i>Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i>Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const eliminarFotoCheckbox = document.getElementById('eliminarFoto');
+  const currentImage = document.getElementById('currentImage');
+  
+  // Manejar checkbox de eliminar foto
+  if (eliminarFotoCheckbox && currentImage) {
+    eliminarFotoCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        currentImage.style.opacity = '0.3';
+        currentImage.style.filter = 'grayscale(100%)';
+        currentImage.style.transform = 'scale(0.95)';
+      } else {
+        currentImage.style.opacity = '1';
+        currentImage.style.filter = 'none';
+        currentImage.style.transform = 'scale(1)';
+      }
+    });
+  }
+});
+
+function previewNewImage(input) {
+  const preview = document.getElementById('newImagePreview');
+  const previewImg = document.getElementById('previewImg');
+  
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    
+    // Validar tamaño del archivo (10MB máximo)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      alert('El archivo es demasiado grande. El tamaño máximo es 10MB.');
+      input.value = '';
+      return;
+    }
+    
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      alert('Tipo de archivo no válido. Use JPG, PNG, WEBP o GIF.');
+      input.value = '';
+      return;
+    }
+    
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      previewImg.src = e.target.result;
+      preview.style.display = 'block';
+      
+      // Si hay checkbox de eliminar foto, desmarcarlo
+      const eliminarCheckbox = document.getElementById('eliminarFoto');
+      if (eliminarCheckbox) {
+        eliminarCheckbox.checked = false;
+        eliminarCheckbox.dispatchEvent(new Event('change'));
+      }
+    };
+    
+    reader.readAsDataURL(file);
+  }
+}
+
+function removeNewImage() {
+  document.getElementById('fotoInput').value = '';
+  document.getElementById('newImagePreview').style.display = 'none';
+  document.getElementById('previewImg').src = '';
+}
+
+// Validación del formulario
+document.getElementById('formEditar').addEventListener('submit', function(e) {
+  // Confirmar si se van a hacer cambios importantes
+  const eliminarFoto = document.getElementById('eliminarFoto')?.checked;
+  const nuevaFoto = document.getElementById('fotoInput').files.length > 0;
+  
+  if (eliminarFoto || nuevaFoto) {
+    const mensaje = eliminarFoto ? 
+      '¿Estás seguro de que deseas eliminar la foto actual?' :
+      '¿Estás seguro de que deseas cambiar la foto actual?';
+    
+    if (!confirm(mensaje)) {
+      e.preventDefault();
+      return false;
+    }
+  }
+});
+</script>
+{% endblock %}

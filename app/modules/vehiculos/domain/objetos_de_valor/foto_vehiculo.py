@@ -1,7 +1,7 @@
-'''
-    Objeto de valor para la foto de la pertenencia.
-    Maneja solo archivos locales, no URLs externas.
-'''
+"""
+Objeto de valor para la foto del vehículo.
+Maneja solo archivos locales, no URLs externas.
+"""
 import re
 import os
 from dataclasses import dataclass
@@ -11,7 +11,7 @@ EXTENSIONES_PERMITIDAS = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
 TAMAÑO_MAXIMO_MB = 10  # 10 MB máximo por archivo
 
 @dataclass(frozen=True)
-class FotoPertenencia:
+class FotoVehiculo:
     valor: str  # Ruta relativa del archivo
 
     def __post_init__(self):
@@ -80,10 +80,10 @@ class FotoPertenencia:
     def obtener_url_publica(self) -> str:
         """Obtiene la URL pública para mostrar en templates."""
         if not self.valor:
-            return "/static/img/pertenencias/no-image.png"  # Imagen por defecto
+            return "/static/img/no-vehicle.png"  # Imagen por defecto para vehículos
         
         # Verificar si el archivo existe físicamente
         if not self.existe_archivo():
-            return "/static/img/pertenencias/no-image.png"  # Imagen por defecto si no existe
+            return "/static/img/no-vehicle.png"  # Imagen por defecto si no existe
         
         return f"/{self.valor}"
