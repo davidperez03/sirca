@@ -7,6 +7,7 @@
 '''
 
 from datetime import datetime
+import logging
 
 # FastAPI & terceros
 from fastapi import (
@@ -45,7 +46,6 @@ from app.modules.autenticacion.application.casos_de_uso.resetear_contrasena impo
 from app.modules.auth.servicios import ServicioAuth, verificar_token_reset
 from app.modules.auth.blacklist import agregar_token_a_blacklist
 from app.modules.auth.seguridad import decodificar_token
-from app.modules.auth.blacklist import esta_en_blacklist
 
 # Autenticación
 from app.modules.auth.validadores.token_cookie import validar_token_cookie
@@ -53,6 +53,9 @@ from app.modules.auth.validadores.roles import rol_requerido_cookie
 
 # Esquemas de entrada / salida
 from app.modules.autenticacion.interface.esquemas import UsuarioRead
+
+# Configurar logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["autenticacion"])
 auth_service = ServicioAuth()
@@ -97,6 +100,7 @@ async def crear_usuario(
             {
                 "request": request,
                 "tipos_documento": list(TipoDocumento),
+                "roles": ROLES_PERMITIDOS_REGISTRO,
                 "error": "Las contraseñas no coinciden.",
                 "form_data": {
                     "tipo_documento": tipo_documento.name,
@@ -122,7 +126,9 @@ async def crear_usuario(
             contrasena,
             rol
         )
+        logger.info(f"✅ Usuario registrado: {numero_documento}")
     except ValueError as e:
+        logger.error(f"❌ Error registrando usuario {numero_documento}: {e}")
         return templates.TemplateResponse(
             "autenticacion/registro/registro.html",
             {
@@ -165,37 +171,48 @@ def activar_cuenta(
     token: str = Query(..., description="Token JWT de activación"),
     db: Session = Depends(get_db)
 ):
-    if esta_en_blacklist(token):
-        return templates.TemplateResponse(
-            "autenticacion/activacion_usuario/activacion_error.html",
-            {"request": request, "mensaje": "Este enlace ya fue utilizado."},
-            status_code=400
-        )
+    # Log del token recibido (solo primeros caracteres por seguridad)
+    logger.info(f"🎫 Recibido token de activación: {token[:30]}...")
     
+    # NO verificar blacklist para tokens de activación - usan JTI único
     try:
         user_id = auth_service.activar_cuenta(token)
+        logger.info(f"✅ Cuenta activada exitosamente: {user_id}")
     except HTTPException as e:
+        logger.error(f"❌ Error activando cuenta: {e.detail}")
         return templates.TemplateResponse(
             "autenticacion/activacion_usuario/activacion_error.html",
             {"request": request, "mensaje": e.detail},
             status_code=e.status_code
         )
 
-    # 2) Mostrar página de éxito
+    # 2) Obtener usuario y mostrar página de éxito
     repo = RepositorioUsuariosBD(db)
     usuario = repo.obtener_por_id(user_id)
+    
+    if not usuario:
+        logger.error(f"❌ Usuario no encontrado después de activación: {user_id}")
+        return templates.TemplateResponse(
+            "autenticacion/activacion_usuario/activacion_error.html",
+            {"request": request, "mensaje": "Error interno: usuario no encontrado"},
+            status_code=500
+        )
 
-    decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-    exp = decoded.get("exp")
-    tiempo_restante = exp - int(datetime.utcnow().timestamp())
-    if tiempo_restante > 0:
-        agregar_token_a_blacklist(token, tiempo_restante)
+    # OPCIONAL: Agregar token a blacklist para prevenir reutilización adicional
+    try:
+        decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        exp = decoded.get("exp")
+        tiempo_restante = exp - int(datetime.utcnow().timestamp())
+        if tiempo_restante > 0:
+            agregar_token_a_blacklist(token, tiempo_restante)
+            logger.info(f"🔒 Token agregado a blacklist como precaución")
+    except Exception as e:
+        logger.warning(f"⚠️ No se pudo agregar token a blacklist: {e}")
 
     return templates.TemplateResponse(
         "autenticacion/activacion_usuario/activacion_exitosa.html",
         {"request": request, "usuario": usuario}
     )
-
 
 @router.get(
     "/reenvio-activacion",
@@ -230,6 +247,7 @@ async def procesar_reenvio_activacion(
 
     # 1) Usuario no encontrado o tipo incorrecto
     if not usuario or usuario.tipo_documento != tipo_documento:
+        logger.warning(f"⚠️ Intento de reenvío para usuario inexistente: {numero_documento}")
         return templates.TemplateResponse(
             "autenticacion/activacion_usuario/reenvio_activacion.html",
             {
@@ -246,6 +264,7 @@ async def procesar_reenvio_activacion(
 
     # 2) Cuenta ya activada
     if usuario.activo:
+        logger.warning(f"⚠️ Intento de reenvío para cuenta ya activa: {numero_documento}")
         return templates.TemplateResponse(
             "autenticacion/activacion_usuario/reenvio_activacion.html",
             {
@@ -267,6 +286,7 @@ async def procesar_reenvio_activacion(
         nombre_usuario=f"{usuario.nombres.valor} {usuario.apellidos.valor}",
         email=usuario.correo_institucional.valor
     )
+    logger.info(f"✅ Reenvío de activación para: {numero_documento}")
     return templates.TemplateResponse(
         "autenticacion/activacion_usuario/reenvio_exitoso.html",
         {"request": request}
@@ -289,7 +309,6 @@ async def mostrar_login(request: Request):
     )
 
 @router.post("/login", response_class=HTMLResponse, name="Iniciar sesión")
-
 async def login(
     request: Request,
     tipo_documento: TipoDocumento = Form(...),
@@ -301,7 +320,9 @@ async def login(
 
     try:
         token = auth_service.login(tipo_documento, numero_documento, contrasena)
+        logger.info(f"✅ Login exitoso: {numero_documento}")
     except HTTPException as e:
+        logger.warning(f"❌ Login fallido: {numero_documento} - {e.detail}")
         return templates.TemplateResponse(
             "autenticacion/login/login.html",
             {
@@ -363,6 +384,7 @@ async def logout(request: Request, response: Response):
                 tiempo_restante = exp - int(datetime.utcnow().timestamp())
                 if tiempo_restante > 0:
                     agregar_token_a_blacklist(token, tiempo_restante)
+                    logger.info(f"🔒 Token agregado a blacklist en logout")
         except JWTError:
             pass
 
@@ -384,7 +406,6 @@ async def logout(request: Request, response: Response):
     response_class=HTMLResponse,
     name="Mostrar recuperar contraseña"
 )
-
 async def mostrar_recuperar_contrasena(request: Request):
     return templates.TemplateResponse(
         "autenticacion/recuperar_contrasena/recuperar_contrasena.html",
@@ -401,7 +422,6 @@ async def mostrar_recuperar_contrasena(request: Request):
     response_class=HTMLResponse,
     name="Procesar recuperar contraseña"
 )
-
 async def procesar_recuperar(
     request: Request,
     background_tasks: BackgroundTasks,
@@ -427,6 +447,7 @@ async def procesar_recuperar(
     if (not usuario
         or usuario.tipo_documento != tipo_documento
         or usuario.numero_documento.valor != numero_documento):
+        logger.warning(f"⚠️ Intento de recuperación con datos incorrectos: {numero_documento}")
         ctx["error"] = "Los datos no coinciden con ningún usuario."
         return templates.TemplateResponse(
             "autenticacion/recuperar_contrasena/recuperar_contrasena.html", ctx
@@ -439,6 +460,7 @@ async def procesar_recuperar(
         nombre_usuario=f"{usuario.nombres.valor} {usuario.apellidos.valor}",
         email=usuario.correo_institucional.valor
     )
+    logger.info(f"✅ Correo de reset enviado para: {numero_documento}")
     return templates.TemplateResponse(
         "autenticacion/recuperar_contrasena/recuperar_exitoso.html",
         {"request": request}
@@ -451,6 +473,7 @@ async def procesar_recuperar(
     name="Mostrar reset contraseña"
 )
 async def mostrar_reset(request: Request, token: str = Query(...)):
+    logger.info(f"🎫 Recibido token de reset: {token[:30]}...")
     return templates.TemplateResponse(
         "autenticacion/recuperar_contrasena/reset_contrasena.html",
         {"request": request, "token": token, "error": None}
@@ -475,15 +498,12 @@ async def procesar_reset(
             {"request": request, "token": token, "error": "Las contraseñas no coinciden."}
         )
     
-    if esta_en_blacklist(token):
-        return templates.TemplateResponse(
-            "autenticacion/recuperar_contrasena/reset_error.html",
-            {"request": request, "mensaje": "Este enlace ya fue utilizado o ha expirado."}
-    )
-
+    # NO verificar blacklist para tokens de reset - usan JTI único
     try:
         user_id = verificar_token_reset(token)
+        logger.info(f"✅ Token de reset verificado para: {user_id}")
     except ValueError as e:
+        logger.error(f"❌ Error verificando token de reset: {e}")
         return templates.TemplateResponse(
             "autenticacion/recuperar_contrasena/reset_error.html",
             {"request": request, "mensaje": str(e)}
@@ -492,11 +512,14 @@ async def procesar_reset(
     repo = RepositorioUsuariosBD(db)
     usuario = repo.obtener_por_id(user_id)
     if not usuario:
+        logger.error(f"❌ Usuario no encontrado para reset: {user_id}")
         raise HTTPException(status_code=404, detail="Usuario no encontrado.")
 
     try:
         resetear_contrasena(usuario, nueva_contrasena)
+        logger.info(f"✅ Contraseña actualizada para: {user_id}")
     except ValueError as e:
+        logger.error(f"❌ Error actualizando contraseña: {e}")
         return templates.TemplateResponse(
             "autenticacion/recuperar_contrasena/reset_contrasena.html",
             {"request": request, "token": token, "error": str(e)}
@@ -504,11 +527,16 @@ async def procesar_reset(
 
     repo.actualizar(usuario)
 
-    decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-    exp = decoded.get("exp")
-    tiempo_restante = exp - int(datetime.utcnow().timestamp())
-    if tiempo_restante > 0:
-        agregar_token_a_blacklist(token, tiempo_restante)
+    # OPCIONAL: Agregar token a blacklist para prevenir reutilización
+    try:
+        decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        exp = decoded.get("exp")
+        tiempo_restante = exp - int(datetime.utcnow().timestamp())
+        if tiempo_restante > 0:
+            agregar_token_a_blacklist(token, tiempo_restante)
+            logger.info(f"🔒 Token de reset agregado a blacklist")
+    except Exception as e:
+        logger.warning(f"⚠️ No se pudo agregar token reset a blacklist: {e}")
 
     return templates.TemplateResponse(
         "autenticacion/recuperar_contrasena/reset_exitoso.html",
