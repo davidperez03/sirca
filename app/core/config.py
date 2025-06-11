@@ -1,11 +1,6 @@
-'''
-    Configuración de la aplicación FastAPI utilizando Pydantic para la gestión de variables de entorno.
-    Define las configuraciones necesarias para la aplicación, incluyendo la base de datos, el correo electrónico y la seguridad.
-'''
-
-# Librerías de terceros
 from pydantic_settings import BaseSettings
 from pydantic import ConfigDict, AnyUrl, EmailStr, AnyHttpUrl
+import os
 
 class Settings(BaseSettings):
     # App
@@ -31,8 +26,10 @@ class Settings(BaseSettings):
     mail_template_folder: str
 
     redis_host: str 
-    redis_port: int
-    redis_db: int
+    redis_port: int = 6379
+    redis_db: int = 0
+    redis_password: str = ""  
+    redis_url: str = ""       
 
     model_config = ConfigDict(
         env_file=".env",
@@ -42,10 +39,20 @@ class Settings(BaseSettings):
 
     timezone: str = "America/Bogota"
 
-    model_config = ConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="allow",
-    )
+    def get_redis_config(self) -> dict:
+        if self.redis_url:
+            return {"url": self.redis_url}
+        
+        config = {
+            "host": self.redis_host,
+            "port": self.redis_port,
+            "db": self.redis_db,
+            "decode_responses": True
+        }
+
+        if self.redis_password:
+            config["password"] = self.redis_password
+            
+        return config
 
 settings = Settings()
