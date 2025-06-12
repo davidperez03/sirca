@@ -1,71 +1,330 @@
 {% extends "base_auth.html" %}
 
-{% block title %}Iniciar sesión{% endblock %}
+{% block title %}Iniciar Sesión - SIRCA{% endblock %}
+{% block description %}Accede a tu cuenta SIRCA de forma segura{% endblock %}
 
-{% block content %}
-<div class="container py-5" style="max-width: 500px;">
-  <h2 class="mb-4 text-center">Iniciar sesión</h2>
+{% block left_title %}¡Bienvenido de vuelta!{% endblock %}
+{% block left_subtitle %}Accede a tu cuenta y gestiona tu información empresarial de forma segura y eficiente.{% endblock %}
 
-  {% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-  {% endif %}
-
-  <form method="post" action="/login">
-    <div class="mb-3">
-      <label for="tipo_documento" class="form-label">Tipo de documento</label>
-      <select
-        id="tipo_documento"
-        name="tipo_documento"
-        class="form-select"
-        required
-      >
-        <option value="" disabled selected>Selecciona...</option>
-        {% for tipo in tipos_documento %}
-          <option
-            value="{{ tipo.value }}"
-            {% if form_data.tipo_documento == tipo.value %}selected{% endif %}
-          >
-            {{ tipo.value }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <div class="mb-3">
-      <label for="numero_documento" class="form-label">Número de documento</label>
-      <input
-        type="text"
-        id="numero_documento"
-        name="numero_documento"
-        class="form-control"
-        required
-        value="{{ form_data.numero_documento or '' }}"
-      >
-    </div>
-
-    <div class="mb-3">
-      <label for="contrasena" class="form-label">Contraseña</label>
-      <input
-        type="password"
-        id="contrasena"
-        name="contrasena"
-        class="form-control"
-        required
-      >
-      <div class="text-end mt-1">
-        <a href="/recuperar-contrasena" class="link-secondary" style="font-size: 0.95em;">¿Olvidaste tu contraseña?</a>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary w-100 mb-2">Ingresar</button>
-    <a href="/registro" class="btn btn-success w-100 mb-3">Registrarse</a>
-  </form>
-
-  <div class="text-center mt-3">
-    <a href="/" class="link-secondary" style="font-size: 0.98em;">
-      ← Volver al inicio
-    </a>
-  </div>
+{% block left_features %}
+<div class="auth-feature">
+    <i class="bi bi-shield-check auth-feature-icon"></i>
+    <span class="auth-feature-text">Autenticación segura</span>
+</div>
+<div class="auth-feature">
+    <i class="bi bi-person-check auth-feature-icon"></i>
+    <span class="auth-feature-text">Sesión personalizada</span>
+</div>
+<div class="auth-feature">
+    <i class="bi bi-clock-history auth-feature-icon"></i>
+    <span class="auth-feature-text">Acceso 24/7</span>
 </div>
 {% endblock %}
 
+{% block form_title %}Iniciar Sesión{% endblock %}
+{% block form_description %}Ingresa tus credenciales para acceder a tu cuenta{% endblock %}
+
+{% block content %}
+<!-- Mostrar errores si existen -->
+{% if error %}
+<div class="alert alert-danger" data-aos="shake">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    {{ error }}
+</div>
+{% endif %}
+
+<!-- Formulario de login -->
+<form method="post" action="/login" data-validate class="animate-fade-in-up">
+    
+    <!-- Tipo de documento -->
+    <div class="form-group">
+        <label for="tipo_documento" class="form-label">
+            <i class="bi bi-card-text me-1"></i>
+            Tipo de documento
+        </label>
+        <div class="input-group">
+            <select
+                id="tipo_documento"
+                name="tipo_documento"
+                class="form-control"
+                required
+                style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 4 5&quot;><path fill=&quot;%23666&quot; d=&quot;M2 0L0 2h4zm0 5L0 3h4z&quot;/></svg>'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 12px; padding-right: 2.5rem;"
+            >
+                <option value="" disabled {% if not form_data.tipo_documento %}selected{% endif %}>
+                    Selecciona tu tipo de documento...
+                </option>
+                {% for tipo in tipos_documento %}
+                <option
+                    value="{{ tipo.value }}"
+                    {% if form_data.tipo_documento == tipo.value %}selected{% endif %}
+                >
+                    {{ tipo.value }}
+                </option>
+                {% endfor %}
+            </select>
+            <i class="bi bi-card-list input-icon"></i>
+        </div>
+    </div>
+
+    <!-- Número de documento -->
+    <div class="form-group">
+        <label for="numero_documento" class="form-label">
+            <i class="bi bi-hash me-1"></i>
+            Número de documento
+        </label>
+        <div class="input-group">
+            <input
+                type="text"
+                id="numero_documento"
+                name="numero_documento"
+                class="form-control"
+                placeholder="Ingresa tu número de documento"
+                required
+                value="{{ form_data.numero_documento or '' }}"
+                autocomplete="username"
+            >
+            <i class="bi bi-person-vcard input-icon"></i>
+        </div>
+    </div>
+
+    <!-- Contraseña -->
+    <div class="form-group">
+        <label for="contrasena" class="form-label">
+            <i class="bi bi-key me-1"></i>
+            Contraseña
+        </label>
+        <div class="input-group">
+            <input
+                type="password"
+                id="contrasena"
+                name="contrasena"
+                class="form-control"
+                placeholder="Ingresa tu contraseña"
+                required
+                autocomplete="current-password"
+            >
+            <i class="bi bi-lock input-icon"></i>
+            <button 
+                type="button" 
+                class="btn btn-outline position-absolute end-0 top-0 h-100 px-3" 
+                style="border-radius: 0 var(--radius-lg) var(--radius-lg) 0; z-index: 10;"
+                onclick="togglePassword('contrasena')"
+                tabindex="-1"
+            >
+                <i class="bi bi-eye" id="toggleIcon"></i>
+            </button>
+        </div>
+        <div class="text-end mt-2">
+            <a href="/recuperar-contrasena" class="auth-link" style="font-size: 0.875rem;">
+                <i class="bi bi-arrow-clockwise me-1"></i>
+                ¿Olvidaste tu contraseña?
+            </a>
+        </div>
+    </div>
+
+    <!-- Recordar sesión -->
+    <div class="form-group">
+        <div class="d-flex align-items-center">
+            <input 
+                type="checkbox" 
+                id="recordar_sesion" 
+                name="recordar_sesion" 
+                class="me-2"
+                style="transform: scale(1.2);"
+            >
+            <label for="recordar_sesion" class="form-label mb-0" style="font-weight: 400; cursor: pointer;">
+                Recordar mi sesión
+            </label>
+        </div>
+    </div>
+
+    <!-- Botón de envío -->
+    <button type="submit" class="btn btn-primary btn-lg btn-block">
+        <i class="bi bi-box-arrow-in-right me-2"></i>
+        Iniciar Sesión
+    </button>
+
+    <!-- Divisor -->
+    <div class="divider">
+        <span class="divider-text">¿No tienes cuenta?</span>
+    </div>
+
+    <!-- Enlace a registro -->
+    <a href="/registro" class="btn btn-outline btn-lg btn-block">
+        <i class="bi bi-person-plus me-2"></i>
+        Crear cuenta nueva
+    </a>
+
+    <!-- Enlace de regreso -->
+    <div class="text-center mt-6">
+        <a href="/" class="auth-link">
+            <i class="bi bi-arrow-left me-1"></i>
+            Volver al inicio
+        </a>
+    </div>
+</form>
+
+<script>
+// Función para mostrar/ocultar contraseña
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById('toggleIcon');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        field.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+}
+
+// Validaciones específicas para el login
+document.addEventListener('DOMContentLoaded', function() {
+    const numeroDocInput = document.getElementById('numero_documento');
+    const tipoDocSelect = document.getElementById('tipo_documento');
+    
+    // Validación del número de documento según el tipo
+    function validateDocumentNumber() {
+        const tipo = tipoDocSelect.value;
+        const numero = numeroDocInput.value.trim();
+        
+        if (!numero) return true; // Si está vacío, no validar aquí
+        
+        let isValid = true;
+        let message = '';
+        
+        switch (tipo) {
+            case 'CC': // Cédula de Ciudadanía
+                if (!/^\d{6,10}$/.test(numero)) {
+                    isValid = false;
+                    message = 'La cédula debe tener entre 6 y 10 dígitos';
+                }
+                break;
+            case 'CE': // Cédula de Extranjería
+                if (!/^\d{6,12}$/.test(numero)) {
+                    isValid = false;
+                    message = 'La cédula de extranjería debe tener entre 6 y 12 dígitos';
+                }
+                break;
+            case 'NIT': // NIT
+                if (!/^\d{9,15}$/.test(numero)) {
+                    isValid = false;
+                    message = 'El NIT debe tener entre 9 y 15 dígitos';
+                }
+                break;
+            case 'PAS': // Pasaporte
+                if (!/^[A-Za-z0-9]{6,12}$/.test(numero)) {
+                    isValid = false;
+                    message = 'El pasaporte debe tener entre 6 y 12 caracteres alfanuméricos';
+                }
+                break;
+        }
+        
+        // Aplicar estado visual
+        numeroDocInput.classList.remove('is-valid', 'is-invalid');
+        const feedback = numeroDocInput.parentNode.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+        
+        if (!isValid) {
+            numeroDocInput.classList.add('is-invalid');
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'invalid-feedback';
+            feedbackDiv.innerHTML = `<i class="bi bi-exclamation-circle me-1"></i>${message}`;
+            numeroDocInput.parentNode.parentNode.appendChild(feedbackDiv);
+        } else if (numero) {
+            numeroDocInput.classList.add('is-valid');
+        }
+        
+        return isValid;
+    }
+    
+    // Event listeners para validación
+    tipoDocSelect.addEventListener('change', validateDocumentNumber);
+    numeroDocInput.addEventListener('blur', validateDocumentNumber);
+    numeroDocInput.addEventListener('input', function() {
+        if (this.classList.contains('is-invalid')) {
+            validateDocumentNumber();
+        }
+    });
+    
+    // Formatear número de documento mientras se escribe
+    numeroDocInput.addEventListener('input', function() {
+        const tipo = tipoDocSelect.value;
+        let value = this.value;
+        
+        // Solo permitir números para documentos numéricos
+        if (['CC', 'CE', 'NIT'].includes(tipo)) {
+            this.value = value.replace(/[^\d]/g, '');
+        }
+    });
+    
+    // Mejorar UX del select
+    tipoDocSelect.addEventListener('change', function() {
+        if (this.value) {
+            this.classList.add('is-valid');
+            numeroDocInput.focus();
+        }
+    });
+    
+    // Auto-focus en el primer campo vacío
+    if (!tipoDocSelect.value) {
+        tipoDocSelect.focus();
+    } else if (!numeroDocInput.value) {
+        numeroDocInput.focus();
+    }
+    
+    // Prevenir envío de formulario con Enter en campos específicos
+    tipoDocSelect.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            numeroDocInput.focus();
+        }
+    });
+    
+    numeroDocInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('contrasena').focus();
+        }
+    });
+});
+
+// Personalizar el comportamiento del formulario
+document.querySelector('form[data-validate]').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const tipoDoc = document.getElementById('tipo_documento').value;
+    const numeroDoc = document.getElementById('numero_documento').value;
+    const password = document.getElementById('contrasena').value;
+    
+    // Validaciones básicas
+    if (!tipoDoc || !numeroDoc || !password) {
+        showNotification('Por favor completa todos los campos', 'warning');
+        return;
+    }
+    
+    // Validar formato del documento
+    const numeroDocInput = document.getElementById('numero_documento');
+    if (numeroDocInput.classList.contains('is-invalid')) {
+        showNotification('Por favor corrige el número de documento', 'danger');
+        numeroDocInput.focus();
+        return;
+    }
+    
+    // Mostrar estado de carga
+    setButtonLoading(submitBtn, true, 'Verificando credenciales...');
+    
+    // Enviar formulario (aquí se mantendría la lógica original del servidor)
+    this.submit();
+});
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Scripts adicionales específicos para login si son necesarios
+console.log('Login page loaded successfully');
+</script>
+{% endblock %}
