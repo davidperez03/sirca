@@ -229,10 +229,14 @@
         </a>
         
         {% if vehiculo.estado.value == 'Activo' %}
-          <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#confirmarInactivar">
-            <i class="bi bi-pause-circle me-1"></i>Inactivar
-          </button>
+          <!-- Botón para inactivar (desactivar) -->
+          <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/eliminar" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas inactivar este vehículo? Se marcará como inactivo pero podrás reactivarlo más tarde.')">
+            <button type="submit" class="btn btn-warning">
+              <i class="bi bi-pause-circle me-1"></i>Inactivar
+            </button>
+          </form>
         {% else %}
+          <!-- Botón para reactivar -->
           <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/reactivar" style="display: inline;">
             <button type="submit" class="btn btn-success">
               <i class="bi bi-play-circle me-1"></i>Reactivar
@@ -240,10 +244,20 @@
           </form>
         {% endif %}
         
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarEliminar">
-          <i class="bi bi-trash me-1"></i>
-          {% if vehiculo.estado.value == 'Inactivo' %}Eliminar definitivamente{% else %}Eliminar{% endif %}
-        </button>
+        <!-- Botón para eliminar (separado por estado) -->
+        {% if vehiculo.estado.value == 'Inactivo' %}
+          <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/eliminar" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas ELIMINAR DEFINITIVAMENTE este vehículo? Esta acción NO se puede deshacer.')">
+            <button type="submit" class="btn btn-danger">
+              <i class="bi bi-trash me-1"></i>Eliminar definitivamente
+            </button>
+          </form>
+        {% else %}
+          <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/eliminar" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas inactivar este vehículo?')">
+            <button type="submit" class="btn btn-danger">
+              <i class="bi bi-trash me-1"></i>Eliminar
+            </button>
+          </form>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -270,85 +284,4 @@
 </div>
 {% endif %}
 
-<!-- Modal de confirmación para inactivar -->
-{% if vehiculo.estado.value == 'Activo' %}
-<div class="modal fade" id="confirmarInactivar" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title text-warning">
-          <i class="bi bi-pause-circle me-2"></i>Confirmar inactivación
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p>¿Estás seguro de que deseas inactivar el vehículo <strong>"{{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}"</strong> con placa <strong>{{ vehiculo.placa.valor }}</strong>?</p>
-        <div class="alert alert-info">
-          <i class="bi bi-info-circle me-2"></i>
-          <strong>El vehículo será marcado como inactivo</strong> y no estará disponible para ingreso hasta que lo reactives.
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cancelar
-        </button>
-        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/eliminar" style="display: inline;">
-          <button type="submit" class="btn btn-warning">
-            <i class="bi bi-pause-circle me-1"></i>Inactivar
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-<!-- Modal de confirmación para eliminar -->
-<div class="modal fade" id="confirmarEliminar" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title text-danger">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          {% if vehiculo.estado.value == 'Inactivo' %}
-            Eliminar definitivamente
-          {% else %}
-            Confirmar eliminación
-          {% endif %}
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        {% if vehiculo.estado.value == 'Inactivo' %}
-          <p>¿Estás seguro de que deseas <strong>eliminar definitivamente</strong> el vehículo <strong>"{{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}"</strong> con placa <strong>{{ vehiculo.placa.valor }}</strong>?</p>
-          <div class="alert alert-danger">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            <strong>Esta acción NO se puede deshacer.</strong> El vehículo y su imagen asociada se eliminarán permanentemente del sistema.
-          </div>
-        {% else %}
-          <p>¿Estás seguro de que deseas eliminar el vehículo <strong>"{{ vehiculo.marca.valor }} {{ vehiculo.modelo.valor }}"</strong> con placa <strong>{{ vehiculo.placa.valor }}</strong>?</p>
-          <div class="alert alert-warning">
-            <i class="bi bi-info-circle me-2"></i>
-            <strong>El vehículo será inactivado</strong> pero podrás reactivarlo más tarde si es necesario.
-          </div>
-        {% endif %}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i>Cancelar
-        </button>
-        <form method="post" action="/usuario/{{ usuario.numero_documento.valor }}/vehiculos/{{ vehiculo.placa.valor }}/eliminar" style="display: inline;">
-          <button type="submit" class="btn btn-danger">
-            <i class="bi bi-trash me-1"></i>
-            {% if vehiculo.estado.value == 'Inactivo' %}
-              Eliminar definitivamente
-            {% else %}
-              Inactivar vehículo
-            {% endif %}
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
