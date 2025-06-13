@@ -26,6 +26,7 @@ from app.core.dependencias.dependencias import engine, Base
 from app.modules.autenticacion.interface.rutas import router as usuarios_router
 from app.modules.pertenencias.interface.rutas import router as pertenencias_router
 from app.modules.vehiculos.interface.rutas import router as vehiculos_router
+from app.modules.qr_control.interface.rutas import router as qr_control_router
 
 
 app = FastAPI(title=settings.app_name, debug=settings.debug)
@@ -45,6 +46,8 @@ app.include_router(usuarios_router)
 # Montar otros routers de módulos aquí
 app.include_router(pertenencias_router)
 app.include_router(vehiculos_router)
+
+app.include_router(qr_control_router)
 
 # Ruta raíz
 @app.get("/", response_class=HTMLResponse)

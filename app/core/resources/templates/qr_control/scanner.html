@@ -1,0 +1,626 @@
+{% extends "base.html" %}
+
+{% block title %}Scanner QR - Control de Acceso{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.4.2/qr-scanner.umd.min.js"></script>
+<style>
+    .scanner-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+    
+    .camera-container {
+        position: relative;
+        background: #000;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    
+    #qr-video {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    
+    .camera-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 200px;
+        border: 3px solid #00ff00;
+        border-radius: 10px;
+        pointer-events: none;
+    }
+    
+    .scanner-controls {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-scanner {
+        padding: 0.75rem 1.5rem;
+        margin: 0.5rem;
+        border: none;
+        border-radius: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-start {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+    }
+    
+    .btn-stop {
+        background: linear-gradient(45deg, #dc3545, #fd7e14);
+        color: white;
+    }
+    
+    .btn-scanner:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .manual-input {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .result-container {
+        margin-top: 1rem;
+    }
+    
+    .user-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        display: none;
+    }
+    
+    .user-info.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .access-form {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        display: none;
+    }
+    
+    .access-form.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+        margin: 0.25rem;
+    }
+    
+    .status-dentro { background: #28a745; color: white; }
+    .status-fuera { background: #dc3545; color: white; }
+    .status-bloqueado { background: #6c757d; color: white; }
+    
+    .movimento-ingreso { color: #28a745; }
+    .movimento-salida { color: #dc3545; }
+    
+    .alert-custom {
+        border-radius: 15px;
+        border: none;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .camera-status {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    .items-input {
+        background: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .items-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-process {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-process:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-process:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .recent-scans {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1rem;
+        margin-top: 1rem;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .scan-item {
+        background: white;
+        border-radius: 10px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border-left: 4px solid #667eea;
+        font-size: 0.9rem;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 0.5rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="scanner-container">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h2><i class="fas fa-qrcode"></i> Scanner QR - Control de Acceso</h2>
+            <p class="text-muted">Escanea o ingresa manualmente el código QR para procesar el acceso</p>
+        </div>
+        
+        <!-- Alertas -->
+        <div id="alerts"></div>
+        
+        <!-- Estado de la cámara -->
+        <div class="camera-status" id="camera-status">
+            <i class="fas fa-camera"></i> <span id="camera-status-text">Cámara desactivada</span>
+        </div>
+        
+        <!-- Contenedor de la cámara -->
+        <div class="camera-container">
+            <video id="qr-video" style="display: none;"></video>
+            <div class="camera-overlay"></div>
+            <div class="text-center p-4" id="camera-placeholder">
+                <i class="fas fa-camera fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Haz clic en "Iniciar Cámara" para comenzar a escanear</p>
+            </div>
+        </div>
+        
+        <!-- Controles del scanner -->
+        <div class="scanner-controls">
+            <button id="btn-start-camera" class="btn-scanner btn-start">
+                <i class="fas fa-play"></i> Iniciar Cámara
+            </button>
+            <button id="btn-stop-camera" class="btn-scanner btn-stop" style="display: none;">
+                <i class="fas fa-stop"></i> Detener Cámara
+            </button>
+        </div>
+        
+        <!-- Entrada manual -->
+        <div class="manual-input">
+            <h5><i class="fas fa-keyboard"></i> Entrada Manual</h5>
+            <div class="input-group">
+                <input type="text" id="manual-qr-input" class="form-control" 
+                       placeholder="Ingresa el código QR manualmente..." 
+                       style="border-radius: 10px 0 0 10px;">
+                <button id="btn-manual-scan" class="btn btn-primary" 
+                        style="border-radius: 0 10px 10px 0;">
+                    <i class="fas fa-search"></i> Validar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading -->
+        <div class="loading-spinner" id="loading">
+            <div class="spinner"></div>
+            <p>Procesando...</p>
+        </div>
+        
+        <!-- Información del usuario -->
+        <div class="user-info" id="user-info">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4 id="user-name">---</h4>
+                    <p><strong>Documento:</strong> <span id="user-id">---</span></p>
+                    <p><strong>Rol:</strong> <span id="user-role">---</span></p>
+                    <p><strong>Estado Actual:</strong> <span id="user-status" class="status-badge">---</span></p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="movimento-indicator">
+                        <h3 id="next-movement" class="movimento-ingreso">---</h3>
+                        <small>Próximo movimiento</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Formulario de acceso -->
+        <div class="access-form" id="access-form">
+            <h5><i class="fas fa-door-open"></i> Procesar Acceso</h5>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="ubicacion" class="form-label">Ubicación:</label>
+                    <select id="ubicacion" class="form-select items-input">
+                        <option value="Entrada Principal">Entrada Principal</option>
+                        <option value="Entrada Lateral">Entrada Lateral</option>
+                        <option value="Entrada Vehículos">Entrada Vehículos</option>
+                        <option value="Salida Principal">Salida Principal</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="items-declarados" class="form-label">Items Declarados:</label>
+                    <input type="text" id="items-declarados" class="form-control items-input" 
+                           placeholder="Separados por comas...">
+                    <small class="text-muted">Ej: Laptop, Celular, Mochila</small>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="observaciones" class="form-label">Observaciones:</label>
+                <textarea id="observaciones" class="form-control items-input" rows="3" 
+                          placeholder="Observaciones adicionales..."></textarea>
+            </div>
+            
+            <button id="btn-process-access" class="btn-process">
+                <i class="fas fa-check"></i> Procesar Acceso
+            </button>
+        </div>
+        
+        <!-- Escaneos recientes -->
+        <div class="recent-scans">
+            <h6><i class="fas fa-history"></i> Escaneos Recientes</h6>
+            <div id="recent-scans-list">
+                <p class="text-muted text-center">No hay escaneos recientes</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let qrScanner = null;
+    let currentQRCode = null;
+    let recentScans = [];
+    
+    // Elementos del DOM
+    const video = document.getElementById('qr-video');
+    const cameraPlaceholder = document.getElementById('camera-placeholder');
+    const btnStartCamera = document.getElementById('btn-start-camera');
+    const btnStopCamera = document.getElementById('btn-stop-camera');
+    const btnManualScan = document.getElementById('btn-manual-scan');
+    const manualQRInput = document.getElementById('manual-qr-input');
+    const userInfo = document.getElementById('user-info');
+    const accessForm = document.getElementById('access-form');
+    const btnProcessAccess = document.getElementById('btn-process-access');
+    const loading = document.getElementById('loading');
+    const cameraStatusText = document.getElementById('camera-status-text');
+    
+    // Inicializar scanner
+    btnStartCamera.addEventListener('click', startCamera);
+    btnStopCamera.addEventListener('click', stopCamera);
+    btnManualScan.addEventListener('click', () => validateQR(manualQRInput.value));
+    btnProcessAccess.addEventListener('click', processAccess);
+    
+    // Enter en input manual
+    manualQRInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            validateQR(this.value);
+        }
+    });
+    
+    async function startCamera() {
+        try {
+            if (!QrScanner.hasCamera()) {
+                showAlert('warning', 'No se detectó ninguna cámara disponible');
+                return;
+            }
+            
+            qrScanner = new QrScanner(
+                video,
+                result => handleQRResult(result.data),
+                {
+                    onDecodeError: error => {
+                        // Silencioso, normal en escaneo continuo
+                    },
+                    highlightScanRegion: true,
+                    highlightCodeOutline: true,
+                }
+            );
+            
+            await qrScanner.start();
+            
+            video.style.display = 'block';
+            cameraPlaceholder.style.display = 'none';
+            btnStartCamera.style.display = 'none';
+            btnStopCamera.style.display = 'inline-block';
+            cameraStatusText.textContent = 'Cámara activa - Escanea un código QR';
+            
+        } catch (error) {
+            console.error('Error iniciando cámara:', error);
+            showAlert('danger', 'Error al acceder a la cámara: ' + error.message);
+        }
+    }
+    
+    function stopCamera() {
+        if (qrScanner) {
+            qrScanner.stop();
+            qrScanner.destroy();
+            qrScanner = null;
+        }
+        
+        video.style.display = 'none';
+        cameraPlaceholder.style.display = 'block';
+        btnStartCamera.style.display = 'inline-block';
+        btnStopCamera.style.display = 'none';
+        cameraStatusText.textContent = 'Cámara desactivada';
+    }
+    
+    function handleQRResult(qrCode) {
+        if (qrCode && qrCode !== currentQRCode) {
+            // Detener scanner temporalmente para evitar múltiples lecturas
+            if (qrScanner) {
+                qrScanner.stop();
+            }
+            
+            validateQR(qrCode);
+            
+            // Reiniciar scanner después de 3 segundos
+            setTimeout(() => {
+                if (qrScanner && btnStopCamera.style.display !== 'none') {
+                    qrScanner.start();
+                }
+            }, 3000);
+        }
+    }
+    
+    async function validateQR(qrCode) {
+        if (!qrCode || !qrCode.trim()) {
+            showAlert('warning', 'Por favor ingresa un código QR válido');
+            return;
+        }
+        
+        currentQRCode = qrCode;
+        showLoading(true);
+        hideUserInfo();
+        
+        try {
+            const formData = new FormData();
+            formData.append('codigo_qr', qrCode);
+            
+            const response = await fetch('/vigilante/validar-qr', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.valido) {
+                showUserInfo(data);
+                showAlert('success', data.mensaje);
+                addToRecentScans(qrCode, data.nombre_completo, 'Validado');
+            } else {
+                showAlert('danger', data.mensaje || 'Código QR no válido');
+                addToRecentScans(qrCode, 'Desconocido', 'Error');
+            }
+            
+        } catch (error) {
+            console.error('Error validando QR:', error);
+            showAlert('danger', 'Error de conexión al validar el código QR');
+        } finally {
+            showLoading(false);
+        }
+    }
+    
+    function showUserInfo(data) {
+        document.getElementById('user-name').textContent = data.nombre_completo;
+        document.getElementById('user-id').textContent = data.usuario_id;
+        document.getElementById('user-role').textContent = data.rol;
+        
+        const statusBadge = document.getElementById('user-status');
+        statusBadge.textContent = data.estado_actual;
+        statusBadge.className = `status-badge status-${data.estado_actual.toLowerCase()}`;
+        
+        const nextMovement = document.getElementById('next-movement');
+        nextMovement.textContent = data.tipo_siguiente;
+        nextMovement.className = `movimento-${data.tipo_siguiente.toLowerCase()}`;
+        
+        userInfo.classList.add('show');
+        accessForm.classList.add('show');
+    }
+    
+    function hideUserInfo() {
+        userInfo.classList.remove('show');
+        accessForm.classList.remove('show');
+    }
+    
+    async function processAccess() {
+        if (!currentQRCode) {
+            showAlert('warning', 'No hay un código QR válido para procesar');
+            return;
+        }
+        
+        showLoading(true);
+        btnProcessAccess.disabled = true;
+        
+        try {
+            const formData = new FormData();
+            formData.append('codigo_qr', currentQRCode);
+            formData.append('ubicacion', document.getElementById('ubicacion').value);
+            formData.append('items_declarados', document.getElementById('items-declarados').value);
+            formData.append('observaciones', document.getElementById('observaciones').value);
+            
+            const response = await fetch('/vigilante/procesar-acceso', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('success', data.mensaje);
+                addToRecentScans(
+                    currentQRCode, 
+                    data.registro.usuario_nombre, 
+                    data.registro.tipo_movimiento
+                );
+                
+                // Limpiar formulario
+                clearForm();
+                hideUserInfo();
+                currentQRCode = null;
+                
+            } else {
+                showAlert('danger', data.error || 'Error procesando el acceso');
+            }
+            
+        } catch (error) {
+            console.error('Error procesando acceso:', error);
+            showAlert('danger', 'Error de conexión al procesar el acceso');
+        } finally {
+            showLoading(false);
+            btnProcessAccess.disabled = false;
+        }
+    }
+    
+    function clearForm() {
+        document.getElementById('items-declarados').value = '';
+        document.getElementById('observaciones').value = '';
+        document.getElementById('ubicacion').selectedIndex = 0;
+        manualQRInput.value = '';
+    }
+    
+    function addToRecentScans(qrCode, userName, status) {
+        const now = new Date();
+        const scan = {
+            qrCode: qrCode,
+            userName: userName,
+            status: status,
+            time: now.toLocaleTimeString(),
+            timestamp: now.getTime()
+        };
+        
+        recentScans.unshift(scan);
+        if (recentScans.length > 10) {
+            recentScans.pop();
+        }
+        
+        updateRecentScansList();
+    }
+    
+    function updateRecentScansList() {
+        const list = document.getElementById('recent-scans-list');
+        
+        if (recentScans.length === 0) {
+            list.innerHTML = '<p class="text-muted text-center">No hay escaneos recientes</p>';
+            return;
+        }
+        
+        list.innerHTML = recentScans.map(scan => `
+            <div class="scan-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${scan.userName}</strong><br>
+                        <small class="text-muted">${scan.qrCode.substring(0, 20)}...</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-${scan.status === 'Error' ? 'danger' : 'success'}">${scan.status}</span><br>
+                        <small class="text-muted">${scan.time}</small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function showLoading(show) {
+        loading.style.display = show ? 'block' : 'none';
+    }
+    
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-custom`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const alerts = document.getElementById('alerts');
+        alerts.appendChild(alertDiv);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+    
+    // Cleanup al salir
+    window.addEventListener('beforeunload', function() {
+        if (qrScanner) {
+            qrScanner.stop();
+            qrScanner.destroy();
+        }
+    });
+});
+</script>
+{% endblock %}
