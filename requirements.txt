@@ -19,3 +19,4 @@ redis
 redis[hiredis]
 psycopg2-binary
 pytz
+qrcode[pil]

@@ -1,0 +1,494 @@
+{% extends "base.html" %}
+
+{% block title %}Estado de Usuarios - Control de Acceso{% endblock %}
+
+{% block extra_head %}
+<style>
+    .status-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .status-summary {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .status-number {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .users-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .user-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border-left: 5px solid #28a745;
+    }
+    
+    .user-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    .user-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, #28a745, #20c997);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .user-info h6 {
+        margin: 0;
+        color: #333;
+        font-weight: bold;
+    }
+    
+    .user-info p {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .time-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .time-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    
+    .time-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .time-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .time-value {
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .role-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        background: #e9ecef;
+        color: #495057;
+    }
+    
+    .time-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+    
+    .time-normal {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .time-long {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .time-very-long {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .actions-bar {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .search-box {
+        flex: 1;
+        max-width: 300px;
+    }
+    
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #495057;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-btn:hover, .filter-btn.active {
+        background: #28a745;
+        color: white;
+        border-color: #28a745;
+    }
+    
+    .refresh-btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .refresh-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+    
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card .number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #28a745;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card .label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="status-header">
+        <h1><i class="fas fa-users"></i> Control de Personas Dentro</h1>
+        <p>Monitoreo en tiempo real de personas actualmente en las instalaciones</p>
+        <div class="status-summary">
+            <div class="status-number">{{ total_dentro }}</div>
+            <div>Personas Dentro Ahora</div>
+            <small>Última actualización: <span id="last-update">{{ "now"|date:"H:i:s" }}</span></small>
+        </div>
+    </div>
+    
+    <!-- Estadísticas Rápidas -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="number">{{ personas_dentro|selectattr("tiempo_dentro", "le", 240)|list|length }}</div>
+            <div class="label">Menos de 4 horas</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ personas_dentro|selectattr("tiempo_dentro", "gt", 240)|selectattr("tiempo_dentro", "le", 480)|list|length }}</div>
+            <div class="label">4-8 horas</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ personas_dentro|selectattr("tiempo_dentro", "gt", 480)|list|length }}</div>
+            <div class="label">Más de 8 horas</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ personas_dentro|map(attribute="tiempo_dentro")|sum / personas_dentro|length if personas_dentro else 0|round(0) }}</div>
+            <div class="label">Promedio (minutos)</div>
+        </div>
+    </div>
+    
+    <!-- Barra de Acciones -->
+    <div class="actions-bar">
+        <div class="search-box">
+            <input type="text" id="search-users" class="form-control" placeholder="Buscar por nombre o documento...">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="normal">Normal (&lt;4h)</button>
+            <button class="filter-btn" data-filter="long">Largo (4-8h)</button>
+            <button class="filter-btn" data-filter="very-long">Muy Largo (&gt;8h)</button>
+        </div>
+        <button class="refresh-btn" onclick="refreshData()">
+            <i class="fas fa-sync" id="refresh-icon"></i> Actualizar
+        </button>
+    </div>
+    
+    <!-- Lista de Usuarios -->
+    {% if personas_dentro %}
+    <div class="users-grid" id="users-grid">
+        {% for persona in personas_dentro %}
+        <div class="user-card" data-search="{{ persona.nombre.lower() }} {{ persona.usuario_id }}" 
+             data-time-category="{% if persona.tiempo_dentro <= 240 %}normal{% elif persona.tiempo_dentro <= 480 %}long{% else %}very-long{% endif %}">
+            <div class="user-header">
+                <div class="user-avatar">
+                    {{ persona.nombre.split()[0][0] }}{{ persona.nombre.split()[-1][0] if persona.nombre.split()|length > 1 }}
+                </div>
+                <div class="user-info">
+                    <h6>{{ persona.nombre }}</h6>
+                    <p>{{ persona.usuario_id }} • <span class="role-badge">{{ persona.rol }}</span></p>
+                </div>
+            </div>
+            
+            <div class="time-info">
+                <div class="time-item">
+                    <span class="time-label">Hora de Ingreso:</span>
+                    <span class="time-value">{{ persona.hora_ingreso.strftime('%H:%M') }}</span>
+                </div>
+                <div class="time-item">
+                    <span class="time-label">Tiempo Dentro:</span>
+                    <span class="time-value">{{ (persona.tiempo_dentro // 60)|int }}h {{ persona.tiempo_dentro % 60 }}m</span>
+                </div>
+                <div class="time-item">
+                    <span class="time-label">Estado:</span>
+                    <span class="time-badge {% if persona.tiempo_dentro <= 240 %}time-normal{% elif persona.tiempo_dentro <= 480 %}time-long{% else %}time-very-long{% endif %}">
+                        {% if persona.tiempo_dentro <= 240 %}
+                            Normal
+                        {% elif persona.tiempo_dentro <= 480 %}
+                            Permanencia Larga
+                        {% else %}
+                            Permanencia Muy Larga
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-user-slash fa-3x mb-3"></i>
+        <h4>No hay personas dentro actualmente</h4>
+        <p>Todas las personas han registrado su salida correctamente.</p>
+        <a href="/admin/dashboard" class="btn btn-primary">
+            <i class="fas fa-chart-line"></i> Ver Dashboard
+        </a>
+    </div>
+    {% endif %}
+    
+    <!-- Información Adicional -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-info-circle"></i> Información del Sistema</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Última Actualización:</strong> <span id="timestamp">{{ "now"|date:"d/m/Y H:i:s" }}</span></p>
+                            <p><strong>Criterios de Alerta:</strong></p>
+                            <ul>
+                                <li><span class="time-badge time-normal">Normal</span> Menos de 4 horas</li>
+                                <li><span class="time-badge time-long">Largo</span> Entre 4 y 8 horas</li>
+                                <li><span class="time-badge time-very-long">Muy Largo</span> Más de 8 horas</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Acciones Disponibles:</strong></p>
+                            <ul>
+                                <li>Filtrar por tiempo de permanencia</li>
+                                <li>Buscar por nombre o documento</li>
+                                <li>Actualización automática cada 30 segundos</li>
+                                <li>Alertas para permanencias prolongadas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentFilter = 'all';
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Búsqueda en tiempo real
+    document.getElementById('search-users').addEventListener('input', function() {
+        filterUsers();
+    });
+    
+    // Filtros por tiempo
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Actualizar botón activo
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Actualizar filtro actual
+            currentFilter = this.dataset.filter;
+            filterUsers();
+        });
+    });
+    
+    // Auto-actualización cada 30 segundos
+    setInterval(refreshData, 30000);
+});
+
+function filterUsers() {
+    const searchTerm = document.getElementById('search-users').value.toLowerCase();
+    const userCards = document.querySelectorAll('.user-card');
+    
+    userCards.forEach(card => {
+        const searchText = card.dataset.search;
+        const timeCategory = card.dataset.timeCategory;
+        
+        const matchesSearch = searchText.includes(searchTerm);
+        const matchesFilter = currentFilter === 'all' || timeCategory === currentFilter;
+        
+        if (matchesSearch && matchesFilter) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Mostrar mensaje si no hay resultados
+    const visibleCards = document.querySelectorAll('.user-card[style="display: block;"], .user-card:not([style*="display: none"])').length;
+    updateEmptyState(visibleCards === 0);
+}
+
+function updateEmptyState(isEmpty) {
+    let emptyState = document.querySelector('.filter-empty-state');
+    
+    if (isEmpty && !emptyState) {
+        emptyState = document.createElement('div');
+        emptyState.className = 'filter-empty-state empty-state';
+        emptyState.innerHTML = `
+            <i class="fas fa-search fa-2x mb-3"></i>
+            <h5>No se encontraron resultados</h5>
+            <p>Intenta con otros términos de búsqueda o filtros.</p>
+        `;
+        document.getElementById('users-grid').appendChild(emptyState);
+    } else if (!isEmpty && emptyState) {
+        emptyState.remove();
+    }
+}
+
+async function refreshData() {
+    const refreshIcon = document.getElementById('refresh-icon');
+    refreshIcon.classList.add('fa-spin');
+    
+    try {
+        const response = await fetch('/api/personas-dentro');
+        const data = await response.json();
+        
+        // Obtener el total actual desde el elemento DOM
+        const currentTotalElement = document.querySelector('.status-number');
+        const currentTotal = parseInt(currentTotalElement.textContent);
+        
+        if (data.total !== currentTotal) {
+            // Si cambió el número, recargar la página
+            location.reload();
+        } else {
+            // Solo actualizar timestamps
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString('es-ES');
+            document.getElementById('timestamp').textContent = new Date().toLocaleString('es-ES');
+        }
+        
+    } catch (error) {
+        console.error('Error actualizando datos:', error);
+    } finally {
+        refreshIcon.classList.remove('fa-spin');
+    }
+}
+
+// Mostrar notificación para permanencias muy largas
+document.addEventListener('DOMContentLoaded', function() {
+    // Contar elementos con clase time-very-long
+    const veryLongStays = document.querySelectorAll('[data-time-category="very-long"]').length;
+    
+    if (veryLongStays > 0) {
+        showAlert('warning', 'Atención: Hay ' + veryLongStays + ' persona(s) con permanencia superior a 8 horas');
+    }
+});
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.style.position = 'fixed';
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.style.maxWidth = '400px';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 8000);
+}
+</script>
+{% endblock %}

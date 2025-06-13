@@ -1,5 +1,186 @@
 {% extends "base.html" %}
+
 {% block title %}Dashboard de Usuario{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Estilos para el card QR */
+.qr-access-card {
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.qr-access-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.qr-status-indicator {
+    position: relative;
+}
+
+.status-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 2rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.status-ready {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    animation: pulse-ready 2s infinite;
+}
+
+.status-inside {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+}
+
+.status-outside {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+@keyframes pulse-ready {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.status-text {
+    font-weight: 600;
+    color: #495057;
+    margin: 0;
+}
+
+.badge-status {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.badge-status.status-dentro {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+}
+
+.badge-status.status-fuera {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    color: white;
+}
+
+.badge-status.status-loading {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-qr-primary {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-qr-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-outline-secondary {
+    border-radius: 20px;
+    border-color: #dee2e6;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+    color: #495057;
+    transform: translateY(-1px);
+}
+
+/* Mejorar cards existentes */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+    font-weight: 600;
+}
+
+.welcome-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.icon-success { background: #d4edda; color: #155724; }
+.icon-info { background: #d1ecf1; color: #0c5460; }
+.icon-warning { background: #fff3cd; color: #856404; }
+
+.btn-card {
+    border-radius: 25px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-card:hover {
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -9,98 +190,405 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   {% endif %}
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Bienvenido, {{ usuario.nombres }} {{ usuario.apellidos }}</h2>
-    <a href="/logout" class="btn btn-outline-danger">Cerrar sesión</a>
+  
+  <!-- Header de Bienvenida -->
+  <div class="welcome-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="mb-1">¡Bienvenido, {{ usuario.nombres }} {{ usuario.apellidos }}!</h2>
+        <p class="mb-0 opacity-75">{{ usuario.rol }} - {{ usuario.numero_documento }}</p>
+      </div>
+      <div>
+        
+
+        <a href="/logout" class="btn btn-outline-light">
+          <i class="fas fa-sign-out-alt me-1"></i>Cerrar sesión
+        </a>
+      </div>
+    </div>
   </div>
 
   <div class="row g-4">
+    <!-- Card QR de Acceso -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">Actividad Reciente</div>
+      <div class="card h-100 qr-access-card">
+        <div class="card-header bg-gradient-primary text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-qrcode me-2"></i>Código QR de Acceso
+          </h5>
+        </div>
+        <div class="card-body text-center">
+          <div class="qr-status-indicator mb-3">
+            <div class="status-circle status-ready" id="qr-status-circle">
+              <i class="fas fa-mobile-alt"></i>
+            </div>
+            <p class="status-text mt-2" id="qr-status-text">Listo para generar QR</p>
+          </div>
+          
+          <p class="text-muted mb-3">
+            Genera tu código QR temporal para acceder a las instalaciones de forma segura.
+          </p>
+          
+          <!-- Estado actual del usuario -->
+          <div class="current-status mb-3">
+            <small class="text-muted">Estado actual:</small>
+            <div class="mt-1">
+              <span class="badge badge-status status-loading" id="user-status-badge">
+                <i class="fas fa-spinner fa-spin me-1"></i>Consultando...
+              </span>
+            </div>
+          </div>
+          
+          <!-- Botones de acción -->
+          <div class="qr-actions">
+            <a href="/usuario/{{ usuario.numero_documento }}/qr" 
+               class="btn btn-qr-primary btn-lg d-block mb-2">
+              <i class="fas fa-qrcode me-2"></i>Generar Mi QR
+            </a>
+            
+            <a href="/usuario/{{ usuario.numero_documento }}/accesos" 
+               class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-history me-1"></i>Ver Historial
+            </a>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <div class="row text-center">
+            <div class="col-6">
+              <small class="text-muted">Último acceso</small>
+              <div class="fw-bold" id="last-access">-</div>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">Total accesos</small>
+              <div class="fw-bold" id="total-access">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividad Reciente -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+          <i class="fas fa-chart-line me-2"></i>Actividad Reciente
+        </div>
         <div class="card-body">
           {% if actividad %}
-            <ul class="list-group list-group-flush">
+            <div class="activity-list">
               {% for evento in actividad %}
-              <li class="list-group-item">{{ evento }}</li>
+              <div class="activity-item">
+                <div class="activity-icon icon-info">
+                  <i class="fas fa-bell"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-text">{{ evento }}</div>
+                  <small class="text-muted">Hace 2 horas</small>
+                </div>
+              </div>
               {% endfor %}
-            </ul>
+            </div>
           {% else %}
-            <p class="text-muted">Sin actividad reciente.</p>
+            <div class="text-center py-4">
+              <i class="fas fa-clock fa-2x text-muted mb-2"></i>
+              <p class="text-muted mb-0">Sin actividad reciente.</p>
+            </div>
           {% endif %}
         </div>
       </div>
     </div>
 
+    <!-- Últimos Accesos -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-success text-white">Últimos Accesos</div>
+      <div class="card h-100">
+        <div class="card-header bg-success text-white">
+          <i class="fas fa-door-open me-2"></i>Últimos Accesos
+        </div>
         <div class="card-body">
           {% if accesos %}
-            <ul class="list-group list-group-flush">
+            <div class="activity-list">
               {% for acceso in accesos %}
-              <li class="list-group-item">{{ acceso }}</li>
+              <div class="activity-item">
+                <div class="activity-icon icon-success">
+                  <i class="fas fa-sign-in-alt"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-text">{{ acceso }}</div>
+                  
+                </div>
+              </div>
               {% endfor %}
-            </ul>
+            </div>
           {% else %}
-            <p class="text-muted">No hay registros de acceso.</p>
+            <div class="text-center py-4">
+              <i class="fas fa-door-closed fa-2x text-muted mb-2"></i>
+              <p class="text-muted mb-0">No hay registros de acceso.</p>
+              <small class="text-muted">Genera tu primer QR para comenzar</small>
+            </div>
           {% endif %}
         </div>
       </div>
     </div>
 
+    <!-- Estado de Cuenta -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-info text-white">Estado de Cuenta</div>
+      <div class="card h-100">
+        <div class="card-header bg-info text-white">
+          <i class="fas fa-user-check me-2"></i>Estado de Cuenta
+        </div>
         <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="flex-shrink-0">
+              <div class="badge bg-success rounded-circle p-2">
+                <i class="fas fa-check"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <h6 class="mb-1">Cuenta Activa</h6>
+              <p class="text-muted mb-0">Tu cuenta está habilitada y funcionando correctamente.</p>
+            </div>
+          </div>
+          
           {% if estado_cuenta %}
             <p>{{ estado_cuenta }}</p>
           {% else %}
-            <p class="text-muted">Sin información de cuenta.</p>
+            <div class="row text-center">
+              <div class="col-6">
+                <div class="border-end">
+                  <h5 class="text-success mb-0">✓</h5>
+                  <small class="text-muted">Verificado</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <h5 class="text-info mb-0">{{ usuario.rol }}</h5>
+                <small class="text-muted">Rol asignado</small>
+              </div>
+            </div>
           {% endif %}
         </div>
       </div>
     </div>
 
+    <!-- Mis Pertenencias -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">Rol y Permisos</div>
-        <div class="card-body">
-          <p><strong>Rol:</strong> {{ usuario.rol }}</p>
-          <ul>
-            {% for permiso in usuario.permisos %}
-              <li>{{ permiso }}</li>
-            {% endfor %}
-          </ul>
+      <div class="card h-100">
+        <div class="card-header bg-warning text-dark">
+          <i class="fas fa-box me-2"></i>Mis Pertenencias
+        </div>
+        <div class="card-body d-flex flex-column">
+          <p class="flex-grow-1">Consulta, registra y gestiona tus pertenencias asociadas a tu cuenta.</p>
+          <div class="mt-auto">
+            <div class="row text-center mb-3">
+              <div class="col-6">
+                <h5 class="text-warning mb-0" id="pertenencias-count">-</h5>
+                <small class="text-muted">Registradas</small>
+              </div>
+              <div class="col-6">
+                <h5 class="text-success mb-0" id="pertenencias-activas">-</h5>
+                <small class="text-muted">Activas</small>
+              </div>
+            </div>
+            <a href="/usuario/{{ usuario.numero_documento }}/pertenencias" class="btn btn-warning btn-card w-100">
+              <i class="fas fa-box-seam me-1"></i> Ver pertenencias
+            </a>
+          </div>
         </div>
       </div>
     </div>
 
-        <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-warning text-dark">Mis Pertenencias</div>
-        <div class="card-body">
-          <p>Consulta, registra y gestiona tus pertenencias asociadas a tu cuenta.</p>
-          <a href="/usuario/{{ usuario.numero_documento }}/pertenencias" class="btn btn-warning">
-            <i class="bi bi-box-seam"></i> Ver pertenencias
-          </a>
+    <!-- Mis Vehículos -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+          <i class="fas fa-car me-2"></i>Mis Vehículos
+        </div>
+        <div class="card-body d-flex flex-column">
+          <p class="flex-grow-1">Registra, consulta y administra tus vehículos (motos y carros) en el sistema.</p>
+          <div class="mt-auto">
+            <div class="row text-center mb-3">
+              <div class="col-6">
+                <h5 class="text-primary mb-0" id="vehiculos-count">-</h5>
+                <small class="text-muted">Registrados</small>
+              </div>
+              <div class="col-6">
+                <h5 class="text-success mb-0" id="vehiculos-activos">-</h5>
+                <small class="text-muted">Activos</small>
+              </div>
+            </div>
+            <a href="/usuario/{{ usuario.numero_documento }}/vehiculos" class="btn btn-primary btn-card w-100">
+              <i class="fas fa-car-front me-1"></i> Ver vehículos
+            </a>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Rol y Permisos -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">Mis Vehículos</div>
+      <div class="card h-100">
+        <div class="card-header bg-dark text-white">
+          <i class="fas fa-shield-alt me-2"></i>Rol y Permisos
+        </div>
         <div class="card-body">
-          <p>Registra, consulta y administra tus vehículos (motos y carros) en el sistema.</p>
-          <a href="/usuario/{{ usuario.numero_documento }}/vehiculos" class="btn btn-primary">
-            <i class="bi bi-car-front"></i> Ver vehículos
-          </a>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <strong>Rol Actual:</strong>
+              <span class="badge bg-dark">{{ usuario.rol }}</span>
+            </div>
+          </div>
+          
+          <div class="permissions-list">
+            <h6 class="text-muted mb-2">Permisos disponibles:</h6>
+            {% if usuario.permisos %}
+              <ul class="list-unstyled">
+                {% for permiso in usuario.permisos %}
+                  <li class="mb-1">
+                    <i class="fas fa-check-circle text-success me-2"></i>{{ permiso }}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <div class="permission-item mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Generar códigos QR
+              </div>
+              <div class="permission-item mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Registrar pertenencias
+              </div>
+              <div class="permission-item mb-2">
+                <i class="fas fa-check-circle text-success me-2"></i>Gestionar vehículos
+              </div>
+              <div class="permission-item">
+                <i class="fas fa-check-circle text-success me-2"></i>Ver historial personal
+              </div>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar estado actual del usuario
+    loadUserStatus();
+    loadUserStats();
+    
+    // Actualizar cada 60 segundos
+    setInterval(loadUserStatus, 60000);
+});
 
+async function loadUserStatus() {
+    try {
+        const response = await fetch('/api/usuario/{{ usuario.numero_documento }}/estado');
+        const data = await response.json();
+        
+        updateStatusIndicator(data.usuario.estado || 'FUERA');
+        updateLastAccess(data.ultimo_acceso);
+        updateStats(data.estadisticas);
+        
+    } catch (error) {
+        console.error('Error cargando estado:', error);
+        updateStatusIndicator('ERROR');
+    }
+}
+
+async function loadUserStats() {
+    try {
+        // Cargar estadísticas de pertenencias
+        const pertenenciasResponse = await fetch('/api/usuario/{{ usuario.numero_documento }}/pertenencias/estadisticas');
+        const pertenenciasData = await pertenenciasResponse.json();
+        
+        document.getElementById('pertenencias-count').textContent = pertenenciasData.total || 0;
+        document.getElementById('pertenencias-activas').textContent = pertenenciasData.activas || 0;
+        
+        // Cargar estadísticas de vehículos
+        const vehiculosResponse = await fetch('/api/usuario/{{ usuario.numero_documento }}/vehiculos/estadisticas');
+        const vehiculosData = await vehiculosResponse.json();
+        
+        document.getElementById('vehiculos-count').textContent = vehiculosData.total || 0;
+        document.getElementById('vehiculos-activos').textContent = vehiculosData.activos || 0;
+        
+    } catch (error) {
+        console.error('Error cargando estadísticas:', error);
+    }
+}
+
+function updateStatusIndicator(estado) {
+    const circle = document.getElementById('qr-status-circle');
+    const text = document.getElementById('qr-status-text');
+    const badge = document.getElementById('user-status-badge');
+    
+    // Limpiar clases anteriores
+    circle.className = 'status-circle';
+    badge.className = 'badge badge-status';
+    
+    switch (estado) {
+        case 'DENTRO':
+            circle.classList.add('status-inside');
+            circle.innerHTML = '<i class="fas fa-building"></i>';
+            text.textContent = 'Actualmente dentro';
+            badge.classList.add('status-dentro');
+            badge.innerHTML = '<i class="fas fa-circle me-1"></i>Dentro';
+            break;
+            
+        case 'FUERA':
+            circle.classList.add('status-ready');
+            circle.innerHTML = '<i class="fas fa-mobile-alt"></i>';
+            text.textContent = 'Listo para ingresar';
+            badge.classList.add('status-fuera');
+            badge.innerHTML = '<i class="fas fa-circle me-1"></i>Fuera';
+            break;
+            
+        case 'BLOQUEADO':
+            circle.classList.add('status-outside');
+            circle.innerHTML = '<i class="fas fa-ban"></i>';
+            text.textContent = 'Acceso bloqueado';
+            badge.classList.add('status-loading');
+            badge.innerHTML = '<i class="fas fa-ban me-1"></i>Bloqueado';
+            break;
+            
+        default:
+            circle.classList.add('status-ready');
+            circle.innerHTML = '<i class="fas fa-question"></i>';
+            text.textContent = 'Estado no disponible';
+            badge.classList.add('status-loading');
+            badge.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Cargando';
+    }
+}
+
+function updateLastAccess(ultimoAcceso) {
+    const lastAccessElement = document.getElementById('last-access');
+    
+    if (ultimoAcceso) {
+        const fecha = new Date(ultimoAcceso.fecha_hora);
+        const ahora = new Date();
+        const diffTime = Math.abs(ahora - fecha);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+            lastAccessElement.textContent = 'Hoy';
+        } else if (diffDays <= 7) {
+            lastAccessElement.textContent = diffDays + 'd';
+        } else {
+            lastAccessElement.textContent = fecha.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit'
+            });
+        }
+    } else {
+        lastAccessElement.textContent = 'Nunca';
+    }
+}
+
+function updateStats(estadisticas) {
+    const totalAccessElement = document.getElementById('total-access');
+    
+    if (estadisticas) {
+        totalAccessElement.textContent = estadisticas.accesos_mes || 0;
+    } else {
+        totalAccessElement.textContent = '-';
+    }
+}
+</script>
 {% endblock %}

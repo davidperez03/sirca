@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Código QR - {{ usuario.nombres.valor }} {{ usuario.apellidos.valor }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .qr-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        color: white;
+        margin-bottom: 2rem;
+    }
+    
+    .qr-code-display {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1.5rem auto;
+        display: inline-block;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .estado-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: bold;
+        margin: 0.5rem;
+    }
+    
+    .estado-dentro { background: #28a745; color: white; }
+    .estado-fuera { background: #dc3545; color: white; }
+    .estado-bloqueado { background: #6c757d; color: white; }
+    
+    .qr-info {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .btn-generar {
+        background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-generar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .btn-generar:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .countdown {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #ff6b6b;
+    }
+    
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 2s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <!-- Información del Usuario -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Información del Usuario</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Nombre:</strong> {{ usuario.nombres.valor }} {{ usuario.apellidos.valor }}</p>
+                            <p><strong>Documento:</strong> {{ usuario.numero_documento.valor }}</p>
+                            <p><strong>Rol:</strong> {{ usuario.rol.value }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Estado Actual:</strong> 
+                                <span class="estado-badge estado-{{ estado_actual.lower() }}">
+                                    {{ estado_actual }}
+                                </span>
+                            </p>
+                            {% if ultimo_acceso %}
+                            <p><strong>Último Acceso:</strong> {{ ultimo_acceso.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</p>
+                            <p><strong>Tipo:</strong> {{ ultimo_acceso.tipo_movimiento }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor del QR -->
+            <div class="qr-container">
+                <h3><i class="fas fa-qrcode"></i> Mi Código QR de Acceso</h3>
+                <p>Genera tu código QR temporal para acceder a las instalaciones</p>
+                
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Generando código QR...</p>
+                </div>
+                
+                <!-- QR Display -->
+                <div id="qr-display" style="display: none;">
+                    <div class="qr-code-display">
+                        <img id="qr-image" src="" alt="Código QR" style="max-width: 250px;">
+                    </div>
+                    
+                    <div class="qr-info">
+                        <p><strong>Código:</strong> <span id="qr-codigo"></span></p>
+                        <p><strong>Expira en:</strong> <span id="countdown" class="countdown"></span></p>
+                        <p><small>⚠️ Este código es de un solo uso y tiene tiempo limitado</small></p>
+                    </div>
+                </div>
+                
+                <!-- Botón Generar -->
+                <div id="generar-section">
+                    <div class="mb-3">
+                        <label for="duracion" class="form-label">Duración (minutos):</label>
+                        <select id="duracion" class="form-select" style="max-width: 200px; margin: 0 auto;">
+                            <option value="5">5 minutos</option>
+                            <option value="10">10 minutos</option>
+                            <option value="15">15 minutos</option>
+                            <option value="30">30 minutos</option>
+                            <option value="60">60 minutos</option>
+                        </select>
+                    </div>
+                    <button id="btn-generar" class="btn-generar">
+                        <i class="fas fa-magic"></i> Generar Código QR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Instrucciones -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Instrucciones de Uso</h5>
+                </div>
+                <div class="card-body">
+                    <ol>
+                        <li>Haz clic en "Generar Código QR" para crear tu código de acceso</li>
+                        <li>Selecciona la duración según el tiempo que necesites</li>
+                        <li>Presenta el código QR al vigilante en la entrada</li>
+                        <li>El código es de <strong>un solo uso</strong> y expira automáticamente</li>
+                        <li>Si el código expira, puedes generar uno nuevo</li>
+                    </ol>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Importante:</strong> No compartas tu código QR con otras personas. Cada código es personal e intransferible.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnGenerar = document.getElementById('btn-generar');
+    const loading = document.getElementById('loading');
+    const qrDisplay = document.getElementById('qr-display');
+    const generarSection = document.getElementById('generar-section');
+    const duracionSelect = document.getElementById('duracion');
+    
+    let countdownInterval;
+    
+    btnGenerar.addEventListener('click', async function() {
+        const duracion = parseInt(duracionSelect.value);
+        
+        // Mostrar loading
+        loading.style.display = 'block';
+        qrDisplay.style.display = 'none';
+        btnGenerar.disabled = true;
+        
+        try {
+            const formData = new FormData();
+            formData.append('duracion_minutos', duracion);
+            
+            const response = await fetch(`/usuario/{{ usuario.numero_documento.valor }}/qr/generar`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Mostrar QR
+                document.getElementById('qr-image').src = data.qr_image;
+                document.getElementById('qr-codigo').textContent = data.qr_data.codigo;
+                
+                loading.style.display = 'none';
+                qrDisplay.style.display = 'block';
+                
+                // Iniciar countdown
+                startCountdown(data.qr_data.expira_en);
+                
+                showAlert('success', data.message);
+            } else {
+                throw new Error(data.error || 'Error generando QR');
+            }
+            
+        } catch (error) {
+            loading.style.display = 'none';
+            showAlert('danger', 'Error: ' + error.message);
+        } finally {
+            btnGenerar.disabled = false;
+        }
+    });
+    
+    function startCountdown(seconds) {
+        clearInterval(countdownInterval);
+        
+        countdownInterval = setInterval(function() {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            
+            document.getElementById('countdown').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('countdown').textContent = 'EXPIRADO';
+                document.getElementById('countdown').style.color = '#dc3545';
+                showAlert('warning', 'Tu código QR ha expirado. Genera uno nuevo si lo necesitas.');
+            }
+            
+            seconds--;
+        }, 1000);
+    }
+    
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.container-fluid').firstChild);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}
