@@ -6,9 +6,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.4.2/qr-scanner.umd.min.js"></script>
 <style>
     .scanner-container {
-        max-width: 600px;
+        max-width: 800px;
         margin: 0 auto;
         padding: 1rem;
+    }
+    
+    .scanner-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 2rem;
     }
     
     .camera-container {
@@ -16,7 +25,8 @@
         background: #000;
         border-radius: 15px;
         overflow: hidden;
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     
     #qr-video {
@@ -30,26 +40,35 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 200px;
-        height: 200px;
+        width: 250px;
+        height: 250px;
         border: 3px solid #00ff00;
-        border-radius: 10px;
+        border-radius: 15px;
         pointer-events: none;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { border-color: #00ff00; }
+        50% { border-color: #00cc00; }
+        100% { border-color: #00ff00; }
     }
     
     .scanner-controls {
         text-align: center;
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
     }
     
     .btn-scanner {
-        padding: 0.75rem 1.5rem;
+        padding: 1rem 2rem;
         margin: 0.5rem;
         border: none;
         border-radius: 25px;
         font-weight: bold;
+        font-size: 1.1rem;
         cursor: pointer;
         transition: all 0.3s ease;
+        min-width: 150px;
     }
     
     .btn-start {
@@ -64,32 +83,28 @@
     
     .btn-scanner:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
     }
     
     .manual-input {
         background: #f8f9fa;
         border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .result-container {
-        margin-top: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
     }
     
     .user-info {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
         display: none;
+        animation: slideIn 0.5s ease;
     }
     
     .user-info.show {
         display: block;
-        animation: slideIn 0.3s ease;
     }
     
     @keyframes slideIn {
@@ -100,14 +115,14 @@
     .access-form {
         background: white;
         border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         display: none;
+        animation: slideIn 0.5s ease;
     }
     
     .access-form.show {
         display: block;
-        animation: slideIn 0.3s ease;
     }
     
     .status-badge {
@@ -122,8 +137,14 @@
     .status-fuera { background: #dc3545; color: white; }
     .status-bloqueado { background: #6c757d; color: white; }
     
-    .movimento-ingreso { color: #28a745; }
-    .movimento-salida { color: #dc3545; }
+    .movement-indicator {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 1rem 0;
+    }
+    
+    .movement-ingreso { color: #28a745; }
+    .movement-salida { color: #dc3545; }
     
     .alert-custom {
         border-radius: 15px;
@@ -138,36 +159,46 @@
         background: #f8f9fa;
         border-radius: 10px;
         margin-bottom: 1rem;
+        font-weight: bold;
     }
     
-    .items-input {
-        background: #f8f9fa;
-        border: 2px solid #dee2e6;
+    .camera-status.active {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .items-preview {
+        background: rgba(255,255,255,0.1);
         border-radius: 10px;
-        padding: 0.75rem;
-        margin-bottom: 1rem;
+        padding: 1rem;
+        margin-top: 1rem;
     }
     
-    .items-input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    .item-tag {
+        background: rgba(255,255,255,0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin: 0.2rem;
+        display: inline-block;
     }
     
     .btn-process {
         background: linear-gradient(45deg, #667eea, #764ba2);
         color: white;
         border: none;
-        padding: 1rem 2rem;
+        padding: 1.5rem 3rem;
         border-radius: 25px;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         width: 100%;
         cursor: pointer;
         transition: all 0.3s ease;
+        font-weight: bold;
     }
     
     .btn-process:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
     }
     
     .btn-process:disabled {
@@ -176,43 +207,51 @@
         transform: none;
     }
     
-    .recent-scans {
-        background: #f8f9fa;
-        border-radius: 15px;
-        padding: 1rem;
-        margin-top: 1rem;
-        max-height: 300px;
-        overflow-y: auto;
-    }
-    
-    .scan-item {
-        background: white;
-        border-radius: 10px;
-        padding: 0.75rem;
-        margin-bottom: 0.5rem;
-        border-left: 4px solid #667eea;
-        font-size: 0.9rem;
-    }
-    
     .loading-spinner {
         display: none;
         text-align: center;
-        padding: 1rem;
+        padding: 2rem;
     }
     
     .spinner {
         border: 4px solid #f3f3f3;
         border-top: 4px solid #667eea;
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         animation: spin 1s linear infinite;
-        margin: 0 auto 0.5rem;
+        margin: 0 auto 1rem;
     }
     
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+    }
+    
+    .recent-scans {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .scan-item {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .scan-success {
+        border-left-color: #28a745;
+    }
+    
+    .scan-error {
+        border-left-color: #dc3545;
     }
 </style>
 {% endblock %}
@@ -221,9 +260,10 @@
 <div class="container-fluid">
     <div class="scanner-container">
         <!-- Header -->
-        <div class="text-center mb-4">
+        <div class="scanner-header">
             <h2><i class="fas fa-qrcode"></i> Scanner QR - Control de Acceso</h2>
-            <p class="text-muted">Escanea o ingresa manualmente el código QR para procesar el acceso</p>
+            <p>Escanea códigos QR para procesar accesos de entrada y salida</p>
+            <div id="current-time"></div>
         </div>
         
         <!-- Alertas -->
@@ -238,9 +278,10 @@
         <div class="camera-container">
             <video id="qr-video" style="display: none;"></video>
             <div class="camera-overlay"></div>
-            <div class="text-center p-4" id="camera-placeholder">
-                <i class="fas fa-camera fa-3x text-muted mb-3"></i>
-                <p class="text-muted">Haz clic en "Iniciar Cámara" para comenzar a escanear</p>
+            <div class="text-center p-5" id="camera-placeholder">
+                <i class="fas fa-camera fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">Cámara Inactiva</h4>
+                <p class="text-muted">Haz clic en "Iniciar Cámara" para comenzar a escanear códigos QR</p>
             </div>
         </div>
         
@@ -252,19 +293,27 @@
             <button id="btn-stop-camera" class="btn-scanner btn-stop" style="display: none;">
                 <i class="fas fa-stop"></i> Detener Cámara
             </button>
+            <button id="btn-manual" class="btn-scanner" style="background: #6c757d; color: white;">
+                <i class="fas fa-keyboard"></i> Entrada Manual
+            </button>
         </div>
         
         <!-- Entrada manual -->
-        <div class="manual-input">
-            <h5><i class="fas fa-keyboard"></i> Entrada Manual</h5>
-            <div class="input-group">
-                <input type="text" id="manual-qr-input" class="form-control" 
-                       placeholder="Ingresa el código QR manualmente..." 
-                       style="border-radius: 10px 0 0 10px;">
-                <button id="btn-manual-scan" class="btn btn-primary" 
-                        style="border-radius: 0 10px 10px 0;">
-                    <i class="fas fa-search"></i> Validar
-                </button>
+        <div class="manual-input" id="manual-input" style="display: none;">
+            <h5><i class="fas fa-keyboard"></i> Entrada Manual del Token</h5>
+            <div class="row">
+                <div class="col-md-8">
+                    <textarea id="manual-token" class="form-control" rows="4" 
+                             placeholder="Pega aquí el token JWT del código QR..."></textarea>
+                </div>
+                <div class="col-md-4">
+                    <button id="btn-validate-manual" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-search"></i> Validar Token
+                    </button>
+                    <button id="btn-cancel-manual" class="btn btn-secondary w-100">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -283,12 +332,18 @@
                     <p><strong>Rol:</strong> <span id="user-role">---</span></p>
                     <p><strong>Estado Actual:</strong> <span id="user-status" class="status-badge">---</span></p>
                 </div>
-                <div class="col-md-4 text-end">
-                    <div class="movimento-indicator">
-                        <h3 id="next-movement" class="movimento-ingreso">---</h3>
-                        <small>Próximo movimiento</small>
+                <div class="col-md-4 text-center">
+                    <div class="movement-indicator">
+                        <i id="movement-icon" class="fas fa-arrow-right"></i><br>
+                        <span id="next-movement" class="movement-ingreso">---</span>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Items incluidos en el QR -->
+            <div id="items-preview" class="items-preview" style="display: none;">
+                <h6><i class="fas fa-list"></i> Items Incluidos en el QR:</h6>
+                <div id="items-list"></div>
             </div>
         </div>
         
@@ -296,40 +351,41 @@
         <div class="access-form" id="access-form">
             <h5><i class="fas fa-door-open"></i> Procesar Acceso</h5>
             
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="ubicacion" class="form-label">Ubicación:</label>
-                    <select id="ubicacion" class="form-select items-input">
+                    <label for="ubicacion" class="form-label">Ubicación del Acceso:</label>
+                    <select id="ubicacion" class="form-select">
                         <option value="Entrada Principal">Entrada Principal</option>
                         <option value="Entrada Lateral">Entrada Lateral</option>
                         <option value="Entrada Vehículos">Entrada Vehículos</option>
                         <option value="Salida Principal">Salida Principal</option>
+                        <option value="Salida Lateral">Salida Lateral</option>
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label for="items-declarados" class="form-label">Items Declarados:</label>
-                    <input type="text" id="items-declarados" class="form-control items-input" 
-                           placeholder="Separados por comas...">
-                    <small class="text-muted">Ej: Laptop, Celular, Mochila</small>
+                    <label class="form-label">Información del Acceso:</label>
+                    <div id="access-summary" class="form-control-plaintext">
+                        <strong id="access-type">---</strong> para <strong id="access-user">---</strong>
+                    </div>
                 </div>
             </div>
             
             <div class="mb-3">
-                <label for="observaciones" class="form-label">Observaciones:</label>
-                <textarea id="observaciones" class="form-control items-input" rows="3" 
-                          placeholder="Observaciones adicionales..."></textarea>
+                <label for="observaciones" class="form-label">Observaciones (Opcional):</label>
+                <textarea id="observaciones" class="form-control" rows="3" 
+                          placeholder="Observaciones adicionales sobre el acceso..."></textarea>
             </div>
             
             <button id="btn-process-access" class="btn-process">
-                <i class="fas fa-check"></i> Procesar Acceso
+                <i class="fas fa-check-circle"></i> <span id="btn-process-text">Procesar Acceso</span>
             </button>
         </div>
         
         <!-- Escaneos recientes -->
         <div class="recent-scans">
-            <h6><i class="fas fa-history"></i> Escaneos Recientes</h6>
+            <h6><i class="fas fa-history"></i> Actividad Reciente</h6>
             <div id="recent-scans-list">
-                <p class="text-muted text-center">No hay escaneos recientes</p>
+                <p class="text-muted text-center">No hay actividad reciente</p>
             </div>
         </div>
     </div>
@@ -338,34 +394,50 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     let qrScanner = null;
-    let currentQRCode = null;
-    let recentScans = [];
+    let currentQRData = null;
+    let recentActivity = [];
     
     // Elementos del DOM
     const video = document.getElementById('qr-video');
     const cameraPlaceholder = document.getElementById('camera-placeholder');
     const btnStartCamera = document.getElementById('btn-start-camera');
     const btnStopCamera = document.getElementById('btn-stop-camera');
-    const btnManualScan = document.getElementById('btn-manual-scan');
-    const manualQRInput = document.getElementById('manual-qr-input');
+    const btnManual = document.getElementById('btn-manual');
+    const manualInput = document.getElementById('manual-input');
+    const btnValidateManual = document.getElementById('btn-validate-manual');
+    const btnCancelManual = document.getElementById('btn-cancel-manual');
     const userInfo = document.getElementById('user-info');
     const accessForm = document.getElementById('access-form');
     const btnProcessAccess = document.getElementById('btn-process-access');
     const loading = document.getElementById('loading');
     const cameraStatusText = document.getElementById('camera-status-text');
+    const cameraStatus = document.getElementById('camera-status');
     
-    // Inicializar scanner
+    // Inicializar
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+    
+    // Event listeners
     btnStartCamera.addEventListener('click', startCamera);
     btnStopCamera.addEventListener('click', stopCamera);
-    btnManualScan.addEventListener('click', () => validateQR(manualQRInput.value));
+    btnManual.addEventListener('click', toggleManualInput);
+    btnCancelManual.addEventListener('click', () => toggleManualInput(false));
+    btnValidateManual.addEventListener('click', validateManualToken);
     btnProcessAccess.addEventListener('click', processAccess);
     
-    // Enter en input manual
-    manualQRInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            validateQR(this.value);
-        }
-    });
+    function updateCurrentTime() {
+        const now = new Date();
+        document.getElementById('current-time').textContent = 
+            now.toLocaleString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+    }
     
     async function startCamera() {
         try {
@@ -379,10 +451,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 result => handleQRResult(result.data),
                 {
                     onDecodeError: error => {
-                        // Silencioso, normal en escaneo continuo
+                        // Silencioso durante escaneo
                     },
                     highlightScanRegion: true,
                     highlightCodeOutline: true,
+                    maxScansPerSecond: 5
                 }
             );
             
@@ -392,7 +465,8 @@ document.addEventListener('DOMContentLoaded', function() {
             cameraPlaceholder.style.display = 'none';
             btnStartCamera.style.display = 'none';
             btnStopCamera.style.display = 'inline-block';
-            cameraStatusText.textContent = 'Cámara activa - Escanea un código QR';
+            cameraStatusText.textContent = 'Cámara activa - Escaneando códigos QR';
+            cameraStatus.classList.add('active');
             
         } catch (error) {
             console.error('Error iniciando cámara:', error);
@@ -412,88 +486,168 @@ document.addEventListener('DOMContentLoaded', function() {
         btnStartCamera.style.display = 'inline-block';
         btnStopCamera.style.display = 'none';
         cameraStatusText.textContent = 'Cámara desactivada';
+        cameraStatus.classList.remove('active');
+        
+        // Limpiar datos actuales
+        hideUserInfo();
     }
     
-    function handleQRResult(qrCode) {
-        if (qrCode && qrCode !== currentQRCode) {
-            // Detener scanner temporalmente para evitar múltiples lecturas
+    function toggleManualInput(show = null) {
+        const shouldShow = show !== null ? show : manualInput.style.display === 'none';
+        
+        if (shouldShow) {
+            stopCamera();
+            manualInput.style.display = 'block';
+            document.getElementById('manual-token').focus();
+        } else {
+            manualInput.style.display = 'none';
+            document.getElementById('manual-token').value = '';
+            hideUserInfo();
+        }
+    }
+    
+    async function validateManualToken() {
+        const token = document.getElementById('manual-token').value.trim();
+        if (!token) {
+            showAlert('warning', 'Por favor ingresa un token válido');
+            return;
+        }
+        
+        await validateQR(token);
+    }
+    
+    function handleQRResult(qrData) {
+        if (qrData && qrData !== currentQRData) {
+            // Detener scanner temporalmente
             if (qrScanner) {
-                qrScanner.stop();
+                qrScanner.pause();
             }
             
-            validateQR(qrCode);
+            validateQR(qrData);
             
             // Reiniciar scanner después de 3 segundos
             setTimeout(() => {
-                if (qrScanner && btnStopCamera.style.display !== 'none') {
+                if (qrScanner && !qrScanner.isDestroyed) {
                     qrScanner.start();
                 }
             }, 3000);
         }
     }
     
-    async function validateQR(qrCode) {
-        if (!qrCode || !qrCode.trim()) {
-            showAlert('warning', 'Por favor ingresa un código QR válido');
-            return;
-        }
-        
-        currentQRCode = qrCode;
+    async function validateQR(token) {
+        currentQRData = token;
         showLoading(true);
         hideUserInfo();
         
         try {
             const formData = new FormData();
-            formData.append('codigo_qr', qrCode);
+            formData.append('token_jwt', token);
             
-            const response = await fetch('/vigilante/validar-qr', {
+            const response = await fetch('/qr-acceso/vigilante/validar', {
                 method: 'POST',
                 body: formData
             });
             
             const data = await response.json();
             
-            if (data.success && data.valido) {
+            if (data.valido) {
                 showUserInfo(data);
                 showAlert('success', data.mensaje);
-                addToRecentScans(qrCode, data.nombre_completo, 'Validado');
+                addToRecentActivity(data.nombre_completo, 'Validado', true);
             } else {
-                showAlert('danger', data.mensaje || 'Código QR no válido');
-                addToRecentScans(qrCode, 'Desconocido', 'Error');
+                showAlert('danger', data.mensaje);
+                addToRecentActivity('QR Inválido', data.mensaje, false);
+                currentQRData = null;
             }
             
         } catch (error) {
             console.error('Error validando QR:', error);
             showAlert('danger', 'Error de conexión al validar el código QR');
+            addToRecentActivity('Error', 'Error de conexión', false);
+            currentQRData = null;
         } finally {
             showLoading(false);
         }
     }
     
     function showUserInfo(data) {
+        // Información básica del usuario
         document.getElementById('user-name').textContent = data.nombre_completo;
         document.getElementById('user-id').textContent = data.usuario_id;
         document.getElementById('user-role').textContent = data.rol;
         
+        // Estado y siguiente movimiento
         const statusBadge = document.getElementById('user-status');
         statusBadge.textContent = data.estado_actual;
         statusBadge.className = `status-badge status-${data.estado_actual.toLowerCase()}`;
         
         const nextMovement = document.getElementById('next-movement');
-        nextMovement.textContent = data.tipo_siguiente;
-        nextMovement.className = `movimento-${data.tipo_siguiente.toLowerCase()}`;
+        const movementIcon = document.getElementById('movement-icon');
+        nextMovement.textContent = data.siguiente_movimiento;
+        nextMovement.className = `movement-${data.siguiente_movimiento.toLowerCase()}`;
         
+        if (data.siguiente_movimiento === 'INGRESO') {
+            movementIcon.className = 'fas fa-arrow-right';
+        } else {
+            movementIcon.className = 'fas fa-arrow-left';
+        }
+        
+        // Items incluidos
+        const totalItems = data.pertenencias_incluidas.length + data.vehiculos_incluidos.length;
+        if (totalItems > 0) {
+            showItemsPreview(data.pertenencias_incluidas, data.vehiculos_incluidos);
+        } else {
+            document.getElementById('items-preview').style.display = 'none';
+        }
+        
+        // Actualizar formulario de acceso
+        document.getElementById('access-type').textContent = data.siguiente_movimiento;
+        document.getElementById('access-user').textContent = data.nombre_completo;
+        document.getElementById('btn-process-text').textContent = 
+            `Procesar ${data.siguiente_movimiento}`;
+        
+        // Mostrar secciones
         userInfo.classList.add('show');
         accessForm.classList.add('show');
+        
+        // Ocultar entrada manual si está visible
+        if (manualInput.style.display !== 'none') {
+            toggleManualInput(false);
+        }
+    }
+    
+    function showItemsPreview(pertenencias, vehiculos) {
+        const itemsList = document.getElementById('items-list');
+        itemsList.innerHTML = '';
+        
+        // Mostrar pertenencias
+        if (pertenencias.length > 0) {
+            const pertenenciasHTML = pertenencias.map(p => 
+                `<span class="item-tag"><i class="fas fa-laptop"></i> ${p.nombre}</span>`
+            ).join('');
+            itemsList.innerHTML += `<strong>Pertenencias:</strong><br>${pertenenciasHTML}<br>`;
+        }
+        
+        // Mostrar vehículos
+        if (vehiculos.length > 0) {
+            const vehiculosHTML = vehiculos.map(v => {
+                const icon = v.tipo === 'Motocicleta' ? 'fa-motorcycle' : 'fa-car';
+                return `<span class="item-tag"><i class="fas ${icon}"></i> ${v.placa} - ${v.marca}</span>`;
+            }).join('');
+            itemsList.innerHTML += `<strong>Vehículos:</strong><br>${vehiculosHTML}`;
+        }
+        
+        document.getElementById('items-preview').style.display = 'block';
     }
     
     function hideUserInfo() {
         userInfo.classList.remove('show');
         accessForm.classList.remove('show');
+        currentQRData = null;
     }
     
     async function processAccess() {
-        if (!currentQRCode) {
+        if (!currentQRData) {
             showAlert('warning', 'No hay un código QR válido para procesar');
             return;
         }
@@ -503,12 +657,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             const formData = new FormData();
-            formData.append('codigo_qr', currentQRCode);
+            formData.append('token_jwt', currentQRData);
             formData.append('ubicacion', document.getElementById('ubicacion').value);
-            formData.append('items_declarados', document.getElementById('items-declarados').value);
             formData.append('observaciones', document.getElementById('observaciones').value);
             
-            const response = await fetch('/vigilante/procesar-acceso', {
+            const response = await fetch('/qr-acceso/vigilante/procesar', {
                 method: 'POST',
                 body: formData
             });
@@ -517,16 +670,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success) {
                 showAlert('success', data.mensaje);
-                addToRecentScans(
-                    currentQRCode, 
-                    data.registro.usuario_nombre, 
-                    data.registro.tipo_movimiento
+                addToRecentActivity(
+                    data.usuario_nombre,
+                    `${data.tipo_movimiento} procesado`,
+                    true,
+                    data.pertenencias_procesadas.length + data.vehiculos_procesados.length
                 );
                 
                 // Limpiar formulario
                 clearForm();
                 hideUserInfo();
-                currentQRCode = null;
                 
             } else {
                 showAlert('danger', data.error || 'Error procesando el acceso');
@@ -542,48 +695,52 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function clearForm() {
-        document.getElementById('items-declarados').value = '';
         document.getElementById('observaciones').value = '';
         document.getElementById('ubicacion').selectedIndex = 0;
-        manualQRInput.value = '';
+        document.getElementById('manual-token').value = '';
+        currentQRData = null;
     }
     
-    function addToRecentScans(qrCode, userName, status) {
+    function addToRecentActivity(user, action, success, itemCount = 0) {
         const now = new Date();
-        const scan = {
-            qrCode: qrCode,
-            userName: userName,
-            status: status,
-            time: now.toLocaleTimeString(),
-            timestamp: now.getTime()
+        const activity = {
+            timestamp: now,
+            user: user,
+            action: action,
+            success: success,
+            itemCount: itemCount,
+            time: now.toLocaleTimeString('es-ES')
         };
         
-        recentScans.unshift(scan);
-        if (recentScans.length > 10) {
-            recentScans.pop();
+        recentActivity.unshift(activity);
+        if (recentActivity.length > 10) {
+            recentActivity.pop();
         }
         
-        updateRecentScansList();
+        updateRecentActivityList();
     }
     
-    function updateRecentScansList() {
+    function updateRecentActivityList() {
         const list = document.getElementById('recent-scans-list');
         
-        if (recentScans.length === 0) {
-            list.innerHTML = '<p class="text-muted text-center">No hay escaneos recientes</p>';
+        if (recentActivity.length === 0) {
+            list.innerHTML = '<p class="text-muted text-center">No hay actividad reciente</p>';
             return;
         }
         
-        list.innerHTML = recentScans.map(scan => `
-            <div class="scan-item">
-                <div class="d-flex justify-content-between align-items-center">
+        list.innerHTML = recentActivity.map(activity => `
+            <div class="scan-item ${activity.success ? 'scan-success' : 'scan-error'}">
+                <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <strong>${scan.userName}</strong><br>
-                        <small class="text-muted">${scan.qrCode.substring(0, 20)}...</small>
+                        <strong>${activity.user}</strong><br>
+                        <span class="text-muted">${activity.action}</span>
+                        ${activity.itemCount > 0 ? `<br><small class="text-info">${activity.itemCount} items incluidos</small>` : ''}
                     </div>
                     <div class="text-end">
-                        <span class="badge bg-${scan.status === 'Error' ? 'danger' : 'success'}">${scan.status}</span><br>
-                        <small class="text-muted">${scan.time}</small>
+                        <span class="badge ${activity.success ? 'bg-success' : 'bg-danger'}">
+                            <i class="fas ${activity.success ? 'fa-check' : 'fa-times'}"></i>
+                        </span><br>
+                        <small class="text-muted">${activity.time}</small>
                     </div>
                 </div>
             </div>

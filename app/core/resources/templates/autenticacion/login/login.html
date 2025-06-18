@@ -25,7 +25,6 @@
 {% block form_description %}Ingresa tus credenciales para acceder a tu cuenta{% endblock %}
 
 {% block content %}
-<!-- Mostrar errores si existen -->
 {% if error %}
 <div class="alert alert-danger" data-aos="shake">
     <i class="bi bi-exclamation-triangle-fill"></i>
@@ -33,7 +32,6 @@
 </div>
 {% endif %}
 
-<!-- Formulario de login -->
 <form method="post" action="/login" data-validate class="animate-fade-in-up">
     
     <!-- Tipo de documento -->
@@ -150,7 +148,7 @@
     </div>
 
     <!-- Enlace a registro -->
-    <a href="/registro" class="btn btn-outline btn-lg btn-block">
+    <a href="/registrarse" class="btn btn-outline btn-lg btn-block">
         <i class="bi bi-person-plus me-2"></i>
         Crear cuenta nueva
     </a>

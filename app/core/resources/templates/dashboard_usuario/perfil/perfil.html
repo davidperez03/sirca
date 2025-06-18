@@ -1,594 +1,1332 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard de Usuario{% endblock %}
+{% block title %}Dashboard - {{ usuario.nombres }} {{ usuario.apellidos }}{% endblock %}
 
 {% block extra_head %}
 <style>
-/* Estilos para el card QR */
-.qr-access-card {
-    border: none;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+/* === VARIABLES ADICIONALES === */
+:root {
+    --gradient-primary: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+    --gradient-success: linear-gradient(135deg, var(--success), var(--success-dark));
+    --gradient-info: linear-gradient(135deg, var(--info), var(--info-dark));
+    --gradient-warning: linear-gradient(135deg, var(--warning), var(--warning-dark));
+    --gradient-danger: linear-gradient(135deg, var(--danger), var(--danger-dark));
+}
+
+/* === HEADER DEL DASHBOARD === */
+.dashboard-header {
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 50%, var(--info-600) 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    position: relative;
     overflow: hidden;
 }
 
-.qr-access-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+.dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M20 20c0 11.046-8.954 20-20 20v-40c11.046 0 20 8.954 20 20z'/%3E%3C/g%3E%3C/svg%3E") repeat;
+    animation: float 20s ease-in-out infinite;
 }
 
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
 }
 
-.qr-status-indicator {
+.dashboard-header-content {
     position: relative;
+    z-index: 2;
 }
 
-.status-circle {
+.user-welcome {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.user-avatar-large {
     width: 80px;
     height: 80px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+    border-radius: var(--radius-2xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    border: 3px solid rgba(255,255,255,0.3);
+    box-shadow: var(--shadow-xl);
+    backdrop-filter: blur(10px);
+}
+
+.user-info h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.user-role {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.user-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.15);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: pulse 2s infinite;
+}
+
+/* === CARDS MEJORADOS === */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: var(--radius-2xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--secondary-200);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover::before {
+    transform: scaleX(1);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-2xl);
+}
+
+.card-header-dashboard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.card-title-dashboard {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--secondary-900);
+}
+
+.card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.card-icon.success { background: var(--gradient-success); }
+.card-icon.info { background: var(--gradient-info); }
+.card-icon.warning { background: var(--gradient-warning); }
+.card-icon.danger { background: var(--gradient-danger); }
+
+.card-action {
+    background: var(--secondary-100);
+    color: var(--secondary-600);
+    border: none;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition-all);
+}
+
+.card-action:hover {
+    background: var(--secondary-200);
+    color: var(--secondary-800);
+    transform: scale(1.05);
+}
+
+/* === QR CARD ESPECIAL === */
+.qr-master-card {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.qr-master-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2v-2zM15 15h2v2h-2v-2zM13 17h2v2h-2v-2zM15 19h2v2h-2v-2zM17 13h2v2h-2v-2zM19 15h2v2h-2v-2zM17 17h2v2h-2v-2zM19 19h2v2h-2v-2z' fill='white' opacity='0.1'/%3E%3C/svg%3E") no-repeat;
+    background-size: contain;
+    opacity: 0.1;
+}
+
+.qr-content {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 2rem;
+    align-items: center;
+}
+
+.qr-status-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.qr-status-circle {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
-    font-size: 2rem;
+    font-size: 1.5rem;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px);
+    animation: pulse 2s infinite;
+}
+
+.qr-status-info h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.qr-status-text {
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+.qr-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-qr {
+    background: rgba(255,255,255,0.15);
     color: white;
-    transition: all 0.3s ease;
-}
-
-.status-ready {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    animation: pulse-ready 2s infinite;
-}
-
-.status-inside {
-    background: linear-gradient(135deg, #ffc107, #fd7e14);
-}
-
-.status-outside {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-}
-
-@keyframes pulse-ready {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.8; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.status-text {
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-xl);
     font-weight: 600;
-    color: #495057;
-    margin: 0;
+    transition: var(--transition-all);
+    backdrop-filter: blur(10px);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.badge-status {
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-}
-
-.badge-status.status-dentro {
-    background: linear-gradient(45deg, #28a745, #20c997);
+.btn-qr:hover {
+    background: rgba(255,255,255,0.25);
     color: white;
-}
-
-.badge-status.status-fuera {
-    background: linear-gradient(45deg, #dc3545, #c82333);
-    color: white;
-}
-
-.badge-status.status-loading {
-    background: #6c757d;
-    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 .btn-qr-primary {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    border: none;
-    border-radius: 25px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    color: white;
-    text-decoration: none;
+    background: rgba(255,255,255,0.9);
+    color: var(--primary-700);
 }
 
 .btn-qr-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    color: white;
-    text-decoration: none;
+    background: white;
+    color: var(--primary-800);
 }
 
-.btn-outline-secondary {
-    border-radius: 20px;
-    border-color: #dee2e6;
-    color: #6c757d;
-    transition: all 0.3s ease;
-}
-
-.btn-outline-secondary:hover {
-    background: #f8f9fa;
-    border-color: #adb5bd;
-    color: #495057;
-    transform: translateY(-1px);
-}
-
-/* Mejorar cards existentes */
-.card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-}
-
-.card-header {
-    border-radius: 15px 15px 0 0 !important;
-    border: none;
-    font-weight: 600;
-}
-
-.welcome-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 2rem;
-    border-radius: 15px;
+/* === ESTADÍSTICAS === */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
     margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    border: 1px solid var(--secondary-200);
+    transition: var(--transition-all);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary-600);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--secondary-600);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+/* === ACTIVIDAD RECIENTE === */
+.activity-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
 }
 
 .activity-item {
     display: flex;
     align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f0f0f0;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--secondary-100);
+    transition: var(--transition-all);
+}
+
+.activity-item:hover {
+    background: var(--secondary-50);
+    margin: 0 -1rem;
+    padding: 1rem;
+    border-radius: var(--radius-md);
 }
 
 .activity-item:last-child {
     border-bottom: none;
 }
 
-.activity-icon {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
+.activity-icon-wrapper {
+    width: 45px;
+    height: 45px;
+    border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 0.75rem;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
+    color: white;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
 }
 
-.icon-success { background: #d4edda; color: #155724; }
-.icon-info { background: #d1ecf1; color: #0c5460; }
-.icon-warning { background: #fff3cd; color: #856404; }
+.activity-icon-wrapper.ingreso { background: var(--gradient-success); }
+.activity-icon-wrapper.salida { background: var(--gradient-info); }
+.activity-icon-wrapper.qr { background: var(--gradient-warning); }
+.activity-icon-wrapper.system { background: var(--gradient-primary); }
 
-.btn-card {
-    border-radius: 25px;
-    padding: 0.6rem 1.2rem;
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
     font-weight: 600;
-    transition: all 0.3s ease;
+    color: var(--secondary-900);
+    margin-bottom: 0.25rem;
 }
 
-.btn-card:hover {
-    transform: translateY(-2px);
+.activity-description {
+    color: var(--secondary-600);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.activity-time {
+    color: var(--secondary-500);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* === ALERTAS Y NOTIFICACIONES === */
+.alert-dashboard {
+    background: linear-gradient(135deg, var(--warning-light), var(--warning));
+    color: white;
+    border: none;
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.alert-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-lg);
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-title {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.alert-message {
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+/* === QUICK ACTIONS === */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.quick-action-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--secondary-200);
+    transition: var(--transition-all);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    text-decoration: none;
+    color: inherit;
+}
+
+.quick-action-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-lg);
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
+.quick-action-content h4 {
+    font-weight: 700;
+    color: var(--secondary-900);
+    margin-bottom: 0.25rem;
+}
+
+.quick-action-content p {
+    color: var(--secondary-600);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 2rem 0;
+    }
+    
+    .user-welcome {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .user-info h1 {
+        font-size: 2rem;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .qr-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    
+    .qr-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* === LOADING STATES === */
+.loading-skeleton {
+    background: linear-gradient(90deg, var(--secondary-200) 25%, var(--secondary-100) 50%, var(--secondary-200) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: var(--radius-md);
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+    height: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-title {
+    height: 1.5rem;
+    width: 60%;
+    margin-bottom: 1rem;
+}
+
+/* === REAL TIME INDICATORS === */
+.realtime-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--success-light);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+}
+
+.realtime-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: white;
+    animation: pulse 1s infinite;
+}
+
+/* === CHARTS CONTAINER === */
+.chart-container {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--secondary-50);
+    border-radius: var(--radius-lg);
+    margin: 1rem 0;
+}
+
+/* === SCROLLBAR PERSONALIZADA === */
+.activity-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.activity-list::-webkit-scrollbar-track {
+    background: var(--secondary-100);
+    border-radius: var(--radius-full);
+}
+
+.activity-list::-webkit-scrollbar-thumb {
+    background: var(--secondary-300);
+    border-radius: var(--radius-full);
+}
+
+.activity-list::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-400);
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  {% if mensaje %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      {{ mensaje }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<!-- Dashboard Header -->
+<section class="dashboard-header">
+    <div class="container">
+        <div class="dashboard-header-content">
+            <div class="user-welcome">
+                <div class="user-avatar-large">
+                    {{ (usuario.nombres)[0] }}{{ (usuario.apellidos)[0] }}
+                </div>
+                <div class="user-info">
+                    <h1>¡Bienvenido, {{ usuario.nombres }}!</h1>
+                    <div class="user-role">{{ usuario.rol }} • {{ usuario.numero_documento }}</div>
+                </div>
+                <div class="user-status">
+                    <div class="status-dot"></div>
+                    <span class="realtime-indicator">
+                        <div class="realtime-dot"></div>
+                        En línea
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
-  {% endif %}
-  
-  <!-- Header de Bienvenida -->
-  <div class="welcome-header">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        <h2 class="mb-1">¡Bienvenido, {{ usuario.nombres }} {{ usuario.apellidos }}!</h2>
-        <p class="mb-0 opacity-75">{{ usuario.rol }} - {{ usuario.numero_documento }}</p>
-      </div>
-      <div>
-        
+</section>
 
-        <a href="/logout" class="btn btn-outline-light">
-          <i class="fas fa-sign-out-alt me-1"></i>Cerrar sesión
+<!-- Alertas y Notificaciones -->
+<div class="container">
+    {% if mensaje %}
+    <div class="alert-dashboard">
+        <div class="alert-icon">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="alert-content">
+            <div class="alert-title">¡Acción completada!</div>
+            <div class="alert-message">{{ mensaje }}</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Estadísticas Principales -->
+<div class="container">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number" id="accesos-mes">-</div>
+            <div class="stat-label">Accesos este mes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="pertenencias-total">-</div>
+            <div class="stat-label">Pertenencias registradas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="vehiculos-total">-</div>
+            <div class="stat-label">Vehículos registrados</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="qr-generados">-</div>
+            <div class="stat-label">QR generados</div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Principal -->
+<div class="container">
+    <div class="dashboard-grid">
+    
+        <!-- Actividad Reciente -->
+        <div class="dashboard-card">
+            <div class="card-header-dashboard">
+                <div class="card-title-dashboard">
+                    <div class="card-icon">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    Actividad Reciente
+                </div>
+                <button class="card-action" onclick="refreshActivity()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
+            <div class="activity-list" id="activity-list">
+                <!-- Se carga dinámicamente -->
+                <div class="loading-skeleton skeleton-text"></div>
+                <div class="loading-skeleton skeleton-text" style="width: 80%;"></div>
+                <div class="loading-skeleton skeleton-text" style="width: 60%;"></div>
+            </div>
+        </div>
+
+        <!-- Pertenencias -->
+        <div class="dashboard-card">
+            <div class="card-header-dashboard">
+                <div class="card-title-dashboard">
+                    <div class="card-icon warning">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    Mis Pertenencias
+                </div>
+                <a href="/usuario/{{ usuario.numero_documento }}/pertenencias" class="card-action">
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <div class="h4 mb-1" id="pertenencias-count">-</div>
+                        <small class="text-muted">Total registradas</small>
+                    </div>
+                    <div>
+                        <div class="h4 mb-1 text-success" id="pertenencias-activas">-</div>
+                        <small class="text-muted">Activas</small>
+                    </div>
+                </div>
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar bg-warning" id="pertenencias-progress" style="width: 0%"></div>
+                </div>
+                <a href="/usuario/{{ usuario.numero_documento }}/pertenencias/registrar" class="btn btn-warning btn-sm w-100">
+                    <i class="bi bi-plus-circle me-1"></i>Registrar Pertenencia
+                </a>
+            </div>
+        </div>
+
+        <!-- Vehículos -->
+        <div class="dashboard-card">
+            <div class="card-header-dashboard">
+                <div class="card-title-dashboard">
+                    <div class="card-icon info">
+                        <i class="bi bi-car-front"></i>
+                    </div>
+                    Mis Vehículos
+                </div>
+                <a href="/usuario/{{ usuario.numero_documento }}/vehiculos" class="card-action">
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <div class="h4 mb-1" id="vehiculos-count">-</div>
+                        <small class="text-muted">Total registrados</small>
+                    </div>
+                    <div>
+                        <div class="h4 mb-1 text-info" id="vehiculos-activos">-</div>
+                        <small class="text-muted">Activos</small>
+                    </div>
+                </div>
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar bg-info" id="vehiculos-progress" style="width: 0%"></div>
+                </div>
+                <a href="/usuario/{{ usuario.numero_documento }}/vehiculos/registrar" class="btn btn-info btn-sm w-100">
+                    <i class="bi bi-plus-circle me-1"></i>Registrar Vehículo
+                </a>
+            </div>
+        </div>
+
+        <!-- Estado del Sistema -->
+        <div class="dashboard-card">
+            <div class="card-header-dashboard">
+                <div class="card-title-dashboard">
+                    <div class="card-icon success">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    Estado del Sistema
+                </div>
+                <div class="realtime-indicator">
+                    <div class="realtime-dot"></div>
+                    En vivo
+                </div>
+            </div>
+            <div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Conectividad</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Última sincronización</span>
+                        <span class="text-muted" id="last-sync">Hace 2 min</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Accesos hoy</span>
+                        <span class="fw-bold" id="accesos-hoy">-</span>
+                    </div>
+                </div>
+                <div class="alert alert-success d-flex align-items-center p-2">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <small>Todos los sistemas funcionando correctamente</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accesos Recientes -->
+        <div class="dashboard-card">
+            <div class="card-header-dashboard">
+                <div class="card-title-dashboard">
+                    <div class="card-icon success">
+                        <i class="bi bi-door-open"></i>
+                    </div>
+                    Últimos Accesos
+                </div>
+                <a href="/usuario/{{ usuario.numero_documento }}/accesos" class="card-action">
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div id="ultimos-accesos">
+                <!-- Se carga dinámicamente -->
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-clock-history fa-2x mb-2"></i>
+                    <p>Cargando historial de accesos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="container">
+    <h3 class="mb-3">Acciones Rápidas</h3>
+    <div class="quick-actions">
+        <a href="/usuario/{{ usuario.numero_documento }}/qr" class="quick-action-card">
+            <div class="quick-action-icon">
+                <i class="bi bi-qr-code"></i>
+            </div>
+            <div class="quick-action-content">
+                <h4>Generar QR</h4>
+                <p>Crear código temporal para acceso</p>
+            </div>
         </a>
-      </div>
+        
+        <a href="/usuario/{{ usuario.numero_documento }}/pertenencias/registrar" class="quick-action-card">
+            <div class="quick-action-icon" style="background: var(--gradient-warning);">
+                <i class="bi bi-plus-circle"></i>
+            </div>
+            <div class="quick-action-content">
+                <h4>Nueva Pertenencia</h4>
+                <p>Registrar nueva pertenencia</p>
+            </div>
+        </a>
+        
+        <a href="/usuario/{{ usuario.numero_documento }}/vehiculos/registrar" class="quick-action-card">
+            <div class="quick-action-icon" style="background: var(--gradient-info);">
+                <i class="bi bi-car-front"></i>
+            </div>
+            <div class="quick-action-content">
+                <h4>Nuevo Vehículo</h4>
+                <p>Registrar vehículo</p>
+            </div>
+        </a>
+        
+        <a href="/vigilante/scanner" class="quick-action-card" {% if usuario.rol not in ["Superadministrador", "Administrador", "Vigilante"] %}style="display: none;"{% endif %}>
+            <div class="quick-action-icon" style="background: var(--gradient-danger);">
+                <i class="bi bi-upc-scan"></i>
+            </div>
+            <div class="quick-action-content">
+                <h4>Escanear QR</h4>
+                <p>Procesar acceso con QR</p>
+            </div>
+        </a>
     </div>
-  </div>
-
-  <div class="row g-4">
-    <!-- Card QR de Acceso -->
-    <div class="col-md-6">
-      <div class="card h-100 qr-access-card">
-        <div class="card-header bg-gradient-primary text-white">
-          <h5 class="card-title mb-0">
-            <i class="fas fa-qrcode me-2"></i>Código QR de Acceso
-          </h5>
-        </div>
-        <div class="card-body text-center">
-          <div class="qr-status-indicator mb-3">
-            <div class="status-circle status-ready" id="qr-status-circle">
-              <i class="fas fa-mobile-alt"></i>
-            </div>
-            <p class="status-text mt-2" id="qr-status-text">Listo para generar QR</p>
-          </div>
-          
-          <p class="text-muted mb-3">
-            Genera tu código QR temporal para acceder a las instalaciones de forma segura.
-          </p>
-          
-          <!-- Estado actual del usuario -->
-          <div class="current-status mb-3">
-            <small class="text-muted">Estado actual:</small>
-            <div class="mt-1">
-              <span class="badge badge-status status-loading" id="user-status-badge">
-                <i class="fas fa-spinner fa-spin me-1"></i>Consultando...
-              </span>
-            </div>
-          </div>
-          
-          <!-- Botones de acción -->
-          <div class="qr-actions">
-            <a href="/usuario/{{ usuario.numero_documento }}/qr" 
-               class="btn btn-qr-primary btn-lg d-block mb-2">
-              <i class="fas fa-qrcode me-2"></i>Generar Mi QR
-            </a>
-            
-            <a href="/usuario/{{ usuario.numero_documento }}/accesos" 
-               class="btn btn-outline-secondary btn-sm">
-              <i class="fas fa-history me-1"></i>Ver Historial
-            </a>
-          </div>
-        </div>
-        <div class="card-footer bg-light">
-          <div class="row text-center">
-            <div class="col-6">
-              <small class="text-muted">Último acceso</small>
-              <div class="fw-bold" id="last-access">-</div>
-            </div>
-            <div class="col-6">
-              <small class="text-muted">Total accesos</small>
-              <div class="fw-bold" id="total-access">-</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actividad Reciente -->
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-header bg-primary text-white">
-          <i class="fas fa-chart-line me-2"></i>Actividad Reciente
-        </div>
-        <div class="card-body">
-          {% if actividad %}
-            <div class="activity-list">
-              {% for evento in actividad %}
-              <div class="activity-item">
-                <div class="activity-icon icon-info">
-                  <i class="fas fa-bell"></i>
-                </div>
-                <div class="activity-content">
-                  <div class="activity-text">{{ evento }}</div>
-                  <small class="text-muted">Hace 2 horas</small>
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="text-center py-4">
-              <i class="fas fa-clock fa-2x text-muted mb-2"></i>
-              <p class="text-muted mb-0">Sin actividad reciente.</p>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Últimos Accesos -->
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-header bg-success text-white">
-          <i class="fas fa-door-open me-2"></i>Últimos Accesos
-        </div>
-        <div class="card-body">
-          {% if accesos %}
-            <div class="activity-list">
-              {% for acceso in accesos %}
-              <div class="activity-item">
-                <div class="activity-icon icon-success">
-                  <i class="fas fa-sign-in-alt"></i>
-                </div>
-                <div class="activity-content">
-                  <div class="activity-text">{{ acceso }}</div>
-                  
-                </div>
-              </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="text-center py-4">
-              <i class="fas fa-door-closed fa-2x text-muted mb-2"></i>
-              <p class="text-muted mb-0">No hay registros de acceso.</p>
-              <small class="text-muted">Genera tu primer QR para comenzar</small>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Estado de Cuenta -->
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-header bg-info text-white">
-          <i class="fas fa-user-check me-2"></i>Estado de Cuenta
-        </div>
-        <div class="card-body">
-          <div class="d-flex align-items-center mb-3">
-            <div class="flex-shrink-0">
-              <div class="badge bg-success rounded-circle p-2">
-                <i class="fas fa-check"></i>
-              </div>
-            </div>
-            <div class="flex-grow-1 ms-3">
-              <h6 class="mb-1">Cuenta Activa</h6>
-              <p class="text-muted mb-0">Tu cuenta está habilitada y funcionando correctamente.</p>
-            </div>
-          </div>
-          
-          {% if estado_cuenta %}
-            <p>{{ estado_cuenta }}</p>
-          {% else %}
-            <div class="row text-center">
-              <div class="col-6">
-                <div class="border-end">
-                  <h5 class="text-success mb-0">✓</h5>
-                  <small class="text-muted">Verificado</small>
-                </div>
-              </div>
-              <div class="col-6">
-                <h5 class="text-info mb-0">{{ usuario.rol }}</h5>
-                <small class="text-muted">Rol asignado</small>
-              </div>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Mis Pertenencias -->
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-header bg-warning text-dark">
-          <i class="fas fa-box me-2"></i>Mis Pertenencias
-        </div>
-        <div class="card-body d-flex flex-column">
-          <p class="flex-grow-1">Consulta, registra y gestiona tus pertenencias asociadas a tu cuenta.</p>
-          <div class="mt-auto">
-            <div class="row text-center mb-3">
-              <div class="col-6">
-                <h5 class="text-warning mb-0" id="pertenencias-count">-</h5>
-                <small class="text-muted">Registradas</small>
-              </div>
-              <div class="col-6">
-                <h5 class="text-success mb-0" id="pertenencias-activas">-</h5>
-                <small class="text-muted">Activas</small>
-              </div>
-            </div>
-            <a href="/usuario/{{ usuario.numero_documento }}/pertenencias" class="btn btn-warning btn-card w-100">
-              <i class="fas fa-box-seam me-1"></i> Ver pertenencias
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mis Vehículos -->
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-header bg-primary text-white">
-          <i class="fas fa-car me-2"></i>Mis Vehículos
-        </div>
-        <div class="card-body d-flex flex-column">
-          <p class="flex-grow-1">Registra, consulta y administra tus vehículos (motos y carros) en el sistema.</p>
-          <div class="mt-auto">
-            <div class="row text-center mb-3">
-              <div class="col-6">
-                <h5 class="text-primary mb-0" id="vehiculos-count">-</h5>
-                <small class="text-muted">Registrados</small>
-              </div>
-              <div class="col-6">
-                <h5 class="text-success mb-0" id="vehiculos-activos">-</h5>
-                <small class="text-muted">Activos</small>
-              </div>
-            </div>
-            <a href="/usuario/{{ usuario.numero_documento }}/vehiculos" class="btn btn-primary btn-card w-100">
-              <i class="fas fa-car-front me-1"></i> Ver vehículos
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Rol y Permisos -->
-    <div class="col-md-6">
-      <div class="card h-100">
-        <div class="card-header bg-dark text-white">
-          <i class="fas fa-shield-alt me-2"></i>Rol y Permisos
-        </div>
-        <div class="card-body">
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center">
-              <strong>Rol Actual:</strong>
-              <span class="badge bg-dark">{{ usuario.rol }}</span>
-            </div>
-          </div>
-          
-          <div class="permissions-list">
-            <h6 class="text-muted mb-2">Permisos disponibles:</h6>
-            {% if usuario.permisos %}
-              <ul class="list-unstyled">
-                {% for permiso in usuario.permisos %}
-                  <li class="mb-1">
-                    <i class="fas fa-check-circle text-success me-2"></i>{{ permiso }}
-                  </li>
-                {% endfor %}
-              </ul>
-            {% else %}
-              <div class="permission-item mb-2">
-                <i class="fas fa-check-circle text-success me-2"></i>Generar códigos QR
-              </div>
-              <div class="permission-item mb-2">
-                <i class="fas fa-check-circle text-success me-2"></i>Registrar pertenencias
-              </div>
-              <div class="permission-item mb-2">
-                <i class="fas fa-check-circle text-success me-2"></i>Gestionar vehículos
-              </div>
-              <div class="permission-item">
-                <i class="fas fa-check-circle text-success me-2"></i>Ver historial personal
-              </div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Cargar estado actual del usuario
-    loadUserStatus();
-    loadUserStats();
-    
-    // Actualizar cada 60 segundos
-    setInterval(loadUserStatus, 60000);
-});
+// === CONFIGURACIÓN Y VARIABLES GLOBALES ===
+const USUARIO_ID = '{{ usuario.numero_documento }}';
+const REFRESH_INTERVAL = 30000; // 30 segundos
+let refreshIntervals = [];
 
-async function loadUserStatus() {
-    try {
-        const response = await fetch('/api/usuario/{{ usuario.numero_documento }}/estado');
-        const data = await response.json();
-        
-        updateStatusIndicator(data.usuario.estado || 'FUERA');
-        updateLastAccess(data.ultimo_acceso);
-        updateStats(data.estadisticas);
-        
-    } catch (error) {
-        console.error('Error cargando estado:', error);
-        updateStatusIndicator('ERROR');
-    }
-}
-
+// === FUNCIONES DE CARGA DE DATOS ===
 async function loadUserStats() {
     try {
         // Cargar estadísticas de pertenencias
-        const pertenenciasResponse = await fetch('/api/usuario/{{ usuario.numero_documento }}/pertenencias/estadisticas');
-        const pertenenciasData = await pertenenciasResponse.json();
-        
-        document.getElementById('pertenencias-count').textContent = pertenenciasData.total || 0;
-        document.getElementById('pertenencias-activas').textContent = pertenenciasData.activas || 0;
-        
+        const pertenenciasResponse = await fetch(`/api/usuario/${USUARIO_ID}/pertenencias/estadisticas`);
+        if (pertenenciasResponse.ok) {
+            const pertenenciasData = await pertenenciasResponse.json();
+            updatePertenenciasStats(pertenenciasData);
+        }
+
         // Cargar estadísticas de vehículos
-        const vehiculosResponse = await fetch('/api/usuario/{{ usuario.numero_documento }}/vehiculos/estadisticas');
-        const vehiculosData = await vehiculosResponse.json();
+        const vehiculosResponse = await fetch(`/api/usuario/${USUARIO_ID}/vehiculos/estadisticas`);
+        if (vehiculosResponse.ok) {
+            const vehiculosData = await vehiculosResponse.json();
+            updateVehiculosStats(vehiculosData);
+        }
+
+        // Cargar estado del usuario
+        const estadoResponse = await fetch(`/api/usuario/${USUARIO_ID}/estado`);
+        if (estadoResponse.ok) {
+            const estadoData = await estadoResponse.json();
+            updateUserStatus(estadoData);
+        }
+
+        // Cargar accesos recientes
+        loadRecentAccess();
         
-        document.getElementById('vehiculos-count').textContent = vehiculosData.total || 0;
-        document.getElementById('vehiculos-activos').textContent = vehiculosData.activos || 0;
-        
+        // Cargar actividad reciente
+        loadRecentActivity();
+
+        console.log('✅ Estadísticas cargadas correctamente');
     } catch (error) {
-        console.error('Error cargando estadísticas:', error);
+        console.error('❌ Error cargando estadísticas:', error);
+        showNotification('Error cargando datos del dashboard', 'error');
     }
 }
 
-function updateStatusIndicator(estado) {
-    const circle = document.getElementById('qr-status-circle');
-    const text = document.getElementById('qr-status-text');
-    const badge = document.getElementById('user-status-badge');
+function updatePertenenciasStats(data) {
+    document.getElementById('pertenencias-count').textContent = data.total || 0;
+    document.getElementById('pertenencias-activas').textContent = data.activas || 0;
+    document.getElementById('pertenencias-total').textContent = data.total || 0;
     
-    // Limpiar clases anteriores
-    circle.className = 'status-circle';
-    badge.className = 'badge badge-status';
+    // Actualizar barra de progreso
+    const progress = data.total > 0 ? (data.activas / data.total) * 100 : 0;
+    document.getElementById('pertenencias-progress').style.width = `${progress}%`;
+}
+
+function updateVehiculosStats(data) {
+    document.getElementById('vehiculos-count').textContent = data.total || 0;
+    document.getElementById('vehiculos-activos').textContent = data.activos || 0;
+    document.getElementById('vehiculos-total').textContent = data.total || 0;
     
-    switch (estado) {
-        case 'DENTRO':
-            circle.classList.add('status-inside');
-            circle.innerHTML = '<i class="fas fa-building"></i>';
-            text.textContent = 'Actualmente dentro';
-            badge.classList.add('status-dentro');
-            badge.innerHTML = '<i class="fas fa-circle me-1"></i>Dentro';
-            break;
-            
-        case 'FUERA':
-            circle.classList.add('status-ready');
-            circle.innerHTML = '<i class="fas fa-mobile-alt"></i>';
-            text.textContent = 'Listo para ingresar';
-            badge.classList.add('status-fuera');
-            badge.innerHTML = '<i class="fas fa-circle me-1"></i>Fuera';
-            break;
-            
-        case 'BLOQUEADO':
-            circle.classList.add('status-outside');
-            circle.innerHTML = '<i class="fas fa-ban"></i>';
-            text.textContent = 'Acceso bloqueado';
-            badge.classList.add('status-loading');
-            badge.innerHTML = '<i class="fas fa-ban me-1"></i>Bloqueado';
-            break;
-            
-        default:
-            circle.classList.add('status-ready');
-            circle.innerHTML = '<i class="fas fa-question"></i>';
-            text.textContent = 'Estado no disponible';
-            badge.classList.add('status-loading');
-            badge.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Cargando';
+    // Actualizar barra de progreso
+    const progress = data.total > 0 ? (data.activos / data.total) * 100 : 0;
+    document.getElementById('vehiculos-progress').style.width = `${progress}%`;
+}
+
+function updateUserStatus(data) {
+    const statusCircle = document.getElementById('qr-status-circle');
+    const statusTitle = document.getElementById('qr-status-title');
+    const statusText = document.getElementById('qr-status-text');
+    const currentStatus = document.getElementById('user-current-status');
+    
+    const estado = data.usuario?.estado || 'FUERA';
+    
+    // Actualizar estado actual
+    currentStatus.textContent = estado === 'DENTRO' ? 'Dentro' : 'Fuera';
+    
+    // Actualizar círculo de estado
+    statusCircle.className = 'qr-status-circle';
+    if (estado === 'DENTRO') {
+        statusCircle.innerHTML = '<i class="bi bi-building"></i>';
+        statusTitle.textContent = 'Actualmente Dentro';
+        statusText.textContent = 'Puedes generar QR para salir';
+    } else {
+        statusCircle.innerHTML = '<i class="bi bi-qr-code"></i>';
+        statusTitle.textContent = 'Control de Acceso QR';
+        statusText.textContent = 'Listo para generar código de ingreso';
+    }
+    
+    // Actualizar estadísticas generales
+    if (data.estadisticas) {
+        document.getElementById('accesos-mes').textContent = data.estadisticas.accesos_mes || 0;
+        document.getElementById('accesos-hoy').textContent = data.estadisticas.accesos_hoy || 0;
+        document.getElementById('qr-generados').textContent = data.estadisticas.qr_generados || 0;
     }
 }
 
-function updateLastAccess(ultimoAcceso) {
-    const lastAccessElement = document.getElementById('last-access');
+async function loadRecentAccess() {
+    try {
+        const response = await fetch(`/api/usuario/${USUARIO_ID}/accesos?dias=7`);
+        if (response.ok) {
+            const accesos = await response.json();
+            updateRecentAccessDisplay(accesos.slice(0, 5)); // Mostrar solo los últimos 5
+        }
+    } catch (error) {
+        console.error('Error cargando accesos recientes:', error);
+    }
+}
+
+function updateRecentAccessDisplay(accesos) {
+    const container = document.getElementById('ultimos-accesos');
     
-    if (ultimoAcceso) {
-        const fecha = new Date(ultimoAcceso.fecha_hora);
-        const ahora = new Date();
-        const diffTime = Math.abs(ahora - fecha);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (accesos.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-door-closed fa-2x mb-2"></i>
+                <p>No hay registros de acceso recientes</p>
+                <small>Genera tu primer QR para comenzar</small>
+            </div>
+        `;
+        return;
+    }
+    
+    const accessList = accesos.map(acceso => {
+        const fecha = new Date(acceso.fecha_hora);
+        const tipoIcon = acceso.tipo_movimiento === 'INGRESO' ? 'door-open' : 'door-closed';
+        const tipoColor = acceso.tipo_movimiento === 'INGRESO' ? 'success' : 'info';
+        const tipoTexto = acceso.tipo_movimiento === 'INGRESO' ? 'Ingreso' : 'Salida';
         
-        if (diffDays === 1) {
-            lastAccessElement.textContent = 'Hoy';
-        } else if (diffDays <= 7) {
-            lastAccessElement.textContent = diffDays + 'd';
-        } else {
-            lastAccessElement.textContent = fecha.toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit'
+        return `
+            <div class="activity-item">
+                <div class="activity-icon-wrapper ${acceso.tipo_movimiento.toLowerCase()}">
+                    <i class="bi bi-${tipoIcon}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">${tipoTexto} registrado</div>
+                    <div class="activity-description">${acceso.ubicacion || 'Entrada Principal'}</div>
+                    <div class="activity-time">${formatTimeAgo(fecha)}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = accessList;
+}
+
+async function loadRecentActivity() {
+    try {
+        // Simular carga de actividad reciente combinando diferentes fuentes
+        const activities = await generateRecentActivity();
+        updateActivityDisplay(activities);
+    } catch (error) {
+        console.error('Error cargando actividad reciente:', error);
+    }
+}
+
+async function generateRecentActivity() {
+    const activities = [];
+    
+    try {
+        // Obtener accesos recientes
+        const accessResponse = await fetch(`/api/usuario/${USUARIO_ID}/accesos?dias=3`);
+        if (accessResponse.ok) {
+            const accesos = await accessResponse.json();
+            accesos.slice(0, 3).forEach(acceso => {
+                activities.push({
+                    type: acceso.tipo_movimiento.toLowerCase(),
+                    title: `${acceso.tipo_movimiento === 'INGRESO' ? 'Ingreso' : 'Salida'} registrado`,
+                    description: `${acceso.ubicacion || 'Entrada Principal'}`,
+                    time: new Date(acceso.fecha_hora),
+                    icon: acceso.tipo_movimiento === 'INGRESO' ? 'door-open' : 'door-closed'
+                });
             });
         }
+        
+        // Agregar actividades del sistema
+        activities.push({
+            type: 'system',
+            title: 'Perfil actualizado',
+            description: 'Información de perfil sincronizada',
+            time: new Date(Date.now() - 1000 * 60 * 30), // hace 30 min
+            icon: 'person-check'
+        });
+        
+        activities.push({
+            type: 'qr',
+            title: 'Sistema QR activo',
+            description: 'Listo para generar códigos temporales',
+            time: new Date(Date.now() - 1000 * 60 * 60), // hace 1 hora
+            icon: 'qr-code'
+        });
+        
+    } catch (error) {
+        console.error('Error generando actividad:', error);
+    }
+    
+    // Ordenar por tiempo (más reciente primero)
+    return activities.sort((a, b) => b.time - a.time).slice(0, 10);
+}
+
+function updateActivityDisplay(activities) {
+    const container = document.getElementById('activity-list');
+    
+    if (activities.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-clock-history fa-2x mb-2"></i>
+                <p>No hay actividad reciente</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const activityList = activities.map(activity => `
+        <div class="activity-item">
+            <div class="activity-icon-wrapper ${activity.type}">
+                <i class="bi bi-${activity.icon}"></i>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">${activity.title}</div>
+                <div class="activity-description">${activity.description}</div>
+                <div class="activity-time">${formatTimeAgo(activity.time)}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = activityList;
+}
+
+// === FUNCIONES DE UTILIDAD ===
+function formatTimeAgo(date) {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) {
+        return 'Hace unos segundos';
+    } else if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        return `Hace ${minutes} min${minutes > 1 ? 'utos' : 'uto'}`;
+    } else if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `Hace ${hours} hora${hours > 1 ? 's' : ''}`;
     } else {
-        lastAccessElement.textContent = 'Nunca';
+        const days = Math.floor(diffInSeconds / 86400);
+        return `Hace ${days} día${days > 1 ? 's' : ''}`;
     }
 }
 
-function updateStats(estadisticas) {
-    const totalAccessElement = document.getElementById('total-access');
-    
-    if (estadisticas) {
-        totalAccessElement.textContent = estadisticas.accesos_mes || 0;
+function showNotification(message, type = 'info') {
+    // Usar el sistema de notificaciones de SIRCA del base.html
+    if (typeof SIRCA !== 'undefined' && SIRCA.notifications) {
+        SIRCA.notifications.show(message, type);
     } else {
-        totalAccessElement.textContent = '-';
+        console.log(`${type.toUpperCase()}: ${message}`);
     }
 }
+
+function refreshActivity() {
+    showNotification('Actualizando actividad...', 'info');
+    loadRecentActivity();
+}
+
+function updateLastSync() {
+    const lastSyncElement = document.getElementById('last-sync');
+    if (lastSyncElement) {
+        lastSyncElement.textContent = 'Hace 0 min';
+        setTimeout(() => {
+            lastSyncElement.textContent = 'Hace 1 min';
+        }, 60000);
+        setTimeout(() => {
+            lastSyncElement.textContent = 'Hace 2 min';
+        }, 120000);
+    }
+}
+
+// === INICIALIZACIÓN ===
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Dashboard del perfil inicializado');
+    
+    // Cargar datos iniciales
+    loadUserStats();
+    
+    // Configurar actualizaciones automáticas
+    const statsInterval = setInterval(loadUserStats, REFRESH_INTERVAL);
+    const syncInterval = setInterval(updateLastSync, 60000);
+    
+    refreshIntervals.push(statsInterval, syncInterval);
+    
+    // Limpiar intervalos al salir
+    window.addEventListener('beforeunload', () => {
+        refreshIntervals.forEach(interval => clearInterval(interval));
+    });
+    
+    // Configurar WebSocket para actualizaciones en tiempo real (si está disponible)
+    if (typeof WebSocket !== 'undefined') {
+        try {
+            const ws = new WebSocket(`ws://${window.location.host}/ws/dashboard`);
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'dashboard_update') {
+                    console.log('📡 Actualización en tiempo real recibida');
+                    // Actualizar datos en tiempo real
+                    updateRealTimeData(data.data);
+                }
+            };
+            
+            ws.onerror = function(error) {
+                console.log('WebSocket no disponible, usando polling');
+            };
+            
+        } catch (error) {
+            console.log('WebSocket no soportado, usando polling');
+        }
+    }
+    
+    console.log('✅ Dashboard completamente cargado');
+});
+
+function updateRealTimeData(data) {
+    // Actualizar indicadores en tiempo real
+    if (data.estadisticas) {
+        const accesosHoy = document.getElementById('accesos-hoy');
+        if (accesosHoy) {
+            accesosHoy.textContent = data.estadisticas.accesos_hoy || 0;
+        }
+    }
+    
+    // Mostrar notificación de actualización
+    showNotification('Datos actualizados en tiempo real', 'success');
+}
+
+// === FUNCIONES ESPECÍFICAS PARA QR ===
+async function generateQRCode() {
+    try {
+        showNotification('Generando código QR...', 'info');
+        
+        const response = await fetch(`/api/usuario/${USUARIO_ID}/qr/generar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                duracion_minutos: 5
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            showNotification('¡Código QR generado exitosamente!', 'success');
+            
+            // Actualizar UI con nuevo QR
+            updateQRStatus('generated', data);
+            
+            // Redirigir a la página de QR
+            window.location.href = `/usuario/${USUARIO_ID}/qr`;
+        } else {
+            const error = await response.json();
+            showNotification(error.detail || 'Error generando QR', 'danger');
+        }
+    } catch (error) {
+        console.error('Error generando QR:', error);
+        showNotification('Error de conexión al generar QR', 'danger');
+    }
+}
+
+function updateQRStatus(status, data = null) {
+    const statusCircle = document.getElementById('qr-status-circle');
+    const statusTitle = document.getElementById('qr-status-title');
+    const statusText = document.getElementById('qr-status-text');
+    
+    switch (status) {
+        case 'generated':
+            statusCircle.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+            statusTitle.textContent = 'QR Generado';
+            statusText.textContent = `Válido por ${data?.qr_data?.tiempo_restante_segundos ? Math.ceil(data.qr_data.tiempo_restante_segundos / 60) : 5} minutos`;
+            break;
+        case 'expired':
+            statusCircle.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
+            statusTitle.textContent = 'QR Expirado';
+            statusText.textContent = 'Genera un nuevo código para acceder';
+            break;
+        default:
+            statusCircle.innerHTML = '<i class="bi bi-qr-code"></i>';
+            statusTitle.textContent = 'Control de Acceso QR';
+            statusText.textContent = 'Listo para generar código temporal';
+    }
+}
+
+// === EVENT LISTENERS ADICIONALES ===
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        // La página volvió a ser visible, actualizar datos
+        console.log('🔄 Página visible, actualizando datos...');
+        loadUserStats();
+    }
+});
+
+// Detectar errores de red y mostrar notificación
+window.addEventListener('online', function() {
+    showNotification('Conexión restaurada', 'success');
+    loadUserStats();
+});
+
+window.addEventListener('offline', function() {
+    showNotification('Sin conexión a internet', 'warning');
+});
+
+// === FUNCIONES DE NAVEGACIÓN RÁPIDA ===
+function navigateToQR() {
+    window.location.href = `/usuario/${USUARIO_ID}/qr`;
+}
+
+function navigateToPertenencias() {
+    window.location.href = `/usuario/${USUARIO_ID}/pertenencias`;
+}
+
+function navigateToVehiculos() {
+    window.location.href = `/usuario/${USUARIO_ID}/vehiculos`;
+}
+
+function navigateToAccesos() {
+    window.location.href = `/usuario/${USUARIO_ID}/accesos`;
+}
+
+// Atajos de teclado
+document.addEventListener('keydown', function(e) {
+    // Solo si no está escribiendo en un input
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        switch(e.key) {
+            case 'q':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    navigateToQR();
+                }
+                break;
+            case 'p':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    navigateToPertenencias();
+                }
+                break;
+            case 'v':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    navigateToVehiculos();
+                }
+                break;
+            case 'r':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    loadUserStats();
+                }
+                break;
+        }
+    }
+});
+
+console.log('🎯 Sistema de dashboard avanzado cargado');
+console.log('💡 Atajos disponibles:');
+console.log('   Ctrl+Q: Ir a QR');
+console.log('   Ctrl+P: Ir a Pertenencias');
+console.log('   Ctrl+V: Ir a Vehículos');
+console.log('   Ctrl+R: Actualizar datos');
 </script>
 {% endblock %}

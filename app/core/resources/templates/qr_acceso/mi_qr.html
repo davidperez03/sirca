@@ -89,6 +89,23 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+    
+    .items-declarados {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+        text-align: left;
+    }
+    
+    .item-tag {
+        background: rgba(255,255,255,0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin: 0.2rem;
+        display: inline-block;
+    }
 </style>
 {% endblock %}
 
@@ -114,9 +131,9 @@
                                     {{ estado_actual }}
                                 </span>
                             </p>
-                            {% if ultimo_acceso %}
-                            <p><strong>Último Acceso:</strong> {{ ultimo_acceso.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</p>
-                            <p><strong>Tipo:</strong> {{ ultimo_acceso.tipo_movimiento }}</p>
+                            {% if ultimo_registro %}
+                            <p><strong>Último Acceso:</strong> {{ ultimo_registro.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</p>
+                            <p><strong>Tipo:</strong> {{ ultimo_registro.tipo_movimiento }}</p>
                             {% endif %}
                         </div>
                     </div>
@@ -141,29 +158,79 @@
                     </div>
                     
                     <div class="qr-info">
-                        <p><strong>Código:</strong> <span id="qr-codigo"></span></p>
-                        <p><strong>Expira en:</strong> <span id="countdown" class="countdown"></span></p>
+                        <p><strong>Válido hasta:</strong> <span id="fecha-expiracion"></span></p>
+                        <p><strong>Tiempo restante:</strong> <span id="countdown" class="countdown"></span></p>
                         <p><small>⚠️ Este código es de un solo uso y tiene tiempo limitado</small></p>
+                    </div>
+                    
+                    <!-- Items incluidos -->
+                    <div id="items-incluidos" class="items-declarados" style="display: none;">
+                        <h6><i class="fas fa-list"></i> Items Incluidos en el QR:</h6>
+                        <div id="pertenencias-incluidas"></div>
+                        <div id="vehiculos-incluidos"></div>
                     </div>
                 </div>
                 
-                <!-- Botón Generar -->
-                <div id="generar-section">
-                    <div class="mb-3">
-                        <label for="duracion" class="form-label">Duración (minutos):</label>
-                        <select id="duracion" class="form-select" style="max-width: 200px; margin: 0 auto;">
-                            <option value="5">5 minutos</option>
-                            <option value="10">10 minutos</option>
-                            <option value="15">15 minutos</option>
-                            <option value="30">30 minutos</option>
-                            <option value="60">60 minutos</option>
-                        </select>
+                <!-- Formulario Generar -->
+                <div id="form-generar">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="duracion" class="form-label">Duración (minutos):</label>
+                            <select id="duracion" class="form-select">
+                                <option value="5">5 minutos</option>
+                                <option value="10">10 minutos</option>
+                                <option value="15" selected>15 minutos</option>
+                                <option value="30">30 minutos</option>
+                                <option value="60">60 minutos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Incluir Items:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="incluir-pertenencias" checked>
+                                <label class="form-check-label" for="incluir-pertenencias">
+                                    Pertenencias activas
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="incluir-vehiculos" checked>
+                                <label class="form-check-label" for="incluir-vehiculos">
+                                    Vehículos activos
+                                </label>
+                            </div>
+                        </div>
                     </div>
+                    
                     <button id="btn-generar" class="btn-generar">
                         <i class="fas fa-magic"></i> Generar Código QR
                     </button>
                 </div>
             </div>
+
+            <!-- QRs Activos -->
+            {% if qrs_activos %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock"></i> QRs Activos</h5>
+                </div>
+                <div class="card-body">
+                    {% for qr in qrs_activos %}
+                    <div class="alert alert-info">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>QR generado:</strong> {{ qr.fecha_generacion.strftime('%H:%M:%S') }}<br>
+                                <strong>Expira:</strong> {{ qr.fecha_expiracion.strftime('%H:%M:%S') }}<br>
+                                <strong>Items incluidos:</strong> {{ qr.pertenencias_incluidas|length + qr.vehiculos_incluidos|length }}
+                            </div>
+                            <div>
+                                <span class="badge bg-warning">{{ qr.segundos_restantes / 60 }} min restantes</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
 
             <!-- Instrucciones -->
             <div class="card">
@@ -172,16 +239,19 @@
                 </div>
                 <div class="card-body">
                     <ol>
-                        <li>Haz clic en "Generar Código QR" para crear tu código de acceso</li>
                         <li>Selecciona la duración según el tiempo que necesites</li>
+                        <li>Elige si incluir tus pertenencias y vehículos activos</li>
+                        <li>Haz clic en "Generar Código QR"</li>
                         <li>Presenta el código QR al vigilante en la entrada</li>
                         <li>El código es de <strong>un solo uso</strong> y expira automáticamente</li>
-                        <li>Si el código expira, puedes generar uno nuevo</li>
                     </ol>
                     
                     <div class="alert alert-warning mt-3">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Importante:</strong> No compartas tu código QR con otras personas. Cada código es personal e intransferible.
+                        <strong>Importante:</strong> 
+                        - Solo puedes tener un QR activo a la vez<br>
+                        - Al generar uno nuevo, los anteriores se cancelan<br>
+                        - No compartas tu código QR con otras personas
                     </div>
                 </div>
             </div>
@@ -194,13 +264,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnGenerar = document.getElementById('btn-generar');
     const loading = document.getElementById('loading');
     const qrDisplay = document.getElementById('qr-display');
-    const generarSection = document.getElementById('generar-section');
-    const duracionSelect = document.getElementById('duracion');
+    const formGenerar = document.getElementById('form-generar');
     
     let countdownInterval;
     
     btnGenerar.addEventListener('click', async function() {
-        const duracion = parseInt(duracionSelect.value);
+        const duracion = parseInt(document.getElementById('duracion').value);
+        const incluirPertenencias = document.getElementById('incluir-pertenencias').checked;
+        const incluirVehiculos = document.getElementById('incluir-vehiculos').checked;
         
         // Mostrar loading
         loading.style.display = 'block';
@@ -210,8 +281,10 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const formData = new FormData();
             formData.append('duracion_minutos', duracion);
+            formData.append('incluir_pertenencias', incluirPertenencias);
+            formData.append('incluir_vehiculos', incluirVehiculos);
             
-            const response = await fetch(`/usuario/{{ usuario.numero_documento.valor }}/qr/generar`, {
+            const response = await fetch(`/qr-acceso/usuario/{{ usuario.numero_documento.valor }}/generar`, {
                 method: 'POST',
                 body: formData
             });
@@ -220,16 +293,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success) {
                 // Mostrar QR
-                document.getElementById('qr-image').src = data.qr_image;
-                document.getElementById('qr-codigo').textContent = data.qr_data.codigo;
+                document.getElementById('qr-image').src = data.imagen_base64;
+                document.getElementById('fecha-expiracion').textContent = 
+                    new Date(data.fecha_expiracion).toLocaleString('es-ES');
+                
+                // Mostrar items incluidos
+                mostrarItemsIncluidos(data.pertenencias_incluidas, data.vehiculos_incluidos);
                 
                 loading.style.display = 'none';
                 qrDisplay.style.display = 'block';
                 
                 // Iniciar countdown
-                startCountdown(data.qr_data.expira_en);
+                startCountdown(data.segundos_restantes);
                 
-                showAlert('success', data.message);
+                showAlert('success', data.mensaje);
             } else {
                 throw new Error(data.error || 'Error generando QR');
             }
@@ -241,6 +318,42 @@ document.addEventListener('DOMContentLoaded', function() {
             btnGenerar.disabled = false;
         }
     });
+    
+    function mostrarItemsIncluidos(pertenencias, vehiculos) {
+        const itemsDiv = document.getElementById('items-incluidos');
+        const pertenenciasDiv = document.getElementById('pertenencias-incluidas');
+        const vehiculosDiv = document.getElementById('vehiculos-incluidos');
+        
+        // Limpiar contenido anterior
+        pertenenciasDiv.innerHTML = '';
+        vehiculosDiv.innerHTML = '';
+        
+        // Mostrar pertenencias
+        if (pertenencias.length > 0) {
+            pertenenciasDiv.innerHTML = '<strong>Pertenencias:</strong><br>';
+            pertenencias.forEach(p => {
+                const tag = `<span class="item-tag"><i class="fas fa-laptop"></i> ${p.nombre}</span>`;
+                pertenenciasDiv.innerHTML += tag;
+            });
+        }
+        
+        // Mostrar vehículos
+        if (vehiculos.length > 0) {
+            vehiculosDiv.innerHTML = '<strong>Vehículos:</strong><br>';
+            vehiculos.forEach(v => {
+                const icon = v.tipo === 'Motocicleta' ? 'fa-motorcycle' : 'fa-car';
+                const tag = `<span class="item-tag"><i class="fas ${icon}"></i> ${v.placa} - ${v.marca}</span>`;
+                vehiculosDiv.innerHTML += tag;
+            });
+        }
+        
+        // Mostrar u ocultar sección
+        if (pertenencias.length > 0 || vehiculos.length > 0) {
+            itemsDiv.style.display = 'block';
+        } else {
+            itemsDiv.style.display = 'none';
+        }
+    }
     
     function startCountdown(seconds) {
         clearInterval(countdownInterval);
@@ -257,6 +370,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('countdown').textContent = 'EXPIRADO';
                 document.getElementById('countdown').style.color = '#dc3545';
                 showAlert('warning', 'Tu código QR ha expirado. Genera uno nuevo si lo necesitas.');
+                
+                // Ocultar QR y mostrar formulario
+                setTimeout(() => {
+                    qrDisplay.style.display = 'none';
+                    formGenerar.style.display = 'block';
+                }, 3000);
             }
             
             seconds--;
@@ -271,7 +390,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
         
-        document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.container-fluid').firstChild);
+        document.querySelector('.container-fluid').insertBefore(
+            alertDiv, 
+            document.querySelector('.container-fluid').firstChild
+        );
         
         // Auto dismiss after 5 seconds
         setTimeout(() => {

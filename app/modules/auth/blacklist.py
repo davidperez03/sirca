@@ -16,7 +16,8 @@ def create_redis_connection():
         if "url" in redis_config:
             r = redis.from_url(redis_config["url"], decode_responses=True)
         else:
-            r = redis.Redis(**redis_config, decode_responses=True)
+            # decode_responses ya viene en redis_config
+            r = redis.Redis(**redis_config)
         
         r.ping()
         logger.info("✅ Redis conectado correctamente")
@@ -24,6 +25,7 @@ def create_redis_connection():
     except Exception as e:
         logger.error(f"❌ Error conectando a Redis: {e}")
         return DummyRedis()
+
 
 class DummyRedis:
     """Cliente Redis dummy para cuando no hay conexión disponible"""
