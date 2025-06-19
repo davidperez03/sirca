@@ -1,11 +1,3 @@
-'''
-    Define las rutas de FastAPI para la gestión de usuarios:
-    - Registro
-    - Activación y reenvío de activación
-    - Login y logout
-    - Recuperación y reseteo de contraseña
-'''
-
 from datetime import datetime
 import logging
 
@@ -198,7 +190,6 @@ def activar_cuenta(
             status_code=500
         )
 
-    # OPCIONAL: Agregar token a blacklist para prevenir reutilización adicional
     try:
         decoded = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         exp = decoded.get("exp")
@@ -339,9 +330,9 @@ async def login(
     response.set_cookie(
         key=settings.cookie_access_token_name,
         value=token,
-        httponly=True,     # Seguridad extra
-        samesite="lax",    # Para proteger CSRF
-        secure=False       # En producción, True si usas HTTPS
+        httponly=True,    
+        samesite="lax",    
+        secure=False       
     )
     return response
 

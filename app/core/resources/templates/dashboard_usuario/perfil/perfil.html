@@ -10,17 +10,23 @@
     --gradient-success: linear-gradient(135deg, var(--success), var(--success-dark));
     --gradient-info: linear-gradient(135deg, var(--info), var(--info-dark));
     --gradient-warning: linear-gradient(135deg, var(--warning), var(--warning-dark));
-    --gradient-danger: linear-gradient(135deg, var(--danger), var(--danger-dark));
 }
 
 /* === HEADER DEL DASHBOARD === */
 .dashboard-header {
-    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 50%, var(--info-600) 100%);
+    background: linear-gradient(135deg, 
+        var(--primary-600) 0%, 
+        var(--primary-700) 25%,
+        var(--primary-800) 50%, 
+        var(--secondary-700) 75%,
+        var(--secondary-800) 100%);
     color: white;
-    padding: 3rem 0;
-    margin-bottom: 2rem;
+    padding: 4rem 3rem 5rem 3rem;
+    margin: 1.5rem;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    border-radius: 2rem;
 }
 
 .dashboard-header::before {
@@ -30,13 +36,38 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M20 20c0 11.046-8.954 20-20 20v-40c11.046 0 20 8.954 20 20z'/%3E%3C/g%3E%3C/svg%3E") repeat;
-    animation: float 20s ease-in-out infinite;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255,255,255,0.02) 0%, transparent 50%);
+    animation: float 30s ease-in-out infinite;
+    border-radius: 2rem;
+}
+
+.dashboard-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 5%;
+    right: 5%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    border-radius: 1rem;
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg);
+        opacity: 1;
+    }
+    33% { 
+        transform: translateY(-15px) rotate(1deg);
+        opacity: 0.8;
+    }
+    66% { 
+        transform: translateY(-5px) rotate(-1deg);
+        opacity: 0.9;
+    }
 }
 
 .dashboard-header-content {
@@ -47,57 +78,106 @@
 .user-welcome {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    gap: 3rem;
+    margin-bottom: 2rem;
+    position: relative;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .user-avatar-large {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
-    border-radius: var(--radius-2xl);
+    width: 75px;
+    height: 75px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 800;
     color: white;
     border: 3px solid rgba(255,255,255,0.3);
-    box-shadow: var(--shadow-xl);
-    backdrop-filter: blur(10px);
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+    backdrop-filter: blur(20px);
+    flex-shrink: 0;
+}
+
+.user-avatar-large::before {
+    display: none;
 }
 
 .user-info h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 0.75rem;
+    text-shadow: 
+        0 2px 4px rgba(0,0,0,0.4),
+        0 4px 8px rgba(0,0,0,0.3);
+    color: #ffffff;
+    letter-spacing: -0.02em;
 }
 
 .user-role {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    font-weight: 500;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.95);
+    letter-spacing: 0.05em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.user-info {
+    flex: 1;
+    margin-left: 1rem;
 }
 
 .user-status {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    background: rgba(255,255,255,0.15);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-full);
+    gap: 0.75rem;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
     font-weight: 600;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.3);
+    font-size: 0.95rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .status-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: #10b981;
-    animation: pulse 2s infinite;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    animation: pulse-glow 2s infinite;
+    box-shadow: 
+        0 0 0 0 rgba(34, 197, 94, 0.4),
+        0 0 10px rgba(34, 197, 94, 0.3);
+}
+
+@keyframes pulse-glow {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 
+            0 0 0 0 rgba(34, 197, 94, 0.4),
+            0 0 10px rgba(34, 197, 94, 0.3);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 
+            0 0 0 8px rgba(34, 197, 94, 0),
+            0 0 15px rgba(34, 197, 94, 0.5);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
 }
 
 /* === CARDS MEJORADOS === */
@@ -172,7 +252,6 @@
 .card-icon.success { background: var(--gradient-success); }
 .card-icon.info { background: var(--gradient-info); }
 .card-icon.warning { background: var(--gradient-warning); }
-.card-icon.danger { background: var(--gradient-danger); }
 
 .card-action {
     background: var(--secondary-100);
@@ -181,110 +260,13 @@
     padding: 0.5rem;
     border-radius: var(--radius-md);
     transition: var(--transition-all);
+    cursor: pointer;
 }
 
 .card-action:hover {
     background: var(--secondary-200);
     color: var(--secondary-800);
     transform: scale(1.05);
-}
-
-/* === QR CARD ESPECIAL === */
-.qr-master-card {
-    grid-column: 1 / -1;
-    background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
-
-.qr-master-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2v-2zM15 15h2v2h-2v-2zM13 17h2v2h-2v-2zM15 19h2v2h-2v-2zM17 13h2v2h-2v-2zM19 15h2v2h-2v-2zM17 17h2v2h-2v-2zM19 19h2v2h-2v-2z' fill='white' opacity='0.1'/%3E%3C/svg%3E") no-repeat;
-    background-size: contain;
-    opacity: 0.1;
-}
-
-.qr-content {
-    position: relative;
-    z-index: 2;
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 2rem;
-    align-items: center;
-}
-
-.qr-status-display {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.qr-status-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    background: rgba(255,255,255,0.2);
-    border: 2px solid rgba(255,255,255,0.3);
-    backdrop-filter: blur(10px);
-    animation: pulse 2s infinite;
-}
-
-.qr-status-info h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.qr-status-text {
-    opacity: 0.9;
-    font-size: 1rem;
-}
-
-.qr-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-.btn-qr {
-    background: rgba(255,255,255,0.15);
-    color: white;
-    border: 1px solid rgba(255,255,255,0.3);
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-xl);
-    font-weight: 600;
-    transition: var(--transition-all);
-    backdrop-filter: blur(10px);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.btn-qr:hover {
-    background: rgba(255,255,255,0.25);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-.btn-qr-primary {
-    background: rgba(255,255,255,0.9);
-    color: var(--primary-700);
-}
-
-.btn-qr-primary:hover {
-    background: white;
-    color: var(--primary-800);
 }
 
 /* === ESTADÍSTICAS === */
@@ -368,7 +350,6 @@
 
 .activity-icon-wrapper.ingreso { background: var(--gradient-success); }
 .activity-icon-wrapper.salida { background: var(--gradient-info); }
-.activity-icon-wrapper.qr { background: var(--gradient-warning); }
 .activity-icon-wrapper.system { background: var(--gradient-primary); }
 
 .activity-content {
@@ -393,7 +374,7 @@
     font-weight: 500;
 }
 
-/* === ALERTAS Y NOTIFICACIONES === */
+/* === ALERTAS === */
 .alert-dashboard {
     background: linear-gradient(135deg, var(--warning-light), var(--warning));
     color: white;
@@ -488,48 +469,6 @@
     margin: 0;
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-    .dashboard-header {
-        padding: 2rem 0;
-    }
-    
-    .user-welcome {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-    
-    .user-info h1 {
-        font-size: 2rem;
-    }
-    
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .qr-content {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        text-align: center;
-    }
-    
-    .qr-actions {
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-    
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-    
-    .quick-actions {
-        grid-template-columns: 1fr;
-    }
-}
-
 /* === LOADING STATES === */
 .loading-skeleton {
     background: linear-gradient(90deg, var(--secondary-200) 25%, var(--secondary-100) 50%, var(--secondary-200) 75%);
@@ -546,45 +485,6 @@
 .skeleton-text {
     height: 1rem;
     margin-bottom: 0.5rem;
-}
-
-.skeleton-title {
-    height: 1.5rem;
-    width: 60%;
-    margin-bottom: 1rem;
-}
-
-/* === REAL TIME INDICATORS === */
-.realtime-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--success-light);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-full);
-    font-size: 0.8rem;
-    font-weight: 600;
-    animation: pulse 2s infinite;
-}
-
-.realtime-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: white;
-    animation: pulse 1s infinite;
-}
-
-/* === CHARTS CONTAINER === */
-.chart-container {
-    height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--secondary-50);
-    border-radius: var(--radius-lg);
-    margin: 1rem 0;
 }
 
 /* === SCROLLBAR PERSONALIZADA === */
@@ -605,33 +505,79 @@
 .activity-list::-webkit-scrollbar-thumb:hover {
     background: var(--secondary-400);
 }
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 3rem 2rem 4rem 2rem;
+        margin: 1rem;
+        border-radius: 1.5rem;
+    }
+    
+    .dashboard-header::before {
+        border-radius: 1.5rem;
+    }
+    
+    .user-welcome {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+        align-items: center;
+    }
+    
+    .user-info {
+        justify-self: auto;
+    }
+    
+    .user-status {
+        justify-self: auto;
+    }
+    
+    .user-info h1 {
+        font-size: 2rem;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Dashboard Header -->
-<section class="dashboard-header">
-    <div class="container">
-        <div class="dashboard-header-content">
-            <div class="user-welcome">
-                <div class="user-avatar-large">
-                    {{ (usuario.nombres)[0] }}{{ (usuario.apellidos)[0] }}
-                </div>
-                <div class="user-info">
-                    <h1>¡Bienvenido, {{ usuario.nombres }}!</h1>
-                    <div class="user-role">{{ usuario.rol }} • {{ usuario.numero_documento }}</div>
-                </div>
-                <div class="user-status">
-                    <div class="status-dot"></div>
-                    <span class="realtime-indicator">
-                        <div class="realtime-dot"></div>
-                        En línea
-                    </span>
+<div class="container-fluid px-0">
+    <section class="dashboard-header">
+        <div class="container">
+            <div class="dashboard-header-content">
+                <div class="user-welcome">
+                    <div class="user-avatar-large">
+                        {{ (usuario.nombres)[0] }}{{ (usuario.apellidos)[0] }}
+                    </div>
+                    <div class="user-info">
+                        <h1>Dashboard</h1>
+                        <div class="user-role">{{ usuario.numero_documento }}</div>
+                    </div>
+                    <div class="user-status">
+                        <div class="status-dot"></div>
+                        <span>{{ usuario.rol }}</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+</div>
 
 <!-- Alertas y Notificaciones -->
 <div class="container">
@@ -663,17 +609,12 @@
             <div class="stat-number" id="vehiculos-total">-</div>
             <div class="stat-label">Vehículos registrados</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-number" id="qr-generados">-</div>
-            <div class="stat-label">QR generados</div>
-        </div>
     </div>
 </div>
 
 <!-- Dashboard Principal -->
 <div class="container">
     <div class="dashboard-grid">
-    
         <!-- Actividad Reciente -->
         <div class="dashboard-card">
             <div class="card-header-dashboard">
@@ -688,7 +629,6 @@
                 </button>
             </div>
             <div class="activity-list" id="activity-list">
-                <!-- Se carga dinámicamente -->
                 <div class="loading-skeleton skeleton-text"></div>
                 <div class="loading-skeleton skeleton-text" style="width: 80%;"></div>
                 <div class="loading-skeleton skeleton-text" style="width: 60%;"></div>
@@ -770,10 +710,6 @@
                     </div>
                     Estado del Sistema
                 </div>
-                <div class="realtime-indicator">
-                    <div class="realtime-dot"></div>
-                    En vivo
-                </div>
             </div>
             <div>
                 <div class="mb-3">
@@ -811,7 +747,6 @@
                 </a>
             </div>
             <div id="ultimos-accesos">
-                <!-- Se carga dinámicamente -->
                 <div class="text-center text-muted py-4">
                     <i class="bi bi-clock-history fa-2x mb-2"></i>
                     <p>Cargando historial de accesos...</p>
@@ -825,16 +760,6 @@
 <div class="container">
     <h3 class="mb-3">Acciones Rápidas</h3>
     <div class="quick-actions">
-        <a href="/usuario/{{ usuario.numero_documento }}/qr" class="quick-action-card">
-            <div class="quick-action-icon">
-                <i class="bi bi-qr-code"></i>
-            </div>
-            <div class="quick-action-content">
-                <h4>Generar QR</h4>
-                <p>Crear código temporal para acceso</p>
-            </div>
-        </a>
-        
         <a href="/usuario/{{ usuario.numero_documento }}/pertenencias/registrar" class="quick-action-card">
             <div class="quick-action-icon" style="background: var(--gradient-warning);">
                 <i class="bi bi-plus-circle"></i>
@@ -855,478 +780,288 @@
             </div>
         </a>
         
-        <a href="/vigilante/scanner" class="quick-action-card" {% if usuario.rol not in ["Superadministrador", "Administrador", "Vigilante"] %}style="display: none;"{% endif %}>
-            <div class="quick-action-icon" style="background: var(--gradient-danger);">
-                <i class="bi bi-upc-scan"></i>
+        <a href="/usuario/{{ usuario.numero_documento }}/accesos" class="quick-action-card">
+            <div class="quick-action-icon">
+                <i class="bi bi-clock-history"></i>
             </div>
             <div class="quick-action-content">
-                <h4>Escanear QR</h4>
-                <p>Procesar acceso con QR</p>
+                <h4>Ver Historial</h4>
+                <p>Consultar accesos recientes</p>
             </div>
         </a>
     </div>
 </div>
 
 <script>
-// === CONFIGURACIÓN Y VARIABLES GLOBALES ===
-const USUARIO_ID = '{{ usuario.numero_documento }}';
-const REFRESH_INTERVAL = 30000; // 30 segundos
-let refreshIntervals = [];
-
-// === FUNCIONES DE CARGA DE DATOS ===
-async function loadUserStats() {
-    try {
-        // Cargar estadísticas de pertenencias
-        const pertenenciasResponse = await fetch(`/api/usuario/${USUARIO_ID}/pertenencias/estadisticas`);
-        if (pertenenciasResponse.ok) {
-            const pertenenciasData = await pertenenciasResponse.json();
-            updatePertenenciasStats(pertenenciasData);
-        }
-
-        // Cargar estadísticas de vehículos
-        const vehiculosResponse = await fetch(`/api/usuario/${USUARIO_ID}/vehiculos/estadisticas`);
-        if (vehiculosResponse.ok) {
-            const vehiculosData = await vehiculosResponse.json();
-            updateVehiculosStats(vehiculosData);
-        }
-
-        // Cargar estado del usuario
-        const estadoResponse = await fetch(`/api/usuario/${USUARIO_ID}/estado`);
-        if (estadoResponse.ok) {
-            const estadoData = await estadoResponse.json();
-            updateUserStatus(estadoData);
-        }
-
-        // Cargar accesos recientes
-        loadRecentAccess();
-        
-        // Cargar actividad reciente
-        loadRecentActivity();
-
-        console.log('✅ Estadísticas cargadas correctamente');
-    } catch (error) {
-        console.error('❌ Error cargando estadísticas:', error);
-        showNotification('Error cargando datos del dashboard', 'error');
-    }
-}
-
-function updatePertenenciasStats(data) {
-    document.getElementById('pertenencias-count').textContent = data.total || 0;
-    document.getElementById('pertenencias-activas').textContent = data.activas || 0;
-    document.getElementById('pertenencias-total').textContent = data.total || 0;
-    
-    // Actualizar barra de progreso
-    const progress = data.total > 0 ? (data.activas / data.total) * 100 : 0;
-    document.getElementById('pertenencias-progress').style.width = `${progress}%`;
-}
-
-function updateVehiculosStats(data) {
-    document.getElementById('vehiculos-count').textContent = data.total || 0;
-    document.getElementById('vehiculos-activos').textContent = data.activos || 0;
-    document.getElementById('vehiculos-total').textContent = data.total || 0;
-    
-    // Actualizar barra de progreso
-    const progress = data.total > 0 ? (data.activos / data.total) * 100 : 0;
-    document.getElementById('vehiculos-progress').style.width = `${progress}%`;
-}
-
-function updateUserStatus(data) {
-    const statusCircle = document.getElementById('qr-status-circle');
-    const statusTitle = document.getElementById('qr-status-title');
-    const statusText = document.getElementById('qr-status-text');
-    const currentStatus = document.getElementById('user-current-status');
-    
-    const estado = data.usuario?.estado || 'FUERA';
-    
-    // Actualizar estado actual
-    currentStatus.textContent = estado === 'DENTRO' ? 'Dentro' : 'Fuera';
-    
-    // Actualizar círculo de estado
-    statusCircle.className = 'qr-status-circle';
-    if (estado === 'DENTRO') {
-        statusCircle.innerHTML = '<i class="bi bi-building"></i>';
-        statusTitle.textContent = 'Actualmente Dentro';
-        statusText.textContent = 'Puedes generar QR para salir';
-    } else {
-        statusCircle.innerHTML = '<i class="bi bi-qr-code"></i>';
-        statusTitle.textContent = 'Control de Acceso QR';
-        statusText.textContent = 'Listo para generar código de ingreso';
+class DashboardManager {
+    constructor() {
+        this.userId = '{{ usuario.numero_documento }}';
+        this.refreshInterval = 30000;
+        this.intervals = [];
+        this.init();
     }
     
-    // Actualizar estadísticas generales
-    if (data.estadisticas) {
-        document.getElementById('accesos-mes').textContent = data.estadisticas.accesos_mes || 0;
-        document.getElementById('accesos-hoy').textContent = data.estadisticas.accesos_hoy || 0;
-        document.getElementById('qr-generados').textContent = data.estadisticas.qr_generados || 0;
-    }
-}
-
-async function loadRecentAccess() {
-    try {
-        const response = await fetch(`/api/usuario/${USUARIO_ID}/accesos?dias=7`);
-        if (response.ok) {
-            const accesos = await response.json();
-            updateRecentAccessDisplay(accesos.slice(0, 5)); // Mostrar solo los últimos 5
-        }
-    } catch (error) {
-        console.error('Error cargando accesos recientes:', error);
-    }
-}
-
-function updateRecentAccessDisplay(accesos) {
-    const container = document.getElementById('ultimos-accesos');
-    
-    if (accesos.length === 0) {
-        container.innerHTML = `
-            <div class="text-center text-muted py-4">
-                <i class="bi bi-door-closed fa-2x mb-2"></i>
-                <p>No hay registros de acceso recientes</p>
-                <small>Genera tu primer QR para comenzar</small>
-            </div>
-        `;
-        return;
+    init() {
+        this.loadUserStats();
+        this.setupAutoRefresh();
     }
     
-    const accessList = accesos.map(acceso => {
-        const fecha = new Date(acceso.fecha_hora);
-        const tipoIcon = acceso.tipo_movimiento === 'INGRESO' ? 'door-open' : 'door-closed';
-        const tipoColor = acceso.tipo_movimiento === 'INGRESO' ? 'success' : 'info';
-        const tipoTexto = acceso.tipo_movimiento === 'INGRESO' ? 'Ingreso' : 'Salida';
-        
-        return `
-            <div class="activity-item">
-                <div class="activity-icon-wrapper ${acceso.tipo_movimiento.toLowerCase()}">
-                    <i class="bi bi-${tipoIcon}"></i>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">${tipoTexto} registrado</div>
-                    <div class="activity-description">${acceso.ubicacion || 'Entrada Principal'}</div>
-                    <div class="activity-time">${formatTimeAgo(fecha)}</div>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    container.innerHTML = accessList;
-}
-
-async function loadRecentActivity() {
-    try {
-        // Simular carga de actividad reciente combinando diferentes fuentes
-        const activities = await generateRecentActivity();
-        updateActivityDisplay(activities);
-    } catch (error) {
-        console.error('Error cargando actividad reciente:', error);
-    }
-}
-
-async function generateRecentActivity() {
-    const activities = [];
-    
-    try {
-        // Obtener accesos recientes
-        const accessResponse = await fetch(`/api/usuario/${USUARIO_ID}/accesos?dias=3`);
-        if (accessResponse.ok) {
-            const accesos = await accessResponse.json();
-            accesos.slice(0, 3).forEach(acceso => {
-                activities.push({
-                    type: acceso.tipo_movimiento.toLowerCase(),
-                    title: `${acceso.tipo_movimiento === 'INGRESO' ? 'Ingreso' : 'Salida'} registrado`,
-                    description: `${acceso.ubicacion || 'Entrada Principal'}`,
-                    time: new Date(acceso.fecha_hora),
-                    icon: acceso.tipo_movimiento === 'INGRESO' ? 'door-open' : 'door-closed'
-                });
-            });
-        }
-        
-        // Agregar actividades del sistema
-        activities.push({
-            type: 'system',
-            title: 'Perfil actualizado',
-            description: 'Información de perfil sincronizada',
-            time: new Date(Date.now() - 1000 * 60 * 30), // hace 30 min
-            icon: 'person-check'
-        });
-        
-        activities.push({
-            type: 'qr',
-            title: 'Sistema QR activo',
-            description: 'Listo para generar códigos temporales',
-            time: new Date(Date.now() - 1000 * 60 * 60), // hace 1 hora
-            icon: 'qr-code'
-        });
-        
-    } catch (error) {
-        console.error('Error generando actividad:', error);
-    }
-    
-    // Ordenar por tiempo (más reciente primero)
-    return activities.sort((a, b) => b.time - a.time).slice(0, 10);
-}
-
-function updateActivityDisplay(activities) {
-    const container = document.getElementById('activity-list');
-    
-    if (activities.length === 0) {
-        container.innerHTML = `
-            <div class="text-center text-muted py-4">
-                <i class="bi bi-clock-history fa-2x mb-2"></i>
-                <p>No hay actividad reciente</p>
-            </div>
-        `;
-        return;
-    }
-    
-    const activityList = activities.map(activity => `
-        <div class="activity-item">
-            <div class="activity-icon-wrapper ${activity.type}">
-                <i class="bi bi-${activity.icon}"></i>
-            </div>
-            <div class="activity-content">
-                <div class="activity-title">${activity.title}</div>
-                <div class="activity-description">${activity.description}</div>
-                <div class="activity-time">${formatTimeAgo(activity.time)}</div>
-            </div>
-        </div>
-    `).join('');
-    
-    container.innerHTML = activityList;
-}
-
-// === FUNCIONES DE UTILIDAD ===
-function formatTimeAgo(date) {
-    const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
-    
-    if (diffInSeconds < 60) {
-        return 'Hace unos segundos';
-    } else if (diffInSeconds < 3600) {
-        const minutes = Math.floor(diffInSeconds / 60);
-        return `Hace ${minutes} min${minutes > 1 ? 'utos' : 'uto'}`;
-    } else if (diffInSeconds < 86400) {
-        const hours = Math.floor(diffInSeconds / 3600);
-        return `Hace ${hours} hora${hours > 1 ? 's' : ''}`;
-    } else {
-        const days = Math.floor(diffInSeconds / 86400);
-        return `Hace ${days} día${days > 1 ? 's' : ''}`;
-    }
-}
-
-function showNotification(message, type = 'info') {
-    // Usar el sistema de notificaciones de SIRCA del base.html
-    if (typeof SIRCA !== 'undefined' && SIRCA.notifications) {
-        SIRCA.notifications.show(message, type);
-    } else {
-        console.log(`${type.toUpperCase()}: ${message}`);
-    }
-}
-
-function refreshActivity() {
-    showNotification('Actualizando actividad...', 'info');
-    loadRecentActivity();
-}
-
-function updateLastSync() {
-    const lastSyncElement = document.getElementById('last-sync');
-    if (lastSyncElement) {
-        lastSyncElement.textContent = 'Hace 0 min';
-        setTimeout(() => {
-            lastSyncElement.textContent = 'Hace 1 min';
-        }, 60000);
-        setTimeout(() => {
-            lastSyncElement.textContent = 'Hace 2 min';
-        }, 120000);
-    }
-}
-
-// === INICIALIZACIÓN ===
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Dashboard del perfil inicializado');
-    
-    // Cargar datos iniciales
-    loadUserStats();
-    
-    // Configurar actualizaciones automáticas
-    const statsInterval = setInterval(loadUserStats, REFRESH_INTERVAL);
-    const syncInterval = setInterval(updateLastSync, 60000);
-    
-    refreshIntervals.push(statsInterval, syncInterval);
-    
-    // Limpiar intervalos al salir
-    window.addEventListener('beforeunload', () => {
-        refreshIntervals.forEach(interval => clearInterval(interval));
-    });
-    
-    // Configurar WebSocket para actualizaciones en tiempo real (si está disponible)
-    if (typeof WebSocket !== 'undefined') {
+    async loadUserStats() {
         try {
-            const ws = new WebSocket(`ws://${window.location.host}/ws/dashboard`);
+            await Promise.all([
+                this.loadPertenenciasStats(),
+                this.loadVehiculosStats(),
+                this.loadRecentAccess(),
+                this.loadRecentActivity()
+            ]);
+        } catch (error) {
+            console.error('Error cargando estadísticas:', error);
+        }
+    }
+    
+    async loadPertenenciasStats() {
+        try {
+            const response = await fetch(`/api/usuario/${this.userId}/pertenencias/estadisticas`);
+            if (response.ok) {
+                const data = await response.json();
+                this.updatePertenenciasDisplay(data);
+            }
+        } catch (error) {
+            console.error('Error cargando pertenencias:', error);
+        }
+    }
+    
+    async loadVehiculosStats() {
+        try {
+            const response = await fetch(`/api/usuario/${this.userId}/vehiculos/estadisticas`);
+            if (response.ok) {
+                const data = await response.json();
+                this.updateVehiculosDisplay(data);
+            }
+        } catch (error) {
+            console.error('Error cargando vehículos:', error);
+        }
+    }
+    
+    async loadRecentAccess() {
+        try {
+            const response = await fetch(`/api/usuario/${this.userId}/accesos?dias=7`);
+            if (response.ok) {
+                const accesos = await response.json();
+                this.updateRecentAccessDisplay(accesos.slice(0, 5));
+                this.updateAccessStats(accesos);
+            }
+        } catch (error) {
+            console.error('Error cargando accesos:', error);
+        }
+    }
+    
+    async loadRecentActivity() {
+        try {
+            const activities = await this.generateRecentActivity();
+            this.updateActivityDisplay(activities);
+        } catch (error) {
+            console.error('Error cargando actividad:', error);
+        }
+    }
+    
+    updatePertenenciasDisplay(data) {
+        document.getElementById('pertenencias-count').textContent = data.total || 0;
+        document.getElementById('pertenencias-activas').textContent = data.activas || 0;
+        document.getElementById('pertenencias-total').textContent = data.total || 0;
+        
+        const progress = data.total > 0 ? (data.activas / data.total) * 100 : 0;
+        document.getElementById('pertenencias-progress').style.width = `${progress}%`;
+    }
+    
+    updateVehiculosDisplay(data) {
+        document.getElementById('vehiculos-count').textContent = data.total || 0;
+        document.getElementById('vehiculos-activos').textContent = data.activos || 0;
+        document.getElementById('vehiculos-total').textContent = data.total || 0;
+        
+        const progress = data.total > 0 ? (data.activos / data.total) * 100 : 0;
+        document.getElementById('vehiculos-progress').style.width = `${progress}%`;
+    }
+    
+    updateRecentAccessDisplay(accesos) {
+        const container = document.getElementById('ultimos-accesos');
+        
+        if (accesos.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-door-closed fa-2x mb-2"></i>
+                    <p>No hay registros de acceso recientes</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const accessList = accesos.map(acceso => {
+            const fecha = new Date(acceso.fecha_hora);
+            const tipoIcon = acceso.tipo_movimiento === 'INGRESO' ? 'door-open' : 'door-closed';
+            const tipoTexto = acceso.tipo_movimiento === 'INGRESO' ? 'Ingreso' : 'Salida';
             
-            ws.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                if (data.type === 'dashboard_update') {
-                    console.log('📡 Actualización en tiempo real recibida');
-                    // Actualizar datos en tiempo real
-                    updateRealTimeData(data.data);
-                }
-            };
+            return `
+                <div class="activity-item">
+                    <div class="activity-icon-wrapper ${acceso.tipo_movimiento.toLowerCase()}">
+                        <i class="bi bi-${tipoIcon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${tipoTexto} registrado</div>
+                        <div class="activity-description">${acceso.ubicacion || 'Entrada Principal'}</div>
+                        <div class="activity-time">${this.formatTimeAgo(fecha)}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = accessList;
+    }
+    
+    updateAccessStats(accesos) {
+        const hoy = new Date();
+        const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+        
+        const accesosHoy = accesos.filter(a => new Date(a.fecha_hora) >= inicioDia).length;
+        const accesosMes = accesos.filter(a => new Date(a.fecha_hora) >= inicioMes).length;
+        
+        document.getElementById('accesos-hoy').textContent = accesosHoy;
+        document.getElementById('accesos-mes').textContent = accesosMes;
+    }
+    
+    async generateRecentActivity() {
+        const activities = [];
+        
+        try {
+            const accessResponse = await fetch(`/api/usuario/${this.userId}/accesos?dias=3`);
+            if (accessResponse.ok) {
+                const accesos = await accessResponse.json();
+                accesos.slice(0, 3).forEach(acceso => {
+                    activities.push({
+                        type: acceso.tipo_movimiento.toLowerCase(),
+                        title: `${acceso.tipo_movimiento === 'INGRESO' ? 'Ingreso' : 'Salida'} registrado`,
+                        description: `${acceso.ubicacion || 'Entrada Principal'}`,
+                        time: new Date(acceso.fecha_hora),
+                        icon: acceso.tipo_movimiento === 'INGRESO' ? 'door-open' : 'door-closed'
+                    });
+                });
+            }
             
-            ws.onerror = function(error) {
-                console.log('WebSocket no disponible, usando polling');
-            };
+            activities.push({
+                type: 'system',
+                title: 'Perfil actualizado',
+                description: 'Información sincronizada',
+                time: new Date(Date.now() - 1000 * 60 * 30),
+                icon: 'person-check'
+            });
             
         } catch (error) {
-            console.log('WebSocket no soportado, usando polling');
+            console.error('Error generando actividad:', error);
         }
+        
+        return activities.sort((a, b) => b.time - a.time).slice(0, 8);
     }
     
-    console.log('✅ Dashboard completamente cargado');
-});
-
-function updateRealTimeData(data) {
-    // Actualizar indicadores en tiempo real
-    if (data.estadisticas) {
-        const accesosHoy = document.getElementById('accesos-hoy');
-        if (accesosHoy) {
-            accesosHoy.textContent = data.estadisticas.accesos_hoy || 0;
+    updateActivityDisplay(activities) {
+        const container = document.getElementById('activity-list');
+        
+        if (activities.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-clock-history fa-2x mb-2"></i>
+                    <p>No hay actividad reciente</p>
+                </div>
+            `;
+            return;
         }
+        
+        const activityList = activities.map(activity => `
+            <div class="activity-item">
+                <div class="activity-icon-wrapper ${activity.type}">
+                    <i class="bi bi-${activity.icon}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">${activity.title}</div>
+                    <div class="activity-description">${activity.description}</div>
+                    <div class="activity-time">${this.formatTimeAgo(activity.time)}</div>
+                </div>
+            </div>
+        `).join('');
+        
+        container.innerHTML = activityList;
     }
     
-    // Mostrar notificación de actualización
-    showNotification('Datos actualizados en tiempo real', 'success');
-}
-
-// === FUNCIONES ESPECÍFICAS PARA QR ===
-async function generateQRCode() {
-    try {
-        showNotification('Generando código QR...', 'info');
+    formatTimeAgo(date) {
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
         
-        const response = await fetch(`/api/usuario/${USUARIO_ID}/qr/generar`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                duracion_minutos: 5
-            })
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            showNotification('¡Código QR generado exitosamente!', 'success');
-            
-            // Actualizar UI con nuevo QR
-            updateQRStatus('generated', data);
-            
-            // Redirigir a la página de QR
-            window.location.href = `/usuario/${USUARIO_ID}/qr`;
+        if (diffInSeconds < 60) {
+            return 'Hace unos segundos';
+        } else if (diffInSeconds < 3600) {
+            const minutes = Math.floor(diffInSeconds / 60);
+            return `Hace ${minutes} min${minutes > 1 ? 'utos' : 'uto'}`;
+        } else if (diffInSeconds < 86400) {
+            const hours = Math.floor(diffInSeconds / 3600);
+            return `Hace ${hours} hora${hours > 1 ? 's' : ''}`;
         } else {
-            const error = await response.json();
-            showNotification(error.detail || 'Error generando QR', 'danger');
+            const days = Math.floor(diffInSeconds / 86400);
+            return `Hace ${days} día${days > 1 ? 's' : ''}`;
         }
-    } catch (error) {
-        console.error('Error generando QR:', error);
-        showNotification('Error de conexión al generar QR', 'danger');
     }
-}
-
-function updateQRStatus(status, data = null) {
-    const statusCircle = document.getElementById('qr-status-circle');
-    const statusTitle = document.getElementById('qr-status-title');
-    const statusText = document.getElementById('qr-status-text');
     
-    switch (status) {
-        case 'generated':
-            statusCircle.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
-            statusTitle.textContent = 'QR Generado';
-            statusText.textContent = `Válido por ${data?.qr_data?.tiempo_restante_segundos ? Math.ceil(data.qr_data.tiempo_restante_segundos / 60) : 5} minutos`;
-            break;
-        case 'expired':
-            statusCircle.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
-            statusTitle.textContent = 'QR Expirado';
-            statusText.textContent = 'Genera un nuevo código para acceder';
-            break;
-        default:
-            statusCircle.innerHTML = '<i class="bi bi-qr-code"></i>';
-            statusTitle.textContent = 'Control de Acceso QR';
-            statusText.textContent = 'Listo para generar código temporal';
+    setupAutoRefresh() {
+        const statsInterval = setInterval(() => this.loadUserStats(), this.refreshInterval);
+        const syncInterval = setInterval(() => this.updateLastSync(), 60000);
+        
+        this.intervals.push(statsInterval, syncInterval);
+        
+        window.addEventListener('beforeunload', () => {
+            this.intervals.forEach(interval => clearInterval(interval));
+        });
     }
-}
-
-// === EVENT LISTENERS ADICIONALES ===
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) {
-        // La página volvió a ser visible, actualizar datos
-        console.log('🔄 Página visible, actualizando datos...');
-        loadUserStats();
-    }
-});
-
-// Detectar errores de red y mostrar notificación
-window.addEventListener('online', function() {
-    showNotification('Conexión restaurada', 'success');
-    loadUserStats();
-});
-
-window.addEventListener('offline', function() {
-    showNotification('Sin conexión a internet', 'warning');
-});
-
-// === FUNCIONES DE NAVEGACIÓN RÁPIDA ===
-function navigateToQR() {
-    window.location.href = `/usuario/${USUARIO_ID}/qr`;
-}
-
-function navigateToPertenencias() {
-    window.location.href = `/usuario/${USUARIO_ID}/pertenencias`;
-}
-
-function navigateToVehiculos() {
-    window.location.href = `/usuario/${USUARIO_ID}/vehiculos`;
-}
-
-function navigateToAccesos() {
-    window.location.href = `/usuario/${USUARIO_ID}/accesos`;
-}
-
-// Atajos de teclado
-document.addEventListener('keydown', function(e) {
-    // Solo si no está escribiendo en un input
-    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-        switch(e.key) {
-            case 'q':
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    navigateToQR();
-                }
-                break;
-            case 'p':
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    navigateToPertenencias();
-                }
-                break;
-            case 'v':
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    navigateToVehiculos();
-                }
-                break;
-            case 'r':
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    loadUserStats();
-                }
-                break;
+    
+    updateLastSync() {
+        const lastSyncElement = document.getElementById('last-sync');
+        if (lastSyncElement) {
+            lastSyncElement.textContent = 'Hace 0 min';
+            setTimeout(() => {
+                lastSyncElement.textContent = 'Hace 1 min';
+            }, 60000);
+            setTimeout(() => {
+                lastSyncElement.textContent = 'Hace 2 min';
+            }, 120000);
         }
     }
-});
+    
+    refreshActivity() {
+        this.loadRecentActivity();
+    }
+}
 
-console.log('🎯 Sistema de dashboard avanzado cargado');
-console.log('💡 Atajos disponibles:');
-console.log('   Ctrl+Q: Ir a QR');
-console.log('   Ctrl+P: Ir a Pertenencias');
-console.log('   Ctrl+V: Ir a Vehículos');
-console.log('   Ctrl+R: Actualizar datos');
+// Funciones globales
+function refreshActivity() {
+    if (window.dashboardManager) {
+        window.dashboardManager.refreshActivity();
+    }
+}
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+    window.dashboardManager = new DashboardManager();
+    
+    // Efectos visuales
+    document.querySelectorAll('.dashboard-card').forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-fade-in-up');
+    });
+    
+    // Actualizar datos cuando la página vuelve a ser visible
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && window.dashboardManager) {
+            window.dashboardManager.loadUserStats();
+        }
+    });
+});
 </script>
 {% endblock %}
