@@ -25,18 +25,22 @@
 {% block form_description %}Ingresa tus credenciales para acceder a tu cuenta{% endblock %}
 
 {% block content %}
+<!-- Sistema de notificaciones -->
+<div id="notification-container" class="notification-container"></div>
+
+<!-- Error del servidor -->
 {% if error %}
-<div class="alert alert-danger" data-aos="shake">
+<div class="alert alert-danger server-error" data-aos="shake">
     <i class="bi bi-exclamation-triangle-fill"></i>
     {{ error }}
 </div>
 {% endif %}
 
-<form method="post" action="/login" data-validate class="animate-fade-in-up">
+<form id="loginForm" method="post" action="/login" class="login-form animate-fade-in-up" novalidate>
     
     <!-- Tipo de documento -->
     <div class="form-group">
-        <label for="tipo_documento" class="form-label">
+        <label for="tipo_documento" class="form-label required">
             <i class="bi bi-card-text me-1"></i>
             Tipo de documento
         </label>
@@ -44,9 +48,10 @@
             <select
                 id="tipo_documento"
                 name="tipo_documento"
-                class="form-control"
+                class="form-control form-select"
                 required
-                style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 4 5&quot;><path fill=&quot;%23666&quot; d=&quot;M2 0L0 2h4zm0 5L0 3h4z&quot;/></svg>'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 12px; padding-right: 2.5rem;"
+                data-validation="document-type"
+                aria-describedby="tipo_documento_help"
             >
                 <option value="" disabled {% if not form_data.tipo_documento %}selected{% endif %}>
                     Selecciona tu tipo de documento...
@@ -55,6 +60,9 @@
                 <option
                     value="{{ tipo.value }}"
                     {% if form_data.tipo_documento == tipo.value %}selected{% endif %}
+                    data-pattern="{{ tipo.pattern if tipo.pattern else '' }}"
+                    data-min="{{ tipo.min_length if tipo.min_length else '' }}"
+                    data-max="{{ tipo.max_length if tipo.max_length else '' }}"
                 >
                     {{ tipo.value }}
                 </option>
@@ -62,11 +70,14 @@
             </select>
             <i class="bi bi-card-list input-icon"></i>
         </div>
+        <div id="tipo_documento_help" class="form-hint">
+            Selecciona el tipo de documento registrado en tu cuenta
+        </div>
     </div>
 
     <!-- Número de documento -->
     <div class="form-group">
-        <label for="numero_documento" class="form-label">
+        <label for="numero_documento" class="form-label required">
             <i class="bi bi-hash me-1"></i>
             Número de documento
         </label>
@@ -80,18 +91,24 @@
                 required
                 value="{{ form_data.numero_documento or '' }}"
                 autocomplete="username"
+                data-validation="document-number"
+                aria-describedby="numero_documento_help"
+                spellcheck="false"
             >
             <i class="bi bi-person-vcard input-icon"></i>
+        </div>
+        <div id="numero_documento_help" class="form-hint">
+            Ingresa el número sin puntos ni espacios
         </div>
     </div>
 
     <!-- Contraseña -->
     <div class="form-group">
-        <label for="contrasena" class="form-label">
+        <label for="contrasena" class="form-label required">
             <i class="bi bi-key me-1"></i>
             Contraseña
         </label>
-        <div class="input-group">
+        <div class="input-group password-group">
             <input
                 type="password"
                 id="contrasena"
@@ -100,20 +117,25 @@
                 placeholder="Ingresa tu contraseña"
                 required
                 autocomplete="current-password"
+                data-validation="password"
+                aria-describedby="contrasena_help"
             >
             <i class="bi bi-lock input-icon"></i>
             <button 
                 type="button" 
-                class="btn btn-outline position-absolute end-0 top-0 h-100 px-3" 
-                style="border-radius: 0 var(--radius-lg) var(--radius-lg) 0; z-index: 10;"
-                onclick="togglePassword('contrasena')"
+                class="password-toggle"
+                onclick="LoginManager.togglePassword('contrasena')"
                 tabindex="-1"
+                aria-label="Mostrar contraseña"
             >
-                <i class="bi bi-eye" id="toggleIcon"></i>
+                <i class="bi bi-eye" id="password-toggle-icon"></i>
             </button>
         </div>
-        <div class="text-end mt-2">
-            <a href="/recuperar-contrasena" class="auth-link" style="font-size: 0.875rem;">
+        <div class="form-actions">
+            <div id="contrasena_help" class="form-hint">
+                Usa la contraseña de tu cuenta
+            </div>
+            <a href="/recuperar-contrasena" class="auth-link forgot-password">
                 <i class="bi bi-arrow-clockwise me-1"></i>
                 ¿Olvidaste tu contraseña?
             </a>
@@ -122,24 +144,31 @@
 
     <!-- Recordar sesión -->
     <div class="form-group">
-        <div class="d-flex align-items-center">
+        <div class="form-check-custom">
             <input 
                 type="checkbox" 
                 id="recordar_sesion" 
                 name="recordar_sesion" 
-                class="me-2"
-                style="transform: scale(1.2);"
+                class="form-check-input"
             >
-            <label for="recordar_sesion" class="form-label mb-0" style="font-weight: 400; cursor: pointer;">
+            <label for="recordar_sesion" class="form-check-label">
+                <span class="checkmark"></span>
                 Recordar mi sesión
+                <small class="form-check-hint">Mantener sesión iniciada por 30 días</small>
             </label>
         </div>
     </div>
 
     <!-- Botón de envío -->
-    <button type="submit" class="btn btn-primary btn-lg btn-block">
-        <i class="bi bi-box-arrow-in-right me-2"></i>
-        Iniciar Sesión
+    <button type="submit" class="btn btn-primary btn-lg btn-block" id="loginButton">
+        <span class="btn-content">
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            Iniciar Sesión
+        </span>
+        <span class="btn-loading" style="display: none;">
+            <span class="spinner"></span>
+            Verificando credenciales...
+        </span>
     </button>
 
     <!-- Divisor -->
@@ -155,174 +184,619 @@
 
     <!-- Enlace de regreso -->
     <div class="text-center mt-6">
-        <a href="/" class="auth-link">
+        <a href="/" class="auth-link back-link">
             <i class="bi bi-arrow-left me-1"></i>
             Volver al inicio
         </a>
     </div>
 </form>
 
-<script>
-// Función para mostrar/ocultar contraseña
-function togglePassword(fieldId) {
-    const field = document.getElementById(fieldId);
-    const icon = document.getElementById('toggleIcon');
+<!-- Estilos específicos del login -->
+<style>
+/* Notificaciones */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 400px;
+}
+
+.notification {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    border-left: 4px solid var(--primary-500);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    transform: translateX(100%);
+    animation: slideInRight 0.3s ease-out forwards;
+}
+
+.notification.success { border-left-color: var(--success); }
+.notification.error { border-left-color: var(--danger); }
+.notification.warning { border-left-color: var(--warning); }
+
+.notification-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 2px;
+}
+
+.notification-message {
+    font-size: 0.8125rem;
+    color: var(--gray-600);
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    font-size: 1.125rem;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-colors);
+}
+
+.notification-close:hover {
+    color: var(--gray-600);
+    background: var(--gray-100);
+}
+
+@keyframes slideInRight {
+    to { transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+    to { transform: translateX(100%); }
+}
+
+/* Mejoras en formulario */
+.form-label.required::after {
+    content: ' *';
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.form-hint {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+    margin-top: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-2);
+}
+
+.forgot-password {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+/* Select mejorado */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px 12px;
+    padding-right: 3rem;
+}
+
+.form-select:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+}
+
+/* Password toggle mejorado */
+.password-group {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 48px;
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    transition: var(--transition-colors);
+}
+
+.password-toggle:hover {
+    color: var(--gray-600);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.password-toggle:focus {
+    outline: 2px solid var(--primary-500);
+    outline-offset: -2px;
+}
+
+/* Checkbox personalizado */
+.form-check-custom {
+    position: relative;
+    padding-left: 0;
+}
+
+.form-check-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.form-check-label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    cursor: pointer;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-all);
+    flex-shrink: 0;
+    background: white;
+    margin-top: 2px;
+}
+
+.checkmark::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.2s ease;
+}
+
+.form-check-input:checked + .form-check-label .checkmark {
+    background: var(--primary-600);
+    border-color: var(--primary-600);
+}
+
+.form-check-input:checked + .form-check-label .checkmark::after {
+    transform: rotate(45deg) scale(1);
+}
+
+.form-check-input:focus + .form-check-label .checkmark {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-check-hint {
+    display: block;
+    color: var(--gray-500);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+/* Botón de loading mejorado */
+.btn .btn-loading {
+    display: none;
+}
+
+.btn.loading .btn-content {
+    display: none;
+}
+
+.btn.loading .btn-loading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Estados de validación mejorados */
+.form-control.validating {
+    border-color: var(--warning);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%23f59e0b' d='M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm0 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm0 2a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1zm0 7a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 48px;
+}
+
+.form-control.is-valid {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%2310b981' d='M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm3.5 6L6.5 11 4 8.5l1-1 1.5 1.5L10.5 5l1 1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 48px;
+}
+
+.form-control.is-invalid {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%23ef4444' d='M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 4.5L6 6l2-2 2 2 1.5-1.5L10 3l-2 2-2-2L4.5 4.5zm0 7L6 10l2 2 2-2 1.5 1.5L10 13l-2-2-2 2L4.5 11.5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 48px;
+}
+
+/* Ajustes para password con toggle */
+.password-group .form-control.is-valid,
+.password-group .form-control.is-invalid,
+.password-group .form-control.validating {
+    padding-right: 96px;
+    background-position: right 60px center;
+}
+
+/* Error del servidor */
+.server-error {
+    border: none;
+    border-left: 4px solid var(--danger);
+    background: rgba(239, 68, 68, 0.05);
+    backdrop-filter: blur(10px);
+}
+
+/* Responsive ajustes */
+@media (max-width: 480px) {
+    .form-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
     
-    if (field.type === 'password') {
-        field.type = 'text';
-        icon.className = 'bi bi-eye-slash';
-    } else {
-        field.type = 'password';
-        icon.className = 'bi bi-eye';
+    .notification-container {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+}
+</style>
+
+<script>
+class LoginManager {
+    constructor() {
+        this.form = document.getElementById('loginForm');
+        this.validators = new Map();
+        this.isSubmitting = false;
+        this.init();
+    }
+    
+    init() {
+        this.setupValidators();
+        this.bindEvents();
+        this.setupKeyboardNavigation();
+        this.autoFocus();
+    }
+    
+    setupValidators() {
+        this.documentValidators = {
+            'CC': { pattern: /^\d{6,10}$/, message: 'La cédula debe tener entre 6 y 10 dígitos' },
+            'CE': { pattern: /^\d{6,12}$/, message: 'La cédula de extranjería debe tener entre 6 y 12 dígitos' },
+            'NIT': { pattern: /^\d{9,15}$/, message: 'El NIT debe tener entre 9 y 15 dígitos' },
+            'PAS': { pattern: /^[A-Za-z0-9]{6,12}$/, message: 'El pasaporte debe tener entre 6 y 12 caracteres alfanuméricos' }
+        };
+        
+        this.validators.set('document-type', this.validateDocumentType.bind(this));
+        this.validators.set('document-number', this.validateDocumentNumber.bind(this));
+        this.validators.set('password', this.validatePassword.bind(this));
+    }
+    
+    bindEvents() {
+        this.form.querySelectorAll('[data-validation]').forEach(field => {
+            field.addEventListener('blur', () => this.validateField(field));
+            field.addEventListener('input', () => this.handleInput(field));
+        });
+        
+        document.getElementById('numero_documento').addEventListener('input', this.formatDocumentNumber.bind(this));
+        document.getElementById('tipo_documento').addEventListener('change', this.handleDocumentTypeChange.bind(this));
+        this.form.addEventListener('submit', this.handleSubmit.bind(this));
+    }
+    
+    setupKeyboardNavigation() {
+        const fields = ['tipo_documento', 'numero_documento', 'contrasena'];
+        fields.forEach((fieldId, index) => {
+            document.getElementById(fieldId).addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const nextIndex = index + 1;
+                    if (nextIndex < fields.length) {
+                        document.getElementById(fields[nextIndex]).focus();
+                    } else {
+                        document.getElementById('loginButton').focus();
+                    }
+                }
+            });
+        });
+    }
+    
+    autoFocus() {
+        const tipoDoc = document.getElementById('tipo_documento');
+        const numeroDoc = document.getElementById('numero_documento');
+        
+        if (!tipoDoc.value) {
+            tipoDoc.focus();
+        } else if (!numeroDoc.value) {
+            numeroDoc.focus();
+        }
+    }
+    
+    validateField(field) {
+        const validator = this.validators.get(field.dataset.validation);
+        if (!validator) return true;
+        
+        this.setFieldState(field, 'validating');
+        
+        setTimeout(() => {
+            const result = validator(field);
+            this.setFieldState(field, result.isValid ? 'valid' : 'invalid', result.message);
+        }, 200);
+        
+        return true;
+    }
+    
+    validateDocumentType(field) {
+        const value = field.value.trim();
+        return {
+            isValid: value !== '',
+            message: value === '' ? 'Selecciona tu tipo de documento' : ''
+        };
+    }
+    
+    validateDocumentNumber(field) {
+        const value = field.value.trim();
+        const tipoDoc = document.getElementById('tipo_documento').value;
+        
+        if (!value) return { isValid: false, message: 'Ingresa tu número de documento' };
+        if (!tipoDoc) return { isValid: false, message: 'Primero selecciona el tipo de documento' };
+        
+        const validator = this.documentValidators[tipoDoc];
+        if (validator && !validator.pattern.test(value)) {
+            return { isValid: false, message: validator.message };
+        }
+        
+        return { isValid: true, message: '' };
+    }
+    
+    validatePassword(field) {
+        const value = field.value;
+        if (!value) return { isValid: false, message: 'Ingresa tu contraseña' };
+        if (value.length < 6) return { isValid: false, message: 'La contraseña debe tener al menos 6 caracteres' };
+        return { isValid: true, message: '' };
+    }
+    
+    handleInput(field) {
+        if (field.classList.contains('is-invalid')) {
+            this.clearFieldState(field);
+        }
+    }
+    
+    formatDocumentNumber(e) {
+        const tipoDoc = document.getElementById('tipo_documento').value;
+        if (['CC', 'CE', 'NIT'].includes(tipoDoc)) {
+            e.target.value = e.target.value.replace(/[^\d]/g, '');
+        }
+    }
+    
+    handleDocumentTypeChange(e) {
+        const numeroDoc = document.getElementById('numero_documento');
+        
+        if (e.target.value) {
+            this.setFieldState(e.target, 'valid');
+            numeroDoc.focus();
+            
+            if (numeroDoc.value) {
+                this.clearFieldState(numeroDoc);
+                this.validateField(numeroDoc);
+            }
+        }
+    }
+    
+    setFieldState(field, state, message = '') {
+        field.classList.remove('validating', 'is-valid', 'is-invalid');
+        
+        if (state === 'validating') field.classList.add('validating');
+        else if (state === 'valid') field.classList.add('is-valid');
+        else if (state === 'invalid') field.classList.add('is-invalid');
+        
+        this.setFieldMessage(field, message, state === 'invalid' ? 'error' : 'success');
+    }
+    
+    clearFieldState(field) {
+        field.classList.remove('validating', 'is-valid', 'is-invalid');
+        this.setFieldMessage(field, '');
+    }
+    
+    setFieldMessage(field, message, type = '') {
+        const existingFeedback = field.closest('.form-group').querySelector('.invalid-feedback, .valid-feedback');
+        if (existingFeedback) existingFeedback.remove();
+        
+        if (message) {
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = type === 'error' ? 'invalid-feedback' : 'valid-feedback';
+            feedbackDiv.innerHTML = `<i class="bi bi-${type === 'error' ? 'exclamation-circle' : 'check-circle'} me-1"></i>${message}`;
+            field.closest('.form-group').appendChild(feedbackDiv);
+        }
+    }
+    
+    async handleSubmit(e) {
+        e.preventDefault();
+        
+        if (this.isSubmitting) return;
+        
+        const fields = this.form.querySelectorAll('[data-validation]');
+        let isValid = true;
+        let firstInvalidField = null;
+        
+        for (const field of fields) {
+            const validator = this.validators.get(field.dataset.validation);
+            
+            if (validator) {
+                const result = validator(field);
+                this.setFieldState(field, result.isValid ? 'valid' : 'invalid', result.message);
+                
+                if (!result.isValid && !firstInvalidField) {
+                    firstInvalidField = field;
+                    isValid = false;
+                }
+            }
+        }
+        
+        if (!isValid) {
+            firstInvalidField?.focus();
+            this.showNotification('Por favor corrige los errores en el formulario', 'error');
+            return;
+        }
+        
+        await this.submitForm();
+    }
+    
+    async submitForm() {
+        const button = document.getElementById('loginButton');
+        
+        try {
+            this.isSubmitting = true;
+            this.setButtonLoading(button, true);
+            
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            this.form.submit();
+            
+        } catch (error) {
+            this.showNotification('Error al procesar la solicitud. Inténtalo de nuevo.', 'error');
+        } finally {
+            this.isSubmitting = false;
+            this.setButtonLoading(button, false);
+        }
+    }
+    
+    setButtonLoading(button, loading) {
+        button.disabled = loading;
+        button.classList.toggle('loading', loading);
+    }
+    
+    showNotification(message, type = 'info') {
+        const container = document.getElementById('notification-container');
+        const notification = document.createElement('div');
+        
+        const icons = {
+            success: 'check-circle-fill',
+            error: 'x-circle-fill',
+            warning: 'exclamation-triangle-fill',
+            info: 'info-circle-fill'
+        };
+        
+        const titles = {
+            success: 'Éxito',
+            error: 'Error',
+            warning: 'Advertencia',
+            info: 'Información'
+        };
+        
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="bi bi-${icons[type]} notification-icon" style="color: var(--${type === 'error' ? 'danger' : type === 'warning' ? 'warning' : type === 'success' ? 'success' : 'info'});"></i>
+            <div class="notification-content">
+                <div class="notification-title">${titles[type]}</div>
+                <div class="notification-message">${message}</div>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="bi bi-x"></i>
+            </button>
+        `;
+        
+        container.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
+    
+    static togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById('password-toggle-icon');
+        
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            field.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
     }
 }
 
-// Validaciones específicas para el login
-document.addEventListener('DOMContentLoaded', function() {
-    const numeroDocInput = document.getElementById('numero_documento');
-    const tipoDocSelect = document.getElementById('tipo_documento');
+document.addEventListener('DOMContentLoaded', () => {
+    window.loginManager = new LoginManager();
     
-    // Validación del número de documento según el tipo
-    function validateDocumentNumber() {
-        const tipo = tipoDocSelect.value;
-        const numero = numeroDocInput.value.trim();
-        
-        if (!numero) return true; // Si está vacío, no validar aquí
-        
-        let isValid = true;
-        let message = '';
-        
-        switch (tipo) {
-            case 'CC': // Cédula de Ciudadanía
-                if (!/^\d{6,10}$/.test(numero)) {
-                    isValid = false;
-                    message = 'La cédula debe tener entre 6 y 10 dígitos';
-                }
-                break;
-            case 'CE': // Cédula de Extranjería
-                if (!/^\d{6,12}$/.test(numero)) {
-                    isValid = false;
-                    message = 'La cédula de extranjería debe tener entre 6 y 12 dígitos';
-                }
-                break;
-            case 'NIT': // NIT
-                if (!/^\d{9,15}$/.test(numero)) {
-                    isValid = false;
-                    message = 'El NIT debe tener entre 9 y 15 dígitos';
-                }
-                break;
-            case 'PAS': // Pasaporte
-                if (!/^[A-Za-z0-9]{6,12}$/.test(numero)) {
-                    isValid = false;
-                    message = 'El pasaporte debe tener entre 6 y 12 caracteres alfanuméricos';
-                }
-                break;
-        }
-        
-        // Aplicar estado visual
-        numeroDocInput.classList.remove('is-valid', 'is-invalid');
-        const feedback = numeroDocInput.parentNode.parentNode.querySelector('.invalid-feedback');
-        if (feedback) feedback.remove();
-        
-        if (!isValid) {
-            numeroDocInput.classList.add('is-invalid');
-            const feedbackDiv = document.createElement('div');
-            feedbackDiv.className = 'invalid-feedback';
-            feedbackDiv.innerHTML = `<i class="bi bi-exclamation-circle me-1"></i>${message}`;
-            numeroDocInput.parentNode.parentNode.appendChild(feedbackDiv);
-        } else if (numero) {
-            numeroDocInput.classList.add('is-valid');
-        }
-        
-        return isValid;
-    }
-    
-    // Event listeners para validación
-    tipoDocSelect.addEventListener('change', validateDocumentNumber);
-    numeroDocInput.addEventListener('blur', validateDocumentNumber);
-    numeroDocInput.addEventListener('input', function() {
-        if (this.classList.contains('is-invalid')) {
-            validateDocumentNumber();
-        }
+    // Animaciones de entrada
+    document.querySelectorAll('.form-group').forEach((group, index) => {
+        group.style.animationDelay = `${index * 0.1}s`;
+        group.classList.add('animate-fade-in-up');
     });
     
-    // Formatear número de documento mientras se escribe
-    numeroDocInput.addEventListener('input', function() {
-        const tipo = tipoDocSelect.value;
-        let value = this.value;
-        
-        // Solo permitir números para documentos numéricos
-        if (['CC', 'CE', 'NIT'].includes(tipo)) {
-            this.value = value.replace(/[^\d]/g, '');
-        }
+    // Efectos hover
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            if (!this.disabled) this.style.transform = 'translateY(-1px)';
+        });
+        btn.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
     });
     
-    // Mejorar UX del select
-    tipoDocSelect.addEventListener('change', function() {
-        if (this.value) {
-            this.classList.add('is-valid');
-            numeroDocInput.focus();
-        }
-    });
-    
-    // Auto-focus en el primer campo vacío
-    if (!tipoDocSelect.value) {
-        tipoDocSelect.focus();
-    } else if (!numeroDocInput.value) {
-        numeroDocInput.focus();
-    }
-    
-    // Prevenir envío de formulario con Enter en campos específicos
-    tipoDocSelect.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            numeroDocInput.focus();
-        }
-    });
-    
-    numeroDocInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            document.getElementById('contrasena').focus();
-        }
+    // Efectos focus
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentNode.style.transform = 'scale(1.01)';
+            this.parentNode.style.transition = 'transform 0.2s ease';
+        });
+        input.addEventListener('blur', function() {
+            this.parentNode.style.transform = 'scale(1)';
+        });
     });
 });
 
-// Personalizar el comportamiento del formulario
-document.querySelector('form[data-validate]').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const tipoDoc = document.getElementById('tipo_documento').value;
-    const numeroDoc = document.getElementById('numero_documento').value;
-    const password = document.getElementById('contrasena').value;
-    
-    // Validaciones básicas
-    if (!tipoDoc || !numeroDoc || !password) {
-        showNotification('Por favor completa todos los campos', 'warning');
-        return;
-    }
-    
-    // Validar formato del documento
-    const numeroDocInput = document.getElementById('numero_documento');
-    if (numeroDocInput.classList.contains('is-invalid')) {
-        showNotification('Por favor corrige el número de documento', 'danger');
-        numeroDocInput.focus();
-        return;
-    }
-    
-    // Mostrar estado de carga
-    setButtonLoading(submitBtn, true, 'Verificando credenciales...');
-    
-    // Enviar formulario (aquí se mantendría la lógica original del servidor)
-    this.submit();
-});
-</script>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-// Scripts adicionales específicos para login si son necesarios
-console.log('Login page loaded successfully');
+window.LoginManager = LoginManager;
 </script>
 {% endblock %}
