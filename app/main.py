@@ -26,6 +26,7 @@ from app.core.dependencias.dependencias import engine, Base
 from app.modules.autenticacion.interface.rutas import router as usuarios_router
 from app.modules.pertenencias.interface.rutas import router as pertenencias_router
 from app.modules.vehiculos.interface.rutas import router as vehiculos_router
+from app.routes.pages import router as pages_router
 
 from app.modules.qr_acceso.interface.rutas import router as qr_acceso_router
 
@@ -47,6 +48,9 @@ app.include_router(usuarios_router)
 app.include_router(pertenencias_router)
 app.include_router(vehiculos_router)
 app.include_router(qr_acceso_router)
+app.include_router(pages_router)
+
+
 
 # Ruta raíz
 @app.get("/", response_class=HTMLResponse)
