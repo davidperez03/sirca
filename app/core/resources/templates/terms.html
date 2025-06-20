@@ -1,0 +1,611 @@
+{% extends "base.html" %}
+
+{% block title %}Términos de Uso - SIRCA{% endblock %}
+
+{% block extra_head %}
+<style>
+.legal-hero {
+    background: linear-gradient(135deg, var(--secondary-700) 0%, var(--secondary-800) 50%, var(--primary-800) 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.legal-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.legal-content {
+    position: relative;
+    z-index: 2;
+}
+
+.legal-document {
+    background: white;
+    padding: 3rem;
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--secondary-200);
+    margin-bottom: 2rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.section-title {
+    color: var(--secondary-700);
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--secondary-200);
+}
+
+.section-title:first-of-type {
+    margin-top: 0;
+}
+
+.highlight-box {
+    background: var(--warning-light);
+    border-left: 4px solid var(--warning);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.important-notice {
+    background: var(--danger-light);
+    border-left: 4px solid var(--danger);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.definition-box {
+    background: var(--info-light);
+    border-left: 4px solid var(--info);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.last-updated {
+    background: var(--success-light);
+    color: var(--success-dark);
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+.table-of-contents {
+    background: var(--secondary-50);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 2rem;
+}
+
+.toc-list {
+    list-style: none;
+    padding: 0;
+}
+
+.toc-list li {
+    margin-bottom: 0.5rem;
+}
+
+.toc-list a {
+    color: var(--secondary-700);
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition-all);
+}
+
+.toc-list a:hover {
+    background: var(--secondary-200);
+    color: var(--secondary-900);
+    text-decoration: none;
+}
+
+.obligations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.obligation-card {
+    background: var(--secondary-50);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--secondary-200);
+    text-align: center;
+}
+
+.obligation-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-lg);
+    background: var(--secondary-700);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.25rem;
+}
+
+.prohibited-actions {
+    background: var(--danger-light);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    margin: 1.5rem 0;
+}
+
+.prohibited-list {
+    list-style: none;
+    padding: 0;
+}
+
+.prohibited-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--danger-dark);
+}
+
+.prohibited-list li::before {
+    content: '⚠️';
+    flex-shrink: 0;
+}
+
+.liability-section {
+    background: var(--warning-light);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    margin: 1.5rem 0;
+    border: 2px solid var(--warning);
+}
+
+.contact-legal {
+    background: var(--primary-50);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    margin: 2rem 0;
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="legal-hero">
+    <div class="container">
+        <div class="legal-content">
+            <i class="bi bi-file-text display-4 mb-3"></i>
+            <h1 class="display-5 fw-bold mb-3">Términos de Uso</h1>
+            <p class="lead mb-0">
+                Conoce las condiciones y términos que rigen el uso del Sistema SIRCA
+            </p>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="legal-document">
+        <div class="last-updated">
+            <i class="bi bi-calendar-check me-2"></i>
+            <strong>Última actualización:</strong> 20 de Junio de 2025
+        </div>
+
+        <!-- Tabla de Contenidos -->
+        <div class="table-of-contents">
+            <h3 class="mb-3"><i class="bi bi-list-ul me-2"></i>Tabla de Contenidos</h3>
+            <ul class="toc-list">
+                <li><a href="#aceptacion"><i class="bi bi-1-circle"></i> Aceptación de Términos</a></li>
+                <li><a href="#definiciones"><i class="bi bi-2-circle"></i> Definiciones</a></li>
+                <li><a href="#descripcion-servicio"><i class="bi bi-3-circle"></i> Descripción del Servicio</a></li>
+                <li><a href="#registro-cuenta"><i class="bi bi-4-circle"></i> Registro y Cuenta</a></li>
+                <li><a href="#uso-aceptable"><i class="bi bi-5-circle"></i> Uso Aceptable</a></li>
+                <li><a href="#obligaciones-usuario"><i class="bi bi-6-circle"></i> Obligaciones del Usuario</a></li>
+                <li><a href="#propiedad-intelectual"><i class="bi bi-7-circle"></i> Propiedad Intelectual</a></li>
+                <li><a href="#limitacion-responsabilidad"><i class="bi bi-8-circle"></i> Limitación de Responsabilidad</a></li>
+                <li><a href="#suspension-terminacion"><i class="bi bi-9-circle"></i> Suspensión y Terminación</a></li>
+                <li><a href="#ley-aplicable"><i class="bi bi-arrow-up-circle"></i> Ley Aplicable</a></li>
+                <li><a href="#contacto-legal"><i class="bi bi-envelope-exclamation"></i> Contacto Legal</a></li>
+            </ul>
+        </div>
+
+        <!-- 1. Aceptación de Términos -->
+        <section id="aceptacion">
+            <h2 class="section-title">1. Aceptación de Términos</h2>
+            
+            <div class="important-notice">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>IMPORTANTE:</strong> Al acceder y utilizar SIRCA, usted acepta estar legalmente 
+                obligado por estos Términos de Uso y nuestra Política de Privacidad.
+            </div>
+            
+            <p>
+                Estos Términos de Uso ("Términos") constituyen un acuerdo legal entre usted ("Usuario") 
+                y SIRCA ("nosotros", "nuestro", "Servicio"). Si no está de acuerdo con estos términos, 
+                debe abstenerse de usar nuestro sistema.
+            </p>
+            
+            <p>
+                Al registrarse, iniciar sesión o utilizar cualquier funcionalidad de SIRCA, 
+                usted confirma que:
+            </p>
+            <ul>
+                <li>Ha leído y comprendido estos Términos en su totalidad</li>
+                <li>Acepta cumplir con todas las obligaciones aquí establecidas</li>
+                <li>Tiene la capacidad legal para celebrar este acuerdo</li>
+                <li>Proporcionará información veraz y actualizada</li>
+            </ul>
+        </section>
+
+        <!-- 2. Definiciones -->
+        <section id="definiciones">
+            <h2 class="section-title">2. Definiciones</h2>
+            
+            <div class="definition-box">
+                <h5><i class="bi bi-book me-2"></i>Términos Clave</h5>
+                <dl class="row">
+                    <dt class="col-sm-3">SIRCA:</dt>
+                    <dd class="col-sm-9">Sistema de Registro, Control y Acceso desarrollado para gestión de seguridad empresarial</dd>
+                    
+                    <dt class="col-sm-3">Usuario:</dt>
+                    <dd class="col-sm-9">Cualquier persona que se registre y utilice los servicios de SIRCA</dd>
+                    
+                    <dt class="col-sm-3">Cuenta:</dt>
+                    <dd class="col-sm-9">Perfil personal creado por el Usuario para acceder al sistema</dd>
+                    
+                    <dt class="col-sm-3">Código QR:</dt>
+                    <dd class="col-sm-9">Código generado temporalmente para control de acceso a instalaciones</dd>
+                    
+                    <dt class="col-sm-3">Pertenencias:</dt>
+                    <dd class="col-sm-9">Objetos personales registrados por el Usuario en el sistema</dd>
+                    
+                    <dt class="col-sm-3">Organización:</dt>
+                    <dd class="col-sm-9">Entidad empresarial o institucional que implementa SIRCA</dd>
+                </dl>
+            </div>
+        </section>
+
+        <!-- 3. Descripción del Servicio -->
+        <section id="descripcion-servicio">
+            <h2 class="section-title">3. Descripción del Servicio</h2>
+            
+            <p>
+                SIRCA es un sistema integral de control de acceso que permite a las organizaciones 
+                gestionar de manera segura y eficiente el ingreso y salida de personal, así como 
+                el registro de pertenencias y vehículos.
+            </p>
+            
+            <h4>3.1 Funcionalidades Principales</h4>
+            <ul>
+                <li><strong>Gestión de Usuarios:</strong> Registro, autenticación y administración de cuentas</li>
+                <li><strong>Control de Acceso:</strong> Generación y validación de códigos QR temporales</li>
+                <li><strong>Registro de Pertenencias:</strong> Catalogación de objetos personales con fotografías</li>
+                <li><strong>Gestión de Vehículos:</strong> Registro y control de acceso vehicular</li>
+                <li><strong>Auditoría:</strong> Registro detallado de todos los accesos y movimientos</li>
+                <li><strong>Notificaciones:</strong> Comunicación automática por correo electrónico</li>
+            </ul>
+
+            <h4>3.2 Disponibilidad del Servicio</h4>
+            <p>
+                Nos esforzamos por mantener SIRCA disponible 24/7, pero no garantizamos disponibilidad 
+                ininterrumpida debido a mantenimientos programados, actualizaciones de seguridad o 
+                circunstancias imprevistas.
+            </p>
+        </section>
+
+        <!-- 4. Registro y Cuenta -->
+        <section id="registro-cuenta">
+            <h2 class="section-title">4. Registro y Cuenta</h2>
+            
+            <h4>4.1 Requisitos de Registro</h4>
+            <p>Para crear una cuenta en SIRCA, debe:</p>
+            <ul>
+                <li>Proporcionar información personal veraz y completa</li>
+                <li>Utilizar un documento de identificación válido</li>
+                <li>Tener un correo electrónico institucional válido</li>
+                <li>Crear una contraseña segura que cumpla nuestros estándares</li>
+                <li>Aceptar estos Términos de Uso y la Política de Privacidad</li>
+            </ul>
+
+            <h4>4.2 Responsabilidades de la Cuenta</h4>
+            <div class="highlight-box">
+                <i class="bi bi-key-fill me-2"></i>
+                <strong>Seguridad de la Cuenta:</strong> Usted es completamente responsable de mantener 
+                la confidencialidad de sus credenciales de acceso y de todas las actividades que 
+                ocurran bajo su cuenta.
+            </div>
+            
+            <p>El Usuario se compromete a:</p>
+            <ul>
+                <li>Mantener actualizada su información personal</li>
+                <li>Notificar inmediatamente cualquier uso no autorizado de su cuenta</li>
+                <li>No compartir sus credenciales con terceros</li>
+                <li>Cerrar sesión adecuadamente después de cada uso</li>
+            </ul>
+        </section>
+
+        <!-- 5. Uso Aceptable -->
+        <section id="uso-aceptable">
+            <h2 class="section-title">5. Uso Aceptable</h2>
+            
+            <h4>5.1 Usos Permitidos</h4>
+            <p>SIRCA debe utilizarse exclusivamente para:</p>
+            <ul>
+                <li>Control de acceso autorizado a instalaciones</li>
+                <li>Registro legítimo de pertenencias y vehículos personales</li>
+                <li>Cumplimiento de políticas de seguridad organizacional</li>
+                <li>Comunicación relacionada con el sistema</li>
+            </ul>
+
+            <h4>5.2 Conductas Prohibidas</h4>
+            <div class="prohibited-actions">
+                <h5 class="text-danger mb-3"><i class="bi bi-x-octagon-fill me-2"></i>Está Estrictamente Prohibido:</h5>
+                <ul class="prohibited-list">
+                    <li>Intentar acceder a cuentas de otros usuarios</li>
+                    <li>Compartir o transferir códigos QR a terceros</li>
+                    <li>Proporcionar información falsa o engañosa</li>
+                    <li>Intentar vulnerar la seguridad del sistema</li>
+                    <li>Usar el sistema para actividades ilegales</li>
+                    <li>Realizar ingeniería inversa del software</li>
+                    <li>Sobrecargar intencionalmente los servidores</li>
+                    <li>Extraer datos de manera automatizada</li>
+                    <li>Violar los derechos de propiedad intelectual</li>
+                    <li>Interferir con el funcionamiento normal del sistema</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 6. Obligaciones del Usuario -->
+        <section id="obligaciones-usuario">
+            <h2 class="section-title">6. Obligaciones del Usuario</h2>
+            
+            <div class="obligations-grid">
+                <div class="obligation-card">
+                    <div class="obligation-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h5>Veracidad</h5>
+                    <p>Proporcionar información verdadera y actualizada en todo momento</p>
+                </div>
+                
+                <div class="obligation-card">
+                    <div class="obligation-icon">
+                        <i class="bi bi-lock"></i>
+                    </div>
+                    <h5>Seguridad</h5>
+                    <p>Mantener confidenciales las credenciales y reportar incidentes de seguridad</p>
+                </div>
+                
+                <div class="obligation-card">
+                    <div class="obligation-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <h5>Cumplimiento</h5>
+                    <p>Respetar todos los términos, políticas y procedimientos establecidos</p>
+                </div>
+                
+                <div class="obligation-card">
+                    <div class="obligation-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h5>Respeto</h5>
+                    <p>Tratar con respeto al personal de seguridad y otros usuarios del sistema</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Propiedad Intelectual -->
+        <section id="propiedad-intelectual">
+            <h2 class="section-title">7. Propiedad Intelectual</h2>
+            
+            <h4>7.1 Derechos de SIRCA</h4>
+            <p>
+                Todos los derechos de propiedad intelectual sobre SIRCA, incluyendo pero no limitado a:
+            </p>
+            <ul>
+                <li>Código fuente y arquitectura del software</li>
+                <li>Diseño de interfaces y experiencia de usuario</li>
+                <li>Logos, marcas comerciales y elementos gráficos</li>
+                <li>Documentación técnica y de usuario</li>
+                <li>Algoritmos y metodologías implementadas</li>
+            </ul>
+            <p>Son propiedad exclusiva de los desarrolladores de SIRCA y están protegidos por las leyes de derechos de autor y propiedad intelectual aplicables.</p>
+
+            <h4>7.2 Derechos del Usuario</h4>
+            <p>
+                El Usuario conserva todos los derechos sobre la información personal que proporciona, 
+                incluidas fotografías de pertenencias y vehículos. Al usar SIRCA, otorga una licencia 
+                limitada para procesar esta información conforme a la Política de Privacidad.
+            </p>
+        </section>
+
+        <!-- 8. Limitación de Responsabilidad -->
+        <section id="limitacion-responsabilidad">
+            <h2 class="section-title">8. Limitación de Responsabilidad</h2>
+            
+            <div class="liability-section">
+                <h4 class="text-warning-dark mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Limitaciones Importantes
+                </h4>
+                
+                <h5>8.1 Limitaciones Generales</h5>
+                <p>SIRCA se proporciona "tal como está" y "según disponibilidad". No garantizamos que:</p>
+                <ul>
+                    <li>El servicio estará disponible ininterrumpidamente</li>
+                    <li>El sistema estará libre de errores o vulnerabilidades</li>
+                    <li>Los resultados obtenidos serán precisos o confiables</li>
+                    <li>Se cumplirán expectativas específicas del Usuario</li>
+                </ul>
+
+                <h5>8.2 Exclusiones de Responsabilidad</h5>
+                <p>En la máxima medida permitida por la ley, no seremos responsables por:</p>
+                <ul>
+                    <li>Daños directos, indirectos, incidentales o consecuenciales</li>
+                    <li>Pérdida de datos, ingresos o oportunidades comerciales</li>
+                    <li>Interrupción del servicio por mantenimiento o fallas técnicas</li>
+                    <li>Acciones de terceros o circunstancias fuera de nuestro control</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 9. Suspensión y Terminación -->
+        <section id="suspension-terminacion">
+            <h2 class="section-title">9. Suspensión y Terminación</h2>
+            
+            <h4>9.1 Terminación por el Usuario</h4>
+            <p>
+                Puede terminar su cuenta en cualquier momento contactando a nuestro equipo de soporte. 
+                La terminación será efectiva una vez que se procese la solicitud y se confirme por escrito.
+            </p>
+
+            <h4>9.2 Terminación por SIRCA</h4>
+            <p>Nos reservamos el derecho de suspender o terminar cuentas inmediatamente en caso de:</p>
+            <ul>
+                <li>Violación de estos Términos de Uso</li>
+                <li>Actividad fraudulenta o maliciosa</li>
+                <li>Uso indebido del sistema</li>
+                <li>Incumplimiento de políticas organizacionales</li>
+                <li>Requerimientos legales o regulatorios</li>
+            </ul>
+
+            <h4>9.3 Efectos de la Terminación</h4>
+            <div class="highlight-box">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Importante:</strong> Una vez terminada la cuenta, perderá acceso a todos los 
+                servicios y datos asociados. Algunos datos pueden conservarse conforme a requisitos 
+                legales o de auditoría.
+            </div>
+        </section>
+
+        <!-- 10. Ley Aplicable -->
+        <section id="ley-aplicable">
+            <h2 class="section-title">10. Ley Aplicable y Jurisdicción</h2>
+            
+            <h4>10.1 Ley Aplicable</h4>
+            <p>
+                Estos Términos se rigen por las leyes de la República de Colombia, sin consideración 
+                a principios de conflictos de leyes.
+            </p>
+
+            <h4>10.2 Resolución de Disputas</h4>
+            <p>
+                Cualquier disputa relacionada con estos Términos será sometida a la jurisdicción 
+                exclusiva de los tribunales competentes de Bogotá, Colombia.
+            </p>
+
+            <h4>10.3 Separabilidad</h4>
+            <p>
+                Si alguna disposición de estos Términos se considera inválida o inaplicable, 
+                las disposiciones restantes permanecerán en pleno vigor y efecto.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Smooth scrolling para la tabla de contenidos
+    const tocLinks = document.querySelectorAll('.toc-list a');
+    tocLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                const headerOffset = 100;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    // Highlight current section
+    const sections = document.querySelectorAll('section[id]');
+    const tocLinksArray = Array.from(tocLinks);
+    
+    function highlightCurrentSection() {
+        let currentSection = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.getBoundingClientRect().top;
+            if (sectionTop <= 150) {
+                currentSection = section.getAttribute('id');
+            }
+        });
+        
+        tocLinksArray.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${currentSection}`) {
+                link.classList.add('active');
+                link.style.background = 'var(--secondary-700)';
+                link.style.color = 'white';
+            } else {
+                link.style.background = '';
+                link.style.color = '';
+            }
+        });
+    }
+    
+    window.addEventListener('scroll', highlightCurrentSection);
+    highlightCurrentSection();
+
+    // Animación de entrada para las cards
+    const observeCards = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeInUp 0.6s ease-out';
+            }
+        });
+    });
+
+    document.querySelectorAll('.obligation-card').forEach(card => {
+        observeCards.observe(card);
+    });
+
+    // Efecto de hover mejorado para elementos importantes
+    const importantBoxes = document.querySelectorAll('.important-notice, .prohibited-actions, .liability-section');
+    importantBoxes.forEach(box => {
+        box.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+        
+        box.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

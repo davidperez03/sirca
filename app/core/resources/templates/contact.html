@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+{% block title %}Contacto - SIRCA{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Hero section */
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+        color: white;
+        padding: 4rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Contact info cards */
+    .contact-info-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+        border-left: 4px solid var(--primary-600);
+        transition: var(--transition-all);
+    }
+
+    .contact-info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .contact-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        margin: 0 auto 1rem;
+    }
+
+    /* Contact form */
+    .contact-form {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: var(--radius-lg);
+        padding: 0.75rem 1rem;
+        transition: var(--transition-all);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-600);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border: none;
+        border-radius: var(--radius-lg);
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: var(--transition-all);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    /* Feature cards */
+    .feature-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        transition: var(--transition-all);
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Animation */
+    .fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up:nth-child(1) { animation-delay: 0.1s; }
+    .fade-in-up:nth-child(2) { animation-delay: 0.2s; }
+    .fade-in-up:nth-child(3) { animation-delay: 0.3s; }
+    .fade-in-up:nth-child(4) { animation-delay: 0.4s; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 3rem 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content text-center">
+            <h1 class="display-4 fw-bold mb-4 fade-in-up">Contáctanos</h1>
+            <p class="lead mb-0 fade-in-up">Estamos aquí para ayudarte. Conecta con nuestro equipo</p>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Info -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="contact-info-card fade-in-up">
+                    <div class="contact-icon">
+                        <i class="bi bi-envelope"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Email</h5>
+                    <p class="text-muted mb-1">contacto@sirca.com</p>
+                    <p class="text-muted mb-0">soporte@sirca.com</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="contact-info-card fade-in-up">
+                    <div class="contact-icon">
+                        <i class="bi bi-telephone"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Teléfono</h5>
+                    <p class="text-muted mb-1">+57 (601) 234-5678</p>
+                    <p class="text-muted mb-0">+57 310 123-4567</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="contact-info-card fade-in-up">
+                    <div class="contact-icon">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Ubicación</h5>
+                    <p class="text-muted mb-1">Bogotá, Colombia</p>
+                    <p class="text-muted mb-0">Carrera 7 #32-45, Oficina 501</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="contact-form fade-in-up">
+                    <h3 class="h2 fw-bold text-center mb-4">Envíanos un mensaje</h3>
+                    
+                    {% if mensaje %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>{{ mensaje }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endif %}
+
+                    {% if error %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" id="contactForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label fw-semibold">Nombre completo</label>
+                                <input type="text" class="form-control" name="nombre" id="nombre" 
+                                       value="{{ form_data.nombre or '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label fw-semibold">Email</label>
+                                <input type="email" class="form-control" name="email" id="email" 
+                                       value="{{ form_data.email or '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="telefono" class="form-label fw-semibold">Teléfono</label>
+                                <input type="tel" class="form-control" name="telefono" id="telefono"
+                                       value="{{ form_data.telefono or '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="empresa" class="form-label fw-semibold">Empresa</label>
+                                <input type="text" class="form-control" name="empresa" id="empresa"
+                                       value="{{ form_data.empresa or '' }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="asunto" class="form-label fw-semibold">Asunto</label>
+                                <select class="form-control" name="asunto" id="asunto" required>
+                                    <option value="">Selecciona un asunto</option>
+                                    <option value="consulta" {% if form_data.asunto == 'consulta' %}selected{% endif %}>Consulta general</option>
+                                    <option value="soporte" {% if form_data.asunto == 'soporte' %}selected{% endif %}>Soporte técnico</option>
+                                    <option value="ventas" {% if form_data.asunto == 'ventas' %}selected{% endif %}>Información de ventas</option>
+                                    <option value="demo" {% if form_data.asunto == 'demo' %}selected{% endif %}>Solicitar demo</option>
+                                    <option value="partnership" {% if form_data.asunto == 'partnership' %}selected{% endif %}>Asociaciones</option>
+                                    <option value="otro" {% if form_data.asunto == 'otro' %}selected{% endif %}>Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="mensaje" class="form-label fw-semibold">Mensaje</label>
+                                <textarea class="form-control" name="mensaje" id="mensaje" rows="5" required 
+                                          placeholder="Describe tu consulta o necesidad...">{{ form_data.mensaje or '' }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="acepto" id="acepto" required>
+                                    <label class="form-check-label" for="acepto">
+                                        Acepto los <a href="/terms" class="text-primary">términos y condiciones</a> y la <a href="/privacy" class="text-primary">política de privacidad</a>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    <i class="bi bi-send me-2"></i>Enviar mensaje
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="h1 fw-bold text-dark mb-3">Preguntas Frecuentes</h2>
+            <p class="lead text-muted">Encuentra respuestas rápidas a las consultas más comunes</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                ¿Qué es SIRCA y cómo funciona?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                SIRCA es un sistema integral de control de acceso que utiliza códigos QR dinámicos para gestionar el ingreso y salida de personal, así como el registro de pertenencias y vehículos. Funciona generando códigos únicos y temporales para cada usuario.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                ¿Es seguro el sistema?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Sí, utilizamos cifrado de extremo a extremo, tokens JWT seguros, y toda la información se almacena de forma encriptada. Cumplimos con estándares internacionales de seguridad y realizamos auditorías regulares.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                ¿Cuánto tiempo duran los códigos QR?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Los códigos QR son temporales y pueden configurarse entre 5 minutos y 60 minutos según las necesidades de seguridad de cada organización. Una vez utilizados, se invalidan automáticamente.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                ¿Puedo usar SIRCA en mi smartphone?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Absolutamente. SIRCA está diseñado con un enfoque mobile-first y funciona perfectamente en smartphones, tablets y computadores. No requiere instalación de apps adicionales.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item border-0 mb-3 shadow-sm rounded-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                ¿Ofrecen soporte técnico?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted">
+                                Sí, ofrecemos soporte técnico 24/7 a través de múltiples canales: chat en vivo, email, teléfono y nuestro portal de soporte. También proporcionamos documentación completa y videos tutoriales.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Support Hours -->
+<section class="py-5" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+    <div class="container">
+        <div class="text-center">
+            <h3 class="h2 fw-bold text-dark mb-4">Horarios de Atención</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <h5 class="fw-bold">Chat en Vivo</h5>
+                        <p class="text-muted mb-0">24/7 - Respuesta inmediata</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-telephone"></i>
+                        </div>
+                        <h5 class="fw-bold">Soporte Telefónico</h5>
+                        <p class="text-muted mb-0">Lun - Vie: 8:00 AM - 6:00 PM</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-envelope"></i>
+                        </div>
+                        <h5 class="fw-bold">Email</h5>
+                        <p class="text-muted mb-0">Respuesta en menos de 2 horas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in-up').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Form submission handling
+    const form = document.getElementById('contactForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Enviando...';
+            submitBtn.disabled = true;
+
+            // El formulario se enviará normalmente al backend
+            // El estado de loading se restablecerá en la respuesta
+        });
+    }
+});
+</script>
+{% endblock %}

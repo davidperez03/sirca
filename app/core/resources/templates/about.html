@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block title %}Acerca de SIRCA{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Hero section */
+    .hero-section {
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+        color: white;
+        padding: 4rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Feature cards */
+    .feature-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        transition: var(--transition-all);
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Stats section */
+    .stats-section {
+        background: linear-gradient(135deg, var(--secondary-800), var(--secondary-900));
+        color: white;
+        padding: 3rem 0;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--primary-100);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    /* Timeline */
+    .timeline {
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, var(--primary-600), var(--primary-700));
+        transform: translateX(-50%);
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 3rem;
+    }
+
+    .timeline-content {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-lg);
+        width: 45%;
+        position: relative;
+    }
+
+    .timeline-item:nth-child(odd) .timeline-content {
+        margin-left: auto;
+        margin-right: 55%;
+    }
+
+    .timeline-item:nth-child(even) .timeline-content {
+        margin-right: auto;
+        margin-left: 55%;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: 50%;
+        top: 1rem;
+        width: 20px;
+        height: 20px;
+        background: var(--primary-600);
+        border-radius: 50%;
+        transform: translateX(-50%);
+        border: 4px solid white;
+        box-shadow: var(--shadow-lg);
+    }
+
+    /* Team cards */
+    .team-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+        transition: var(--transition-all);
+    }
+
+    .team-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .team-avatar {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--primary-600), var(--info));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0 auto 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 3rem 0;
+        }
+
+        .timeline::before {
+            left: 2rem;
+        }
+
+        .timeline-content {
+            width: 100% !important;
+            margin-left: 4rem !important;
+            margin-right: 0 !important;
+        }
+
+        .timeline-dot {
+            left: 2rem !important;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+    }
+
+    /* Animation */
+    .fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up:nth-child(1) { animation-delay: 0.1s; }
+    .fade-in-up:nth-child(2) { animation-delay: 0.2s; }
+    .fade-in-up:nth-child(3) { animation-delay: 0.3s; }
+    .fade-in-up:nth-child(4) { animation-delay: 0.4s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content text-center">
+            <h1 class="display-4 fw-bold mb-4 fade-in-up">Acerca de SIRCA</h1>
+            <p class="lead mb-0 fade-in-up">Sistema Integral de Registro, Control y Acceso empresarial moderno y seguro</p>
+        </div>
+    </div>
+</section>
+
+<!-- Mission & Vision -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="bi bi-bullseye"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Nuestra Misión</h3>
+                    <p class="text-muted">
+                        Desarrollar soluciones tecnológicas innovadoras que optimicen el control de acceso y la gestión de pertenencias en organizaciones, garantizando seguridad, eficiencia y transparencia en todos los procesos.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="bi bi-eye"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Nuestra Visión</h3>
+                    <p class="text-muted">
+                        Ser la plataforma líder en sistemas de control de acceso empresarial en Colombia, reconocida por nuestra innovación tecnológica, facilidad de uso y compromiso con la seguridad digital.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="h1 fw-bold text-dark mb-3">¿Por qué elegir SIRCA?</h2>
+            <p class="lead text-muted">Características que nos hacen únicos</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <h4 class="mb-3">Seguridad Avanzada</h4>
+                    <p class="text-muted">Cifrado de extremo a extremo, autenticación multifactor y protocolos de seguridad de nivel empresarial.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="bi bi-qr-code"></i>
+                    </div>
+                    <h4 class="mb-3">Códigos QR Dinámicos</h4>
+                    <p class="text-muted">Generación automática de códigos QR temporales con validación en tiempo real y control de acceso inteligente.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="bi bi-phone"></i>
+                    </div>
+                    <h4 class="mb-3">Móvil Responsivo</h4>
+                    <p class="text-muted">Acceso completo desde cualquier dispositivo con interfaz optimizada para smartphones y tablets.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h4 class="mb-3">Análisis en Tiempo Real</h4>
+                    <p class="text-muted">Dashboard con métricas en vivo, reportes detallados y alertas automáticas para mejor control.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="bi bi-cloud"></i>
+                    </div>
+                    <h4 class="mb-3">Cloud Native</h4>
+                    <p class="text-muted">Arquitectura moderna en la nube con alta disponibilidad, escalabilidad automática y backups continuos.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h4 class="mb-3">Gestión Multiusuario</h4>
+                    <p class="text-muted">Control granular de permisos, roles personalizables y administración centralizada de usuarios.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-item fade-in-up">
+                    <div class="stat-number">99.9%</div>
+                    <div class="stat-label">Uptime Garantizado</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item fade-in-up">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Soporte Técnico</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item fade-in-up">
+                    <div class="stat-number">ISO 27001</div>
+                    <div class="stat-label">Certificación de Seguridad</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="h1 fw-bold text-dark mb-3">Nuestro Equipo</h2>
+            <p class="lead text-muted">Los desarrolladores detrás de SIRCA</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="team-card fade-in-up">
+                    <div class="team-avatar">DP</div>
+                    <h5 class="fw-bold">DAVID PEREZ</h5>
+                    <p class="text-primary mb-2">Desarrollador & Fundador</p>
+                    <p class="text-muted small">Analisis y desarrollo de software.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="team-card fade-in-up">
+                    <div class="team-avatar">BO</div>
+                    <h5 class="fw-bold">BIBIANA ORTEGON</h5>
+                    <p class="text-primary mb-2">Instructor</p>
+                    <p class="text-muted small">Ingeniera de sistemas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in-up').forEach(el => {
+        observer.observe(el);
+    });
+});
+</script>
+{% endblock %}
